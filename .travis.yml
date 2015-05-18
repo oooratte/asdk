@@ -1,6 +1,19 @@
 language: java
+
 jdk:
   - oraclejdk7
   - oraclejdk8
   - openjdk6
   - openjdk7
+
+script:
+    mvn -B -U -f pom-aggregator/pom.xml clean test
+
+after_success:
+
+after_failure:
+
+notifications:
+
+email:
+    - ci@as-development.net
