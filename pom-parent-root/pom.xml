@@ -1,0 +1,244 @@
+<!-- ===============================================================
+     root of the whole pom hierarchy.
+     
+     HAS NOT TO BE USED DIRECLY WITHIN YOUR PROJECT ! 
+     USE DERIVED POM-NATURES INSTEAD !
+     
+     Features of this pom:
+     
+     a) define global settings as e.g. groupid and version (!)
+     b) define meta data like organization, urls for important resources etc.
+  -->
+<project
+    xmlns             ="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi         ="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+                        http://maven.apache.org/maven-v4_0_0.xsd"
+>
+	<modelVersion>4.0.0</modelVersion>
+
+    <!-- ===========================================================
+      -->
+	<groupId>net.as-development</groupId>
+	<artifactId>pom-parent-root</artifactId>
+	<version>1.0.0</version>
+    <packaging>pom</packaging>
+
+    <!-- ===========================================================
+      -->
+    <organization>
+        <name>AS-Development</name>
+    	<url>http://as-development.net</url>
+    </organization>
+
+    <!-- ===========================================================
+      -->
+    <licenses>
+        <license>
+            <name>asdev-license</name>
+            <url>http://as-development.net/licenses/asdev-license.html</url>
+            <distribution>repo</distribution>
+            <comments>
+<![CDATA[
+ * Copyright (c) 2009-TO-ALL-ETERNITY Andreas Schlüns. All rights reserved.
+ * http://www.as-development.net
+ *  
+ * For information about the licensing and copyright of this code
+ * please contact me at info@as-development.net.
+]]>
+            </comments>
+        </license>
+    </licenses>
+
+    <!-- ===========================================================
+      -->
+    <issueManagement>
+        <system>Bugzilla</system>
+    	<url>https://bugs.as-development.net</url>
+    </issueManagement>
+
+    <!-- ===========================================================
+      -->
+    <ciManagement>
+    	<system>Jenkins</system>
+    	<url>http://jenkins.as-development.net</url>
+    </ciManagement>
+    
+    <!-- ===========================================================
+      -->
+    <repositories>
+    <!--
+        <repository>
+            <id>repo-asdev-dependencies</id>
+            <name>ASDev Artifacts</name>
+            <url>http://maven.as-development.net/nexus/content/groups/public/</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+    -->    
+
+        <repository>
+            <id>repo-sonatype-snapshots</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+
+        <repository>
+            <id>repo-sonatype-releases</id>
+            <url>https://oss.sonatype.org/content/repositories/releases/</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+
+<!-- https://code.google.com/p/mc-artifacts/ -->
+<!--
+        <repository>
+           <id>mc-libs-releases</id>
+           <name>libs-release</name>
+           <url>http://mc-artifacts.googlecode.com/svn/trunk/lib/mc-release/</url>
+           <snapshots>
+	           <enabled>false</enabled>
+           </snapshots>
+           <releases>
+	           <enabled>true</enabled>
+           </releases>
+        </repository>
+
+        <repository>
+           <id>mc-libs-snapshots</id>
+           <name>libs-snapshot</name>
+           <url>http://mc-artifacts.googlecode.com/svn/trunk/lib/mc-snapshot/</url>
+           <snapshots>
+	           <enabled>true</enabled>
+           </snapshots>
+           <releases>
+	          <enabled>false</enabled>
+           </releases>
+        </repository>
+
+        <repository>
+           <id>mc-extlibs-releases</id>
+           <name>mc-extlibs-releasees</name>
+           <url>http://mc-artifacts.googlecode.com/svn/trunk/lib/ext-release/</url>
+           <snapshots>
+               <enabled>false</enabled>
+           </snapshots>
+           <releases>
+               <enabled>true</enabled>
+           </releases>
+        </repository>
+        
+        <repository>
+           <id>mc-extlibs-snapshots</id>
+           <name>mc-extlibs-snapshots</name>
+           <url>http://mc-artifacts.googlecode.com/svn/trunk/lib/ext-snapshot/</url>
+           <snapshots>
+               <enabled>true</enabled>
+           </snapshots>
+           <releases>
+               <enabled>false</enabled>
+           </releases>
+        </repository>
+ -->
+    </repositories>
+
+    <pluginRepositories>
+    <!--
+        <pluginRepository>
+            <id>repo-asdev-plugins</id>
+            <name>ASDev Plugins</name>
+            <url>http://maven.as-development.net/nexus/content/groups/public/</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </pluginRepository>
+    -->    
+
+        <pluginRepository>
+            <id>pluginrepo-sonatype-snapshots</id>
+            <name>Sonatype Plugins</name>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </pluginRepository>
+        
+        <pluginRepository>
+            <id>pluginrepo-sonatype-releases</id>
+            <name>Sonatype Plugins</name>
+            <url>https://oss.sonatype.org/content/repositories/releases</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </pluginRepository>
+<!--
+        <pluginRepository>
+            <id>mc-plugins-releases</id>
+            <name>plugins-release</name>
+            <url>http://mc-artifacts.googlecode.com/svn/trunk/plugin/mc-release/</url>
+	        <snapshots>
+    	        <enabled>false</enabled>
+	        </snapshots>
+	        <releases>
+	           <enabled>true</enabled>
+	        </releases>
+        </pluginRepository>
+
+        <pluginRepository>
+	        <id>mc-plugins-snapshots</id>
+	        <name>plugins-snapshot</name>
+	        <url>http://mc-artifacts.googlecode.com/svn/trunk/plugin/mc-snapshot/</url>
+	        <snapshots>
+		        <enabled>true</enabled>
+	        </snapshots>
+	        <releases>
+	            <enabled>false</enabled>
+	        </releases>
+        </pluginRepository>
+
+        <pluginRepository>
+            <id>mc-extplugins-releases</id>
+            <name>mc-extplugins-releases</name>
+            <url>http://mc-artifacts.googlecode.com/svn/trunk/plugin/ext-release/</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <releases>
+               <enabled>true</enabled>
+            </releases>
+        </pluginRepository>
+        
+        <pluginRepository>
+            <id>mc-extplugins-snapshots</id>
+            <name>mc-extplugins-snapshots</name>
+            <url>http://mc-artifacts.googlecode.com/svn/trunk/plugin/ext-snapshot/</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+        </pluginRepository>
+         -->
+    </pluginRepositories>
+
+    <!-- ===========================================================
+      -->
+    <distributionManagement>
+        <repository>
+           <id>deploy-releases</id>
+           <name>Internal Releases</name>
+           <url>http://maven.as-development.net/nexus/content/repositories/releases/</url>
+        </repository>
+        <snapshotRepository>
+           <id>deploy-snapshots</id>
+           <name>Internal Snapshots</name>
+           <url>http://maven.as-development.net/nexus/content/repositories/snapshots/</url>
+        </snapshotRepository>
+    </distributionManagement>
+    
+</project>
