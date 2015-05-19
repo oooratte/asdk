@@ -2,12 +2,13 @@ language: java
 
 jdk:
   - oraclejdk7
-  - oraclejdk8
-  - openjdk6
-  - openjdk7
+#  - oraclejdk8
+#  - openjdk6
+#  - openjdk7
 
 script:
-    mvn -B -U -f pom-aggregator/pom.xml clean test
+    mvn -version;
+    mvn -B -U -f pom-aggregator/pom.xml clean test;
 
 after_success:
 
