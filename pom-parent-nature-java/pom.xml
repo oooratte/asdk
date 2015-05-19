@@ -32,7 +32,7 @@
 	<parent>
 	    <groupId>net.as-development</groupId>
 	    <artifactId>pom-parent-nature-all</artifactId>
-	    <version>1.1.0</version>
+	    <version>1.1.0-SNAPSHOT</version>
 	    <relativePath>../pom-parent-nature-all</relativePath>
 	</parent>
 
@@ -42,6 +42,13 @@
       -->
 	<artifactId>pom-parent-nature-java</artifactId>
     <packaging>pom</packaging>
+
+    <!-- ===========================================================
+      -->
+    <properties>
+	    <surefire.fork-count>1</surefire.fork-count>
+    	<surefire.thread-count>1</surefire.thread-count>
+    </properties>
 
     <!-- ===========================================================
          define which dependencies in which version has to be used
@@ -444,7 +451,7 @@
 	                     to understand those settings and which combinations can work and which not :-)
                       -->
 
-					<forkCount>2</forkCount>
+					<forkCount>${surefire.fork-count}</forkCount>
 					<reuseForks>false</reuseForks>
 					
 					<!-- Hard Tobacco .-)
@@ -459,7 +466,7 @@
 					
                     <argLine>-Xms${generic.mem.min} -Xmx${generic.mem.max} -XX:MaxPermSize=256m -XX:-UseSplitVerifier -javaagent:${settings.localRepository}/org/powermock/powermock-module-javaagent/${version.test.powermock}/powermock-module-javaagent-${version.test.powermock}.jar</argLine>
                     <useUnlimitedThreads>false</useUnlimitedThreads>
-                    <threadCount>10</threadCount>
+                    <threadCount>${surefire.thread-count}</threadCount>
 	                <parallel>methods</parallel>
 	            </configuration>
 	        </plugin>
