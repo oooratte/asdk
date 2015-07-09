@@ -161,6 +161,14 @@ public class ProcessUtils
 		             sValue  = StringUtils.substringAfter (sValue, "\n");
 		             sValue  = StringUtils.substringBefore(sValue, "\n");
 		             sValue  = StringUtils.trimToNull     (sValue);
+		
+		if (StringUtils.isEmpty(sValue))
+			return null;
+		             
+		long nKB    = Long.parseLong(sValue);
+		long nB     = nKB * 1024;
+		     sValue = Long.toString(nB);
+		
 		return sValue;
 	}
 }
