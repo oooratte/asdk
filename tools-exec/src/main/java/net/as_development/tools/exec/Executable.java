@@ -26,14 +26,17 @@ import java.util.concurrent.CountDownLatch;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import net.as_development.tools.exec.impl.ExecutableStreamReader;
-import net.as_development.tools.exec.impl.ExecutableWatch;
-import net.as_development.tools.exec.impl.GlobalPidProcessHandler;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.apache.commons.lang3.mutable.Mutable;
 import org.apache.commons.lang3.mutable.MutableObject;
+
+import com.jezhumble.javasysmon.JavaSysMon;
+import com.jezhumble.javasysmon.OsProcess;
+import com.jezhumble.javasysmon.ProcessInfo;
+import net.as_development.tools.exec.impl.ExecutableStreamReader;
+import net.as_development.tools.exec.impl.ExecutableWatch;
+import net.as_development.tools.exec.impl.GlobalPidProcessHandler;
 
 //==============================================================================
 /**
@@ -226,6 +229,22 @@ public class Executable implements Runnable
     	return m_nProcessPid;
     }
     
+    //--------------------------------------------------------------------------
+    public Long getMemResidentSetSize ()
+    	throws Exception
+    {
+    	final Long nValue = ProcessUtils.getProcessResidentSetSize(m_nProcessPid);
+    	return nValue;
+    }
+    
+    //--------------------------------------------------------------------------
+    public long getMemVirtualSize ()
+    	throws Exception
+    {
+    	final Long nValue = ProcessUtils.getProcessResidentSetSize(m_nProcessPid);
+    	return nValue;
+    }
+
     //--------------------------------------------------------------------------
     public boolean isAlive ()
     	throws Exception
