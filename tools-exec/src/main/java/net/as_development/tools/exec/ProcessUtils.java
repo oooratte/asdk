@@ -163,17 +163,4 @@ public class ProcessUtils
 		             sValue  = StringUtils.trimToNull     (sValue);
 		return sValue;
 	}
-
-	//--------------------------------------------------------------------------
-	public static void main (final String[] lArgs)
-		throws Exception
-	{
-		int nPid = ProcessUtils.getPidOfThis();
-		System.out.println ("RSS : "+ProcessUtils.getProcessResidentSetSize (nPid));
-		System.out.println ("VSZ : "+ProcessUtils.getProcessVirtualSize     (nPid));
-	
-		nPid = 68789;
-		System.out.println ("RSS : "+ProcessUtils.getProcessResidentSetSize (nPid));
-		System.out.println ("VSZ : "+ProcessUtils.getProcessVirtualSize     (nPid));
-	}
 }
