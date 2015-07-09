@@ -67,7 +67,7 @@ public class ProcessUtilsTest
 		throws Exception
 	{
 		final Integer nPid = ProcessUtils.getPidOfThis();
-		final Long    nVSZ = ProcessUtils.getProcessVirtualSize (nPid);
+		final Long    nVSZ = ProcessUtils.getProcessVirtualSetSize (nPid);
 		Assert.assertNotNull("testGetVSZ [01]", nVSZ    );
 		Assert.assertTrue   ("testGetVSZ [02]", nVSZ > 0);
 	}
@@ -88,7 +88,7 @@ public class ProcessUtilsTest
 		throws Exception
 	{
 		final Integer nPid = GlobalPidProcessHandler.INVALID_PID;
-		final Long    nVSZ = ProcessUtils.getProcessVirtualSize (nPid);
+		final Long    nVSZ = ProcessUtils.getProcessVirtualSetSize (nPid);
 		Assert.assertNull("testRobustnessVSZ [01]", nVSZ);
 	}
 }

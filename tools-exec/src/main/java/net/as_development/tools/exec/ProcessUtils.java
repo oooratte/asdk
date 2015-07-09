@@ -66,7 +66,7 @@ public class ProcessUtils
 	}
 
 	//--------------------------------------------------------------------------
-	public static Long getProcessVirtualSize (final int nPid)
+	public static Long getProcessVirtualSetSize (final int nPid)
 	    throws Exception
 	{
 		String sVSZ = impl_getSingleProcessInfoJSMON (nPid, PINFO_VSZ);
