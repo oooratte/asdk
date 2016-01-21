@@ -1,18 +1,20 @@
 <!--
 
-    Copyright 2012 Andreas Schlüns - as-development.net
-
-    Licensed under the Apache License, Version 2.0 (the "License");
+    Licensed to the Apache Software Foundation (ASF) under one
+    or more contributor license agreements. See the NOTICE file
+    distributed with this work for additional information
+    regarding copyright ownership. The ASF licenses this file
+    to you under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
     You may obtain a copy of the License at
 
-        http://www.apache.org/licenses/LICENSE-2.0
+      http://www.apache.org/licenses/LICENSE-2.0
 
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License.
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+    either express or implied. See the License for the specific
+    language governing permissions and limitations under the License.
 
 -->
 <!-- ===============================================================
@@ -88,23 +90,31 @@
         <version.commons.collections>3.2.1</version.commons.collections>
         <version.commons.configuration>1.10</version.commons.configuration>
         <version.commons.beanutils>1.9.2</version.commons.beanutils>
-        <version.hazelcast>3.3-EA</version.hazelcast>
+        <version.commons.compress>1.10</version.commons.compress>
 
         <version.aspectj>1.8.0</version.aspectj>
 
         <version.slf4j>1.7.7</version.slf4j>
         <version.logback>1.1.2</version.logback>
 
+        <version.hazelcast>3.3-EA</version.hazelcast>
+
         <version.aws.sdk>1.3.3</version.aws.sdk>
+
         <version.mongodb>2.13.1</version.mongodb>
         <version.derby>10.11.1.1</version.derby>
         <version.hsqldb>2.3.2</version.hsqldb>
+
         <version.opencsv>2.3</version.opencsv>
 
         <version.javasysmon>0.3.4</version.javasysmon>
+
         <version.amq>5.9.0</version.amq>
         <version.spring>3.2.4.RELEASE</version.spring>
         <version.camel>2.12.1</version.camel>
+        
+        <version.jsch>0.1.53</version.jsch>
+        <version.reflections>0.9.10</version.reflections>
         
         <!-- versions : test env -->
 

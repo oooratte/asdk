@@ -28,6 +28,8 @@
 
         <module>../service-env</module>
         <module>../sql-server</module>
+        <module>../ssh</module>
+        <module>../sdt</module>
 	</modules>
 
 </project>
