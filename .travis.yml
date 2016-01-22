@@ -8,7 +8,7 @@ jdk:
 
 script:
     mvn -version;
-    mvn -B -U -f pom-aggregator/pom.xml clean test;
+    mvn -B -U -f pom-aggregator/pom.xml clean test -DTRAVIS_CI;
 
 after_success:
 
