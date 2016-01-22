@@ -17,8 +17,13 @@
 # language governing permissions and limitations under the License.
 #
 
+# break on errors
 
 set -e
+
+# pass the whole environment to subshells !
+# e.g. run-scriptlet needs our environment variables ...
+
 set -o allexport
 
 #-----------------------------------------------------------------------------------------
@@ -68,6 +73,9 @@ echo "... load framework libs"
 . $SDT_HOME/lib/lib.sh
 
 #-----------------------------------------------------------------------------------------
+echo "... define functions"
+
+#-----------------------------------------------------------------------------------------
 function sdt_show_help ()
 {
     lib_log_info " "
@@ -114,6 +122,8 @@ function sdt_run_scriptlet ()
 # - but collect all 'unknown' parameter also
 # - those 'unknown' parameter has might to be passed to another script then
 
+echo "... parse command line"
+
 ARG_RUN_SCRIPTLET=
 ARG_LIST_OF_UNKNOWNS=
 
@@ -141,15 +151,21 @@ done
 
 #-----------------------------------------------------------------------------------------
 
-lib_log_set_level $LIB_LOG_LEVEL_TRACE
+echo "... init logging"
+
+# TODO use command line parameter to define log level from outside
+
+lib_log_set_level $LIB_LOG_LEVEL_INFO
 
 #-----------------------------------------------------------------------------------------
 # MAIN
+
+echo "... do main"
 
 if [ ! -z "${ARG_RUN_SCRIPTLET}" ];
 then
     sdt_run_scriptlet "${ARG_RUN_SCRIPTLET}" "${ARG_LIST_OF_UNKNOWNS}"
 fi
 
-exit 1
+exit 0
 
