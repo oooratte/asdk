@@ -75,6 +75,19 @@ public class SDT
 	}
 
 	//-------------------------------------------------------------------------
+	/** easy adding of more then one node at the same time
+	 * 
+	 *  @param	lNodes [IN]
+	 *  		the list of nodes.
+	 */
+	public void addNodes (final Node... lNodes)
+		throws Exception
+	{
+		for (final Node aNode : lNodes)
+			addNode (aNode);
+	}
+
+	//-------------------------------------------------------------------------
 	/** deploy all registered nodes.
 	 *  Use the configured deployment strategy.
 	 *  

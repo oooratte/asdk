@@ -17,25 +17,38 @@
 # language governing permissions and limitations under the License.
 #
 
-
 set -e
-#set -x
 
 #-----------------------------------------------------------------------------------------
+# replace all occurrence of a variable inside the given file
+#
+# Variables inside those file has to be define by using the following schema:
+# %[[VAR]]%
+#
+# @param 1 : string 'file' [IN]
+#           the absolute path and name of the file where those variables should be replaced
+#
+# @param 2 : string 'var' [IN]
+#           the variable name to be replaced
+#
+# @param 3 : string 'value' [IN]
+#           the new replacement value
+#
+
 function lib_config_replace_var_in_file()
 {
 	local v_file="$1"
-	local v_key="$2"
+	local v_var="$2"
 	local v_value="$3"
 
-	test -z "$v_file"  && lib_log_error "Illegal argument 'file'."  && exit 1
-	test -z "$v_key"   && lib_log_error "Illegal argument 'key'."   && exit 1
-	test -z "$v_value" && lib_log_error "Illegal argument 'value'." && exit 1
+	lib_validate_var_is_set "v_file"  "Illegal argument 'file'."
+	lib_validate_var_is_set "v_var"   "Illegal argument 'var'."
+	lib_validate_var_is_set "v_value" "Illegal argument 'value'."
 	
- 	local v_escaped_value=$(echo $v_value | sed 's,/,\/,g')
+ 	local v_escaped_value=$(echo "${v_value}" | sed 's,/,\/,g')
 
-	lib_log_info "... patch config var : '$v_key' = '$v_escaped_value'"
-	sed -i -e "s,\%\[\[$v_key\]\]\%,$v_escaped_value," $v_file
+	lib_log_info "... patch config var : '${v_var}' = '${v_escaped_value}'"
+	sed -i -e "s,\%\[\[$v_var\]\]\%,${v_escaped_value}," "${v_file}"
 }
 
 #-----------------------------------------------------------------------------------------
@@ -45,9 +58,9 @@ function lib_config_contains_prop()
 	local v_key="$2"
 	local r_retvar="$3"
 	
-	test -z "$v_file"   && lib_log_error "Illegal argument 'file'."  && exit 1
-	test -z "$v_key"    && lib_log_error "Illegal argument 'key'."   && exit 1
-	test -z "$r_retvar" && lib_log_error "No return var given."      && exit 1
+	lib_validate_var_is_set "v_file"   "Illegal argument 'file'."
+	lib_validate_var_is_set "v_key"    "Illegal argument 'key'."
+	lib_validate_var_is_set "r_retvar" "No return var given."
 
 	local v_regex="^[[:space:]\t]*$v_key[[:space:]\t]*="
 		
@@ -68,9 +81,9 @@ function lib_config_save_prop()
 	local v_key="$2"
 	local v_value="$3"
 	
-	test -z "$v_file"  && lib_log_error "Illegal argument 'file'."  && exit 1
-	test -z "$v_key"   && lib_log_error "Illegal argument 'key'."   && exit 1
-	test -z "$v_value" && lib_log_error "Illegal argument 'value'." && exit 1
+	lib_validate_var_is_set "v_file"  "Illegal argument 'file'."
+	lib_validate_var_is_set "v_key"   "Illegal argument 'key'."
+	lib_validate_var_is_set "v_value" "Illegal argument 'value'."
 	
  	local v_escaped_value=$(echo $v_value | sed 's,/,\/,g')
 
@@ -90,12 +103,12 @@ function lib_config_save_prop()
 function lib_config_read_props()
 {
 	local v_propsfile="$1"
-	local v_retvar="$2"
+	local r_retvar="$2"
 
 	#                strip empty lines           | strip comments
     local v_result=$(sed '/^\s*$/d' $v_propsfile | sed '/^#/ d'  )
 
-	eval "$v_retvar=\"$v_result\""
+	eval "$r_retvar=\"$v_result\""
 }
 
 #-----------------------------------------------------------------------------------------
@@ -103,12 +116,12 @@ function lib_config_read_props_with_prefix()
 {
 	local v_propsfile="$1"
 	local v_prefix="$2"
-	local v_retvar="$3"
+	local r_retvar="$3"
 
 	#                strip empty lines        | strip comments | strip sections | trim spaces around =                  | add prefix to each line
     local v_result=$(sed '/^$/d' $v_propsfile | sed '/^#/ d'   | sed '/^\[/d'   | sed 's/[[:space:]]*=[[:space:]]*/=/g' | sed "s/^/$v_prefix/"   )
 
-	eval "$v_retvar=\"$v_result\""
+	eval "$r_retvar=\"$v_result\""
 }
 
 #-----------------------------------------------------------------------------------------

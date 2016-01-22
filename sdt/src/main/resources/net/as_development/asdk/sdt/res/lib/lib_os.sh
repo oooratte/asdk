@@ -28,15 +28,15 @@ LIB_OS_PLATFORM_SLES="sles"
 #-----------------------------------------------------------------------------------------
 function lib_os_is_platform ()
 {
-    local l_platform="$1"
+    local v_platform="$1"
     local r_retvar="$1"
 
-	test -z "$l_platform" && lib_log_error "Invalid argument 'platform'." && exit 1
-    test -z "$r_retvar"   && lib_log_error "No return var given."         && exit 1
+	lib_validate_var_is_set "v_platform" "Invalid argument 'platform'."
+    lib_validate_var_is_set "r_retvar"   "No return var given."
 
     lib_os_get_platform v_detected_platform
 
-    if [ "${v_detected_platform}" == "${l_platform}" ];
+    if [ "${v_detected_platform}" == "${v_platform}" ];
     then
         eval $r_retvar=true
     else
@@ -49,7 +49,7 @@ function lib_os_get_platform ()
 {
 	local r_retvar="$1"
 
-	test -z "$r_retvar" && lib_log_error "No return var given." && exit 1
+	lib_validate_var_is_set "r_retvar" "No return var given."
 
 	if [ -z $lib_os_m_platform ];
 	then

@@ -17,7 +17,6 @@
 # language governing permissions and limitations under the License.
 #
 
-
 set -e
 
 #-----------------------------------------------------------------------------------------
@@ -52,8 +51,8 @@ function lib_log_trace()
 {
 	local v_msg="$1"
 
-	lib_log_is_level_on LIB_LOG_LEVEL_TRACE r_result
-	if [[ $r_result = true ]];
+	lib_log_is_level_on LIB_LOG_LEVEL_TRACE v_result
+	if [[ $v_result = true ]];
 	then
 		lib_log_to_std $LIB_LOG_COLOR_BLUE "$v_msg"
 	fi
@@ -64,8 +63,8 @@ function lib_log_debug()
 {
 	local v_msg="$1"
 
-	lib_log_is_level_on LIB_LOG_LEVEL_DEBUG r_result
-	if [[ $r_result = true ]];
+	lib_log_is_level_on LIB_LOG_LEVEL_DEBUG v_result
+	if [[ $v_result = true ]];
 	then
 		lib_log_to_std $LIB_LOG_COLOR_BLUE "$v_msg"
 	fi
@@ -76,8 +75,8 @@ function lib_log_info()
 {
 	local v_msg="$1"
 
-	lib_log_is_level_on LIB_LOG_LEVEL_INFO r_result
-	if [[ $r_result = true ]];
+	lib_log_is_level_on LIB_LOG_LEVEL_INFO v_result
+	if [[ $v_result = true ]];
 	then
 		lib_log_to_std $LIB_LOG_COLOR_WHITE "$v_msg"
 	fi
@@ -88,8 +87,8 @@ function lib_log_warn()
 {
 	local v_msg="$1"
 
-	lib_log_is_level_on LIB_LOG_LEVEL_WARN r_result
-	if [[ $r_result = true ]];
+	lib_log_is_level_on LIB_LOG_LEVEL_WARN v_result
+	if [[ $v_result = true ]];
 	then
 		lib_log_to_std $LIB_LOG_COLOR_YELLOW "$v_msg"
 	fi
@@ -100,8 +99,8 @@ function lib_log_error()
 {
 	local v_msg="$1"
 
-	lib_log_is_level_on LIB_LOG_LEVEL_ERROR r_result
-	if [[ $r_result = true ]];
+	lib_log_is_level_on LIB_LOG_LEVEL_ERROR v_result
+	if [[ $v_result = true ]];
 	then
 		lib_log_to_std $LIB_LOG_COLOR_RED "$v_msg"
 	fi
@@ -111,13 +110,13 @@ function lib_log_error()
 function lib_log_is_level_on()
 {
 	local v_level="$1"
-	local v_retvar="$2"
+	local r_retvar="$2"
 	
 	if [[ $v_level -le $lib_log_m_level ]];
 	then
-		eval $v_retvar=true
+		eval $r_retvar=true
 	else
-		eval $v_retvar=false
+		eval $r_retvar=false
 	fi
 }
 
