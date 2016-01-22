@@ -17,20 +17,19 @@
  */
 package test.net.as_development.asdk.sql.server.impl;
 
-import junit.framework.Assert;
-import net.as_development.asdk.sql.server.impl.EmbeddedDerbyServer;
-
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
+
+import junit.framework.Assert;
+import net.as_development.asdk.sql.server.impl.EmbeddedDerbyServer;
+import net.as_development.asdk.tools.test.TestUtils;
 
 //==============================================================================
 /**
  */
-@Ignore
 public class DerbyServerTest
 {
     //--------------------------------------------------------------------------
@@ -55,6 +54,7 @@ public class DerbyServerTest
     @Before
     public void setUp()
     {
+    	TestUtils.ignoreTestAtTravisCI();
     }
 
     //--------------------------------------------------------------------------
