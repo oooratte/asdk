@@ -21,16 +21,15 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import junit.framework.Assert;
 import net.as_development.asdk.sql.server.impl.StandaloneHSQLDBServer;
+import net.as_development.asdk.tools.test.TestUtils;
 
 //==============================================================================
 /**
  */
-@Ignore
 public class HsqlDBServerTest
 {
     //--------------------------------------------------------------------------
@@ -55,6 +54,7 @@ public class HsqlDBServerTest
     @Before
     public void setUp()
     {
+    	TestUtils.ignoreTestAtTravisCI();
     }
 
     //--------------------------------------------------------------------------

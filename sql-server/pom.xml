@@ -39,6 +39,8 @@
 
 	<dependencies>
 	
+        <!-- scope : compile -->
+
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
@@ -63,6 +65,15 @@
             <scope>compile</scope>
 		</dependency>
 	
+    	<!-- scope : test -->
+	
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>tools-test</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+
 	</dependencies>
 
 </project>
