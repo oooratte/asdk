@@ -83,7 +83,7 @@ public class PackageUtilsTest
     {
         List< String > lEntries = null;
         
-        lEntries = PackageUtils.listPackageEntries("net.as_development.tools.reflection");
+        lEntries = PackageUtils.listPackageEntries("net.as_development.asdk.tools.reflection");
         Assert.assertNotNull ("testListPackageEntriesValid [01] must not be null" , lEntries           );
         Assert.assertTrue    ("testListPackageEntriesValid [02] must not be empty", lEntries.size() > 0);
 
