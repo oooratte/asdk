@@ -35,21 +35,25 @@
 		<relativePath>../pom-parent-nature-java</relativePath>
 	</parent>
 
-	<artifactId>sdt</artifactId>
+	<artifactId>tools-common</artifactId>
 
 	<dependencies>
 	
-		<dependency>
-		    <groupId>${groupId}</groupId>
-		    <artifactId>ssh</artifactId>
-		    <version>${version}</version>
+	    <dependency>
+	        <groupId>org.apache.commons</groupId>
+	        <artifactId>commons-lang3</artifactId>
             <scope>compile</scope>
-		</dependency>
+	    </dependency>
+	
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <scope>compile</scope>
+        </dependency>
 
         <dependency>
-            <groupId>${groupId}</groupId>
-            <artifactId>tools-common</artifactId>
-            <version>${version}</version>
+            <groupId>commons-collections</groupId>
+            <artifactId>commons-collections</artifactId>
             <scope>compile</scope>
         </dependency>
 

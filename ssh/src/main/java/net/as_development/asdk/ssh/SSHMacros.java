@@ -214,6 +214,38 @@ public class SSHMacros
 	    final int nState = aShell.execute(sCmd.toString ());
 	    return nState;
 	}
+
+	//-------------------------------------------------------------------------
+	/**
+	 */
+	public static int dumpToFile (final SSHServer aServer    ,
+								  final String    sRemoteFile,
+								  final String    sContent   )
+	    throws Exception
+	{
+		final String sRemotePath     = FilenameUtils.getFullPathNoEndSeparator(sRemoteFile);
+		final String sRemoteFileName = FilenameUtils.getName                  (sRemoteFile);
+              int    nState          = 0;
+		
+		nState = SSHMacros.mkdir (aServer, sRemotePath);
+		if (nState != 0)
+			return nState;
+		
+		final SSHSFtp     aUpload = aServer.accessSFTP ();
+	          InputStream aStream = null;
+	    
+	    try
+	    {
+			aStream = IOUtils.toInputStream(sContent);
+			nState  = aUpload.uploadStream(aStream, sRemotePath, sRemoteFileName);
+	    }
+	    finally
+	    {
+	    	IOUtils.closeQuietly(aStream);
+	    }
+
+	    return nState;
+	}
 	
 	//-------------------------------------------------------------------------
 	/**
@@ -256,25 +288,19 @@ public class SSHMacros
 		
 		final ByteArrayOutputStream aTarOut = new ByteArrayOutputStream ();
 
-		System.err.println("... pack res tar");
 		impl_tarResourceTree (sResourceTree, aTarOut);
 		
 		final ByteArrayInputStream aTarIn = new ByteArrayInputStream (aTarOut.toByteArray());
 		
 		int nState  = 0;
 		
-		System.err.println("... upload res tar");
 		final SSHSFtp aUpload = aServer.accessSFTP ();
 	    nState = aUpload.uploadStream(aTarIn, sRemoteTree, "_temp.tar");
 	    
-		System.err.println("... deflate res tar");
 	    final SSHShellExecute aShell = aServer.accessShell();
 	    nState = aShell.execute("tar --extract --verbose --directory "+sRemoteTree+" --file "+sRemoteTree+"/_temp.tar");
-
-	    System.err.println("... remove tar");
 	    nState = aShell.execute("rm "+sRemoteTree+"/_temp.tar");
 
-	    System.err.println("... state = "+nState);
 	    return nState;
 	}
 
@@ -294,7 +320,6 @@ public class SSHMacros
 											  final OutputStream aTarStream   )
 	    throws Exception
 	{
-		System.err.println("... lokk for resources at '"+sResourceTree+"'");
 		final String                 sResPackage   = sResourceTree;
 		final String                 sResPath      = StringUtils.replace(sResPackage , "."   , "/");
 		final Reflections            aScanner 	   = new Reflections(new ConfigurationBuilder()
@@ -308,7 +333,6 @@ public class SSHMacros
 		
 		for (final String sResource : lAllResources)
 		{
-			System.err.println("... found res '"+sResource+"'");
 		    final URL             aResource = aResLoader.getResource("/"+sResource);
 		    final InputStream     aStream   = aResource.openStream();
 		    final byte[]          aContent  = IOUtils.toByteArray(aStream);
@@ -316,7 +340,6 @@ public class SSHMacros
 		    final String          sName     = StringUtils.removeStart(sResource, sResPath);
 			final TarArchiveEntry aResEntry = new TarArchiveEntry (sName);
 
-			System.err.println("... pack res '"+sResource+"' as '"+sName+"' in tar");
 			aResEntry.setSize          (nSize    );
 			aTar     .putArchiveEntry  (aResEntry);
 			aTar     .write            (aContent );
@@ -325,7 +348,6 @@ public class SSHMacros
 
 		Validate.isTrue(aTar.getBytesWritten() > 0, "Tar has no content !");
 		
-		System.err.println("... tar is packed now");
 		aTar.close();
 	}
 }

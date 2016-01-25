@@ -25,6 +25,7 @@ set -e
 . $SDT_LIB_DIR/lib_validate.sh
 . $SDT_LIB_DIR/lib_os.sh
 . $SDT_LIB_DIR/lib_stringutils.sh
+. $SDT_LIB_DIR/lib_fileutils.sh
 . $SDT_LIB_DIR/lib_exec.sh
 . $SDT_LIB_DIR/lib_config.sh
 . $SDT_LIB_DIR/lib_apt.sh

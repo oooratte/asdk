@@ -39,6 +39,32 @@ public class AuthenticationDescriptor
 	}
 	
 	//-------------------------------------------------------------------------
+	public static AuthenticationDescriptor defineUserWidthKey (final String sUser   ,
+															   final String sKeyFile)
+	    throws Exception
+	{
+		final AuthenticationDescriptor aDesc = new AuthenticationDescriptor ();
+		aDesc.sUser    = sUser    ;
+		aDesc.sKeyFile = sKeyFile;
+		return aDesc;
+	}
+
+	//-------------------------------------------------------------------------
+	public static AuthenticationDescriptor defineUser (final String  sUser     ,
+													   final String  sPassword ,
+													   final String  sKeyFile  ,
+													   final boolean bNeedsSudo)
+	    throws Exception
+	{
+		final AuthenticationDescriptor aDesc = new AuthenticationDescriptor ();
+		aDesc.sUser      = sUser     ;
+		aDesc.sPassword  = sPassword ;
+		aDesc.sKeyFile   = sKeyFile  ;
+		aDesc.bNeedsSudo = bNeedsSudo;
+		return aDesc;
+	}
+
+	//-------------------------------------------------------------------------
 	public static SSHIdentity toSSHIdentity (final AuthenticationDescriptor aAuth)
 	    throws Exception
 	{

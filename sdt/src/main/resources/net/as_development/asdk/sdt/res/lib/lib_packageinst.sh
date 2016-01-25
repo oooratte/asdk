@@ -28,7 +28,7 @@ function lib_packageinst_selfupdate ()
 
     if [ ${v_done} == false ] && [ ${v_os} == $LIB_OS_PLATFORM_DEBIAN ];
     then
-        lib_exec "apt-get update"
+        lib_apt_selfupdate
         v_done=true
     fi
 
@@ -65,7 +65,7 @@ function lib_packageinst_install_package ()
 
     if [ ${v_done} == false ] && [ ${v_os} == $LIB_OS_PLATFORM_DEBIAN ];
     then
-        lib_exec "apt-get install -y ${v_pkg}"
+        lib_apt_install_package "${v_pkg}"
         v_done=true
     fi
 
