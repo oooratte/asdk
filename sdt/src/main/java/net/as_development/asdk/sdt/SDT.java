@@ -106,6 +106,25 @@ public class SDT
 	}
 	
 	//-------------------------------------------------------------------------
+	public static String defineSDTResource (final String... lParts)
+	    throws Exception
+	{
+		final StringBuffer sRes          = new StringBuffer (256);
+		      boolean      bAddSeparator = false;
+
+		for (final String sPart : lParts)
+		{
+			if (bAddSeparator == true)
+				sRes.append("/");
+			else
+				bAddSeparator = true;
+			sRes.append(sPart);
+		}
+		
+		return sRes.toString ();
+	}
+	
+	//-------------------------------------------------------------------------
 	private void impl_deploySequential ()
 	    throws Exception
 	{

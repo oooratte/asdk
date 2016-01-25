@@ -85,17 +85,20 @@ function lib_config_save_prop()
 	lib_validate_var_is_set "v_key"   "Illegal argument 'key'."
 	lib_validate_var_is_set "v_value" "Illegal argument 'value'."
 	
- 	local v_escaped_value=$(echo $v_value | sed 's,/,\/,g')
+ 	local v_escaped_value=${v_value}
+ 	
+ 	v_escaped_value=$(echo -e "${v_escaped_value}" | sed 's,/,\/,g')
+    v_escaped_value=$(echo -e "${v_escaped_value}" | sed 's,:,\\:,g')
 
 	lib_config_contains_prop $v_file $v_key r_result
 	
 	if [[ $r_result = true ]];
 	then
-		echo "... patch [$v_file] '$v_key' = '$v_value'"
-		sed -i -e 's:^[ \t]*'$v_key'[ \t]*=\([ \t]*.*\)$:'$v_key'='$v_value':' "$v_file"
+		echo "... patch [${v_file}] '${v_key}' = '${v_value}' ... escaped '${v_escaped_value}' "
+		sed -i -e 's:^[ \t]*'${v_key}'[ \t]*=\([ \t]*.*\)$:'${v_key}'='${v_escaped_value}':' "${v_file}"
 	else
-		echo "... new   [$v_file] '$v_key'='$v_value'"
-		echo "$v_key=$v_value" >> "$v_file"
+		echo "... new   [${v_file}] '${v_key}'='${v_value}' ... escaped '${v_escaped_value}' "
+		echo "${v_key}=${v_escaped_value}" >> "${v_file}"
 	fi
 }
 
@@ -140,15 +143,18 @@ function lib_config_inject_props_with_prefix()
 	local v_propsfile="$1"
 	local v_prefix="$2"
 
-	lib_config_read_props_with_prefix $v_propsfile $v_prefix r_result
-	local v_props=$r_result
-	
-	for v_prop in $v_props;
-	do
-		local v_key=$(echo $v_prop | cut -f1 -d=)
-		local v_val=$(echo $v_prop | cut -f2 -d=)
+    lib_validate_var_is_set "v_propsfile" "Miss argument 'properties-file'."
+    lib_validate_var_is_set "v_prefix"    "Miss argument 'prefix'."
 
-		lib_log_info "... inject config prop : '$v_key' = '$v_val'"
-		eval "$v_key=$v_val"
+	lib_config_read_props_with_prefix "${v_propsfile}" "${v_prefix}" "r_result"
+	local v_props=${r_result}
+	
+	for v_prop in ${v_props};
+	do
+		local v_key=$(echo ${v_prop} | cut -f1 -d=)
+		local v_val=$(echo ${v_prop} | cut -f2 -d=)
+
+		lib_log_info "... inject config prop : '${v_key}' = '${v_val}'"
+		eval "${v_key}=\"${v_val}\""
 	done
 }

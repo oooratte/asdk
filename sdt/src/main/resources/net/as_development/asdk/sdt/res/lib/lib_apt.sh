@@ -23,7 +23,28 @@ set -e
 #-----------------------------------------------------------------------------------------
 function lib_apt_selfupdate ()
 {
-	apt-get update
+	lib_exec "apt-get update"
+}
+
+#-----------------------------------------------------------------------------------------
+function lib_apt_install_package ()
+{
+    local v_package="$1"
+    
+    lib_validate_var_is_set "v_package" "Invalid argument 'package'."
+
+    lib_exec "apt-get install -y ${v_package}"
+}
+
+#-----------------------------------------------------------------------------------------
+function lib_apt_install_package_with_args ()
+{
+    local v_package="$1"
+    declare -a v_args=("${!2}")
+    
+    lib_validate_var_is_set "v_package" "Invalid argument 'package'."
+
+    lib_exec "apt-get install -y ${v_package} ${v_args[@]}"
 }
 
 #-----------------------------------------------------------------------------------------
@@ -32,8 +53,8 @@ function lib_apt_configure_proxy ()
 	local v_ip="$1"
 	local v_port="$2"
 	
-	test -z $v_ip   && lib_log_error "Invalid argument 'ip'."   && exit 1
-	test -z $v_port && lib_log_error "Invalid argument 'port'." && exit 1
+	lib_validate_var_is_set "v_ip"   "Invalid argument 'ip'."
+	lib_validate_var_is_set "v_port" "Invalid argument 'port'."
 
 	local v_proxy_conf=/etc/apt/apt.conf.d/01proxy
 	rm -f $v_proxy_conf
@@ -47,4 +68,24 @@ function lib_apt_configure_proxy ()
 function lib_apt_install_proxy_client ()
 {
 	apt-get install -y squid-deb-proxy-client
+}
+
+#-----------------------------------------------------------------------------------------
+function lib_apt_add_package_repo ()
+{
+    local v_package_repo="$1"
+    
+    lib_validate_var_is_set "v_package_repo" "Invalid argument 'package_repo'."
+
+    local v_pkg_registry_file="/etc/apt/sources.list.d/sdt.list"
+    local v_pkg_entry="deb ${v_package_repo} /"
+
+    lib_fileutils_file_contains_string "${v_pkg_registry_file}" "${v_pkg_entry}" "v_exists"
+    
+    if [ "${v_exists}" == "true" ];
+    then
+        lib_log_warn "APT Repo '${v_package_repo}' already registered."
+    else
+        lib_fileutils_append_text_to_file "${v_pkg_registry_file}" "${v_pkg_entry}"
+    fi
 }

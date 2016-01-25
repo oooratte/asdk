@@ -21,6 +21,7 @@
         <module>../pom-parent-nature-all</module>
 		<module>../pom-parent-nature-java</module>
 
+        <module>../tools-common</module>
         <module>../tools-test</module>
         <module>../tools-reflection</module>
         <module>../tools-commandline</module>

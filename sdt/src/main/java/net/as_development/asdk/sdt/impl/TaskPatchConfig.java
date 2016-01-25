@@ -17,8 +17,7 @@
  */
 package net.as_development.asdk.sdt.impl;
 
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang3.ArrayUtils;
+import java.util.Map;
 
 import net.as_development.asdk.sdt.Node;
 import net.as_development.asdk.sdt.SDT;
@@ -26,32 +25,33 @@ import net.as_development.asdk.sdt.SDTConst;
 import net.as_development.asdk.sdt.TaskBase;
 import net.as_development.asdk.ssh.SSHMacros;
 import net.as_development.asdk.ssh.SSHServer;
+import net.as_development.asdk.tools.common.CollectionUtils;
 
 //==============================================================================
-public class TaskScriptlet extends TaskBase
+public class TaskPatchConfig extends TaskBase
 {
     //--------------------------------------------------------------------------
-	public TaskScriptlet ()
+	public TaskPatchConfig ()
 		throws Exception
 	{}
 
     //--------------------------------------------------------------------------
-	public static TaskScriptlet create (final String   sScriptlet,
-			  							final String[] lArguments)
+	public static TaskPatchConfig create (final String   sConfig    ,
+			  							  final String[] aFlatConfig)
 		throws Exception
 	{
-		final TaskScriptlet aTask = new TaskScriptlet ();
-		aTask.setScriptlet(sScriptlet, lArguments);
+		final TaskPatchConfig aTask = new TaskPatchConfig ();
+		aTask.setConfig(sConfig, aFlatConfig);
 		return aTask;
 	}
 	
     //--------------------------------------------------------------------------
-	public void setScriptlet (final String   sScriptlet,
-							  final String[] lArguments)
+	public void setConfig (final String   sConfig    ,
+						   final String[] aFlatConfig)
 	    throws Exception
 	{
-		m_sScriptlet = sScriptlet;
-		m_lArguments = lArguments;
+		m_sConfig = sConfig;
+		m_aConfig = CollectionUtils.flat2MappedArguments(aFlatConfig);
 	}
 	
     //--------------------------------------------------------------------------
@@ -59,25 +59,21 @@ public class TaskScriptlet extends TaskBase
 	public void execute(final Node aNode)
 		throws Exception
 	{
-		System.out.println("execute scriptlet '"+m_sScriptlet+"' ...");
+		System.out.println("patch config '"+m_sConfig+"' ...");
 
-		final String   sSDT_HOME = SDTConst.DEFAULT_SDT_HOME;
-		final String   sSdtSh    = SDT.defineSDTResource(sSDT_HOME, SDTConst.SDT_DIR_BIN, SDTConst.SDT_SH_STD);
-		      String[] lArgs     = new String[2];
+		final String    sSDT_HOME    = SDTConst.DEFAULT_SDT_HOME;
+		final String    sSdtConfFile = SDT.defineSDTResource(sSDT_HOME, SDTConst.SDT_DIR_CONFIG, m_sConfig+".properties");
+		final String    sContent     = CollectionUtils.formatAsProperties(m_aConfig);
+		final SSHServer aSSH         = aNode.accessSSH();
 
-		lArgs[0] = "--run-scriptlet";
-		lArgs[1] = m_sScriptlet;
-		lArgs    = ArrayUtils.addAll(lArgs, m_lArguments);
-		
-		final SSHServer aSSH = aNode.accessSSH();
-		SSHMacros.execScript(aSSH, sSdtSh, lArgs);
+		SSHMacros.dumpToFile(aSSH, sSdtConfFile, sContent);
 
 		System.out.println("ok");
 	}
 
     //--------------------------------------------------------------------------
-	private String m_sScriptlet = null;
+	private String m_sConfig = null;
 
 	//--------------------------------------------------------------------------
-	private String[] m_lArguments = null;
+	private Map< String, String > m_aConfig = null;
 }
