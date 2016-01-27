@@ -33,7 +33,7 @@ function lib_apt_install_package ()
     
     lib_validate_var_is_set "v_package" "Invalid argument 'package'."
 
-    lib_exec "apt-get install -y ${v_package}"
+    lib_exec "apt-get install -y --force-yes ${v_package}"
 }
 
 #-----------------------------------------------------------------------------------------
@@ -44,7 +44,7 @@ function lib_apt_install_package_with_args ()
     
     lib_validate_var_is_set "v_package" "Invalid argument 'package'."
 
-    lib_exec "apt-get install -y ${v_package} ${v_args[@]}"
+    lib_exec "apt-get install -y --force-yes ${v_package} ${v_args[@]}"
 }
 
 #-----------------------------------------------------------------------------------------
