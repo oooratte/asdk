@@ -61,12 +61,15 @@ public class TaskScriptlet extends TaskBase
 	{
 		System.out.println("execute scriptlet '"+m_sScriptlet+"' ...");
 
+		final boolean  bDebug    = aNode.accessSDT().isDebug();
 		final String   sSDT_HOME = SDTConst.DEFAULT_SDT_HOME;
 		final String   sSdtSh    = SDT.defineSDTResource(sSDT_HOME, SDTConst.SDT_DIR_BIN, SDTConst.SDT_SH_STD);
-		      String[] lArgs     = new String[2];
+		      String[] lArgs     = new String[4];
 
 		lArgs[0] = "--run-scriptlet";
 		lArgs[1] = m_sScriptlet;
+		lArgs[2] = "--debug";
+		lArgs[3] = Boolean.toString(bDebug);
 		lArgs    = ArrayUtils.addAll(lArgs, m_lArguments);
 		
 		final SSHServer aSSH = aNode.accessSSH();

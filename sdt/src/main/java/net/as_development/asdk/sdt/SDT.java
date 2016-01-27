@@ -54,6 +54,20 @@ public class SDT
 	}
 	
 	//-------------------------------------------------------------------------
+	public void setDebug (final boolean bDebug)
+		throws Exception
+	{
+		m_bDebug = bDebug;
+	}
+
+	//-------------------------------------------------------------------------
+	public boolean isDebug ()
+	    throws Exception
+	{
+		return m_bDebug;
+	}
+	
+	//-------------------------------------------------------------------------
 	/** add new node to the STD deployment chain.
 	 * 
 	 *  The order of nodes doesnt matter. At least it's possible they will
@@ -134,10 +148,7 @@ public class SDT
 		{
 			final Throwable aError = impl_deployNode (aNode);
 			if (aError != null)
-			{
-				System.err.println    (aError.getMessage());
-				aError.printStackTrace(System.err);
-			}
+				throw new Exception(aError);
 		}
 	}
 	
@@ -156,15 +167,21 @@ public class SDT
 		}
 		
 		final List< Future< Throwable > > lResults = aMassDeploy.invokeAll(lDeploys);
+	          int                         nErrors  = 0;
+
 		for (final Future< Throwable > aResult : lResults)
 		{
 			final Throwable aError = aResult.get();
-			if (aError != null)
-			{
-				System.err.println    (aError.getMessage());
-				aError.printStackTrace(System.err);
-			}
+			if (aError == null)
+				continue;
+
+			nErrors++;
+			System.err.println    (aError.getMessage());
+			aError.printStackTrace(System.err);
 		}
+		
+		if (nErrors > 0)
+			throw new Exception ("Setup had ["+nErrors+"] errors.");
 	}
 	
     //--------------------------------------------------------------------------
@@ -210,6 +227,9 @@ public class SDT
 	//-------------------------------------------------------------------------
 	private EDeploymentStrategy m_eDeploymentStrategy = DEFAULT_DEPLOYMENT_STRATEGY;
 
+    //--------------------------------------------------------------------------
+	private boolean m_bDebug = false;
+	
     //--------------------------------------------------------------------------
 	private List< Node > m_lNodes = null;
 }

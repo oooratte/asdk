@@ -48,7 +48,7 @@ function lib_exec ()
 
 	lib_validate_var_is_set "v_cmd" "Invalid argument 'cmd'."
 
-    lib_log_trace "lib_exec : '${v_cmd}'"
+    lib_log_debug "lib_exec : '${v_cmd}'"
 
     if [ ${lib_exec_m_simulate} == true ];
     then

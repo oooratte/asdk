@@ -89,6 +89,10 @@ function sdt_show_help ()
     lib_log_info "                 The scriptlet has to be defined relative to SDT_HOME."
     lib_log_info "                 All other parameters of current command line are passed to the scriptlet."
     lib_log_info " "
+    lib_log_info "    -d | --debug"
+    lib_log_info " "
+    lib_log_info "                 enable debug logging"
+    lib_log_info " "
     lib_log_info "    -h | --help"
     lib_log_info " "
     lib_log_info "                 show this help"
@@ -126,6 +130,7 @@ echo "... parse command line"
 
 ARG_RUN_SCRIPTLET=
 ARG_LIST_OF_UNKNOWNS=
+ARG_ENABLE_DEBUG=false
 
 while [[ $# > 0 ]]
 	do
@@ -136,7 +141,12 @@ while [[ $# > 0 ]]
 
 	    -rs|--run-scriptlet)
 	    ARG_RUN_SCRIPTLET="$1"
+	    shift
 	    ;;
+
+        -d|--debug)
+        ARG_ENABLE_DEBUG=true
+        ;;
 
 	    -h|--help)
 	    sdt_show_help
@@ -153,9 +163,14 @@ done
 
 echo "... init logging"
 
-# TODO use command line parameter to define log level from outside
-
-lib_log_set_level $LIB_LOG_LEVEL_INFO
+if [ "${ARG_ENABLE_DEBUG}" == "true" ];
+then
+    echo "... set log level to DEBUG"
+    lib_log_set_level $LIB_LOG_LEVEL_DEBUG
+else
+    echo "... set log level to INFO"
+    lib_log_set_level $LIB_LOG_LEVEL_INFO
+fi
 
 #-----------------------------------------------------------------------------------------
 # MAIN
