@@ -58,8 +58,6 @@ function lib_packageinst_install_package ()
 
 	test -z $v_pkg && lib_log_error "Invalid argument 'package'." && exit 1
 
-    lib_packageinst_selfupdate
-
     lib_os_get_platform v_os
     local v_done=false
 
