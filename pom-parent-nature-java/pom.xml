@@ -78,6 +78,12 @@
             </dependency>
 
             <dependency>
+                <groupId>commons-codec</groupId>
+                <artifactId>commons-codec</artifactId>
+                <version>${version.commons.codec}</version>
+            </dependency>
+
+            <dependency>
                 <groupId>commons-configuration</groupId>
                 <artifactId>commons-configuration</artifactId>
                 <version>${version.commons.configuration}</version>
@@ -198,7 +204,19 @@
 			    <groupId>org.reflections</groupId>
 			    <artifactId>reflections</artifactId>
 			    <version>${version.reflections}</version>
-			</dependency>			
+			</dependency>
+			
+			<dependency>
+			    <groupId>org.quartz-scheduler</groupId>
+			    <artifactId>quartz</artifactId>
+			    <version>${version.quartz}</version>
+			</dependency>
+
+			<dependency>
+			    <groupId>org.quartz-scheduler</groupId>
+			    <artifactId>quartz-jobs</artifactId>
+			    <version>${version.quartz}</version>
+			</dependency>
 
             <!-- dependencies : test env -->
 			<dependency>
