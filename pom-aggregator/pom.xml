@@ -31,6 +31,7 @@
         <module>../sql-server</module>
         <module>../ssh</module>
         <module>../sdt</module>
+        <module>../db-service</module>
 	</modules>
 
 </project>
