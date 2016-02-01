@@ -17,17 +17,25 @@
 # language governing permissions and limitations under the License.
 #
 
+
 set -e
 
 #-----------------------------------------------------------------------------------------
+function lib_dirutils_ensure_dir ()
+{
+    local v_dir="$1"
+    
+    lib_validate_var_is_set "v_dir" "Invalid argument 'dir'."
+    
+    if [ ! -d "${v_dir}" ];
+    then
+        lib_log_info "... dir '${v_dir}' do not exists - will be created new"
+        mkdir -p "${v_dir}"
+    fi
 
-. $SDT_LIB_DIR/lib_log.sh
-. $SDT_LIB_DIR/lib_validate.sh
-. $SDT_LIB_DIR/lib_os.sh
-. $SDT_LIB_DIR/lib_stringutils.sh
-. $SDT_LIB_DIR/lib_dirutils.sh
-. $SDT_LIB_DIR/lib_fileutils.sh
-. $SDT_LIB_DIR/lib_exec.sh
-. $SDT_LIB_DIR/lib_config.sh
-. $SDT_LIB_DIR/lib_apt.sh
-. $SDT_LIB_DIR/lib_packageinst.sh
+    if [ ! -d "${v_dir}" ];
+    then
+        lib_log_error "... could not create dir '${v_dir}'"
+        exit 1
+    fi
+}
