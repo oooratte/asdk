@@ -40,6 +40,22 @@ public class TaskDeployFrameworkCore extends TaskBase
 	    throws Exception
 	{}
 	
+    //-------------------------------------------------------------------------
+	public static TaskDeployFrameworkCore create ()
+	    throws Exception
+	{
+		return new TaskDeployFrameworkCore ();
+	}
+	
+    //-------------------------------------------------------------------------
+	public static TaskDeployFrameworkCore createForceUpdate ()
+	    throws Exception
+	{
+		final TaskDeployFrameworkCore aTask = new TaskDeployFrameworkCore ();
+		aTask.m_bForceUpdate = true;
+		return aTask;
+	}
+
 	//-------------------------------------------------------------------------
 	@Override
 	public void execute (final Node aNode)
@@ -48,7 +64,10 @@ public class TaskDeployFrameworkCore extends TaskBase
 		final SSHServer aSSH      = aNode.accessSSH();
 		final String    sSDT_HOME = DEFAULT_SDT_HOME;
 
-		if (impl_isFrameworkInstalled (aSSH, sSDT_HOME))
+		if (
+			( ! m_bForceUpdate                          ) &&
+			(impl_isFrameworkInstalled (aSSH, sSDT_HOME))
+		   )
 			return;
 
 		final String sThisPackage  = TaskDeployFrameworkCore.class.getPackage().getName();
@@ -90,4 +109,7 @@ public class TaskDeployFrameworkCore extends TaskBase
 		final boolean bExists = SSHMacros.existsDir (aSSH, sRemotePath);
 		return bExists;
 	}
+
+	//-------------------------------------------------------------------------
+	private boolean m_bForceUpdate = false;
 }

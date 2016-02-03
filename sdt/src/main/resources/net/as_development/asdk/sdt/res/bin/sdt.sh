@@ -57,6 +57,8 @@ SDT_SHARE=$HOME/.sdt/share
 
 SDT_BIN_DIR=$SDT_HOME/bin
 SDT_LIB_DIR=$SDT_HOME/lib
+SDT_TEMP_DIR=$SDT_HOME/temp
+
 SDT_CONFIG_DIR=$SDT_HOME/config
 SDT_STATES_DIR=$SDT_HOME/states
 SDT_LAYOUT_DIR=$SDT_HOME/layout
@@ -89,6 +91,12 @@ function sdt_show_help ()
     lib_log_info "                 The scriptlet has to be defined relative to SDT_HOME."
     lib_log_info "                 All other parameters of current command line are passed to the scriptlet."
     lib_log_info " "
+    lib_log_info "    -rc | --run-command <command> [arguments]"
+    lib_log_info " "
+    lib_log_info "                 run the specified command"
+    lib_log_info "                 The command will be executed within the context of SDT."
+    lib_log_info "                 All arguments are passed to the command."
+    lib_log_info " "
     lib_log_info "    -d | --debug"
     lib_log_info " "
     lib_log_info "                 enable debug logging"
@@ -105,7 +113,7 @@ function sdt_run_scriptlet ()
     local v_scriptlet="$1"
     local v_args="$2"
     
-    test -z "${v_scriptlet}" && lib_log_error "Illegal argument 'scriptlet'." && exit 1
+    lib_validate_var_is_set v_scriptlet "Illegal argument 'scriptlet'."
     # args are optional !
 
     local v_cmd="${SDT_HOME}/${v_scriptlet}"
@@ -120,6 +128,25 @@ function sdt_run_scriptlet ()
 }
 
 #-----------------------------------------------------------------------------------------
+function sdt_run_command ()
+{
+    local v_command="$1"
+    local v_args="$2"
+    
+    lib_validate_var_is_set v_command "Illegal argument 'command'."
+    # args are optional !
+
+    if [ ! -z "${v_args}" ];
+    then
+        # note: args starts with space already !
+        v_command="${v_command}${v_args}"
+    fi
+    
+    lib_log_info "sdt_run_command ${v_command} ..."
+    lib_exec "${v_command}"
+}
+
+#-----------------------------------------------------------------------------------------
 # parse command line
 #
 # - parse all parameter THIS script knows to handle
@@ -129,6 +156,7 @@ function sdt_run_scriptlet ()
 echo "... parse command line"
 
 ARG_RUN_SCRIPTLET=
+ARG_RUN_COMMAND=
 ARG_LIST_OF_UNKNOWNS=
 ARG_ENABLE_DEBUG=false
 
@@ -143,6 +171,11 @@ while [[ $# > 0 ]]
 	    ARG_RUN_SCRIPTLET="$1"
 	    shift
 	    ;;
+
+        -rc|--run-command)
+        ARG_RUN_COMMAND="$1"
+        shift
+        ;;
 
         -d|--debug)
         ARG_ENABLE_DEBUG=true
@@ -180,6 +213,11 @@ echo "... do main"
 if [ ! -z "${ARG_RUN_SCRIPTLET}" ];
 then
     sdt_run_scriptlet "${ARG_RUN_SCRIPTLET}" "${ARG_LIST_OF_UNKNOWNS}"
+fi
+
+if [ ! -z "${ARG_RUN_COMMAND}" ];
+then
+    sdt_run_command "${ARG_RUN_COMMAND}" "${ARG_LIST_OF_UNKNOWNS}"
 fi
 
 exit 0
