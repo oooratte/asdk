@@ -29,6 +29,21 @@ public class NodeDescriptor
 	{}
 
 	//-------------------------------------------------------------------------
+	public static NodeDescriptor define (final String                   sID  ,
+										 final String                   sIP  ,
+										 final EOS                      eOS  ,
+										 final AuthenticationDescriptor aAuth)
+	    throws Exception
+	{
+		final NodeDescriptor aDesc = new NodeDescriptor ();
+		aDesc.sId    = sID  ;
+		aDesc.sIpDns = sIP  ;
+		aDesc.eOS    = eOS  ;
+		aDesc.aAuth  = aAuth;
+		return aDesc;
+	}
+
+	//-------------------------------------------------------------------------
 	public static NodeDescriptor defineIP (final String sIP)
 	    throws Exception
 	{
@@ -38,14 +53,22 @@ public class NodeDescriptor
 	}
 
 	//-------------------------------------------------------------------------
+	/// [optional] an outside unique identifier for this node
+	public String sId = null;
+	
+	//-------------------------------------------------------------------------
+	/// [optional] the OS installed on that node
 	public EOS eOS = null;
 	
 	//-------------------------------------------------------------------------
+	/// [mandatory] the IP or DNS name of this node
 	public String sIpDns = null;
 
 	//-------------------------------------------------------------------------
-	public Integer snSSHPort = DEFAULT_PORT_SSH;
+	/// [mandatory - if not default] the SSH port for remote connections
+	public Integer nSSHPort = DEFAULT_PORT_SSH;
 
 	//-------------------------------------------------------------------------
+	/// [mandatory] the SSH authentication
 	public AuthenticationDescriptor aAuth = null;
 }

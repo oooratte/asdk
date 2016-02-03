@@ -18,11 +18,16 @@
 package net.as_development.asdk.sdt;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+
+import org.apache.commons.lang3.StringUtils;
 
 //=============================================================================
 /** MAIN entry point of the SDT framework.
@@ -80,12 +85,17 @@ public class SDT
 	public void addNode (final Node aNode)
 		throws Exception
 	{
-		final List< Node > lNodes = mem_Nodes ();
-		if (lNodes.contains(aNode))
-			return;
+		final Map< String, Node > lNodes  = mem_Nodes ();
+		      String              sNodeId = aNode.getId();
+		      
+		if (StringUtils.isEmpty(sNodeId))
+		{
+			sNodeId = UUID.randomUUID().toString();
+			aNode.setId(sNodeId);
+		}
 		
-		aNode .bind(this );
-		lNodes.add (aNode);
+		aNode .bind(this);
+		lNodes.put (sNodeId, aNode);
 	}
 
 	//-------------------------------------------------------------------------
@@ -120,6 +130,28 @@ public class SDT
 	}
 	
 	//-------------------------------------------------------------------------
+	/** deploy all nodes defined by given list of IDs.
+	 * 
+	 *  If a node with given ID is not found an error is thrown.
+	 *
+	 *  @param  lNodeIds [IN]
+	 *  		a list of node IDs of nodes which has to be deployed
+	 */
+	public void deploy (final String... lNodeIds)
+		throws Exception
+	{
+		final List< Node > lNodes = impl_listNodesById (lNodeIds);
+		
+		if (m_eDeploymentStrategy == EDeploymentStrategy.E_SEQUENTIAL)
+			impl_deploySequential (lNodes);
+		else
+		if (m_eDeploymentStrategy == EDeploymentStrategy.E_PARALLEL)
+			impl_deployParallel (lNodes);
+		else
+			throw new UnsupportedOperationException ("No support for '"+m_eDeploymentStrategy+"' implemented yet.");
+	}
+
+	//-------------------------------------------------------------------------
 	/** start all configured nodes
 	 * 
 	 * TODO order nodes in run level
@@ -127,11 +159,16 @@ public class SDT
 	public void startAllNodes ()
 		throws Exception
 	{
-		final List< Node > lNodes = mem_Nodes ();
-		for (final Node aNode : lNodes)
-		{
-			aNode.start();
-		}
+		impl_startNodes(impl_listAllNodes ());
+	}
+
+	//-------------------------------------------------------------------------
+	/** start all defined nodes
+	 */
+	public void startNodes (final String... lNodeIds)
+		throws Exception
+	{
+		impl_startNodes(impl_listNodesById (lNodeIds));
 	}
 
 	//-------------------------------------------------------------------------
@@ -142,11 +179,16 @@ public class SDT
 	public void stopAllNodes ()
 		throws Exception
 	{
-		final List< Node > lNodes = mem_Nodes ();
-		for (final Node aNode : lNodes)
-		{
-			aNode.stop();
-		}
+		impl_stopNodes(impl_listAllNodes ());
+	}
+
+	//-------------------------------------------------------------------------
+	/** stop all defined nodes
+	 */
+	public void stopNodes (final String... lNodeIds)
+		throws Exception
+	{
+		impl_stopNodes(impl_listNodesById (lNodeIds));
 	}
 
 	//-------------------------------------------------------------------------
@@ -172,8 +214,13 @@ public class SDT
 	private void impl_deploySequential ()
 	    throws Exception
 	{
-		final List< Node > lNodes = mem_Nodes ();
-		
+		impl_deploySequential(impl_listAllNodes ());
+	}
+	
+	//-------------------------------------------------------------------------
+	private void impl_deploySequential (final List< Node > lNodes)
+	    throws Exception
+	{
 		for (final Node aNode : lNodes)
 		{
 			final Throwable aError = impl_deployNode (aNode);
@@ -181,12 +228,18 @@ public class SDT
 				throw new Exception(aError);
 		}
 	}
-	
+
 	//-------------------------------------------------------------------------
 	private void impl_deployParallel ()
 	    throws Exception
 	{
-		final List< Node >                  lNodes      = mem_Nodes ();
+		impl_deployParallel (impl_listAllNodes ());	
+	}
+
+	//-------------------------------------------------------------------------
+	private void impl_deployParallel (final List< Node > lNodes)
+	    throws Exception
+	{
 		final ExecutorService               aMassDeploy = Executors.newFixedThreadPool(lNodes.size());
 		final List< Callable< Throwable > > lDeploys    = new ArrayList< Callable< Throwable > > ();
 		
@@ -214,6 +267,22 @@ public class SDT
 			throw new Exception ("Setup had ["+nErrors+"] errors.");
 	}
 	
+	//-------------------------------------------------------------------------
+	private void impl_startNodes (final List< Node > lNodes)
+		throws Exception
+	{
+		for (final Node aNode : lNodes)
+			aNode.start();
+	}
+
+	//-------------------------------------------------------------------------
+	private void impl_stopNodes (final List< Node > lNodes)
+		throws Exception
+	{
+		for (final Node aNode : lNodes)
+			aNode.stop();
+	}
+
     //--------------------------------------------------------------------------
 	private Callable< Throwable > impl_makeNodeCallable (final Node aNode)
 	    throws Exception
@@ -246,11 +315,38 @@ public class SDT
 	}
 	
     //--------------------------------------------------------------------------
-	private List< Node > mem_Nodes ()
+	private List< Node > impl_listAllNodes ()
+	    throws Exception
+	{
+		final List< Node > lNodes = new ArrayList< Node > ();
+		lNodes.addAll(mem_Nodes().values());
+		return lNodes;
+	}
+
+    //--------------------------------------------------------------------------
+	private List< Node > impl_listNodesById (final String... lNodeIds)
+	    throws Exception
+	{
+		final Map< String, Node > lAllNodes = mem_Nodes ();
+		final List< Node >        lNodes    = new ArrayList< Node > ();
+		
+		for (final String sNodeId : lNodeIds)
+		{
+			final Node aNode = lAllNodes.get(sNodeId);
+			if (aNode == null)
+				throw new Error ("No node found for ID '"+sNodeId+"'.");
+			lNodes.add(aNode);
+		}
+		
+		return lNodes;
+	}
+
+	//--------------------------------------------------------------------------
+	private Map< String, Node > mem_Nodes ()
 	    throws Exception
 	{
 		if (m_lNodes == null)
-			m_lNodes = new ArrayList< Node > ();
+			m_lNodes = new HashMap< String, Node > ();
 		return m_lNodes;
 	}
 
@@ -261,5 +357,5 @@ public class SDT
 	private boolean m_bDebug = false;
 	
     //--------------------------------------------------------------------------
-	private List< Node > m_lNodes = null;
+	private Map< String, Node > m_lNodes = null;
 }

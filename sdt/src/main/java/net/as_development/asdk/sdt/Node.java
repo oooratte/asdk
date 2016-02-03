@@ -78,6 +78,24 @@ public class Node
 	}
 
 	//-------------------------------------------------------------------------
+	public String getId ()
+		throws Exception
+	{
+		if (m_aDesc != null)
+			return m_aDesc.sId;
+		else
+			return "";
+	}
+	
+	//-------------------------------------------------------------------------
+	public void setId (final String sId)
+		throws Exception
+	{
+		if (m_aDesc != null)
+			m_aDesc.sId = sId;
+	}
+
+	//-------------------------------------------------------------------------
 	/** add a new deployment task to this node.
 	 * 
 	 *  Each task added here will implement one deployment step.
@@ -329,7 +347,7 @@ public class Node
     		final SSHIdentity aIdentity = AuthenticationDescriptor.toSSHIdentity(m_aDesc.aAuth);
     		
     		aSSH.setHost    (m_aDesc.sIpDns   );
-    		aSSH.setPort    (m_aDesc.snSSHPort);
+    		aSSH.setPort    (m_aDesc.nSSHPort);
     		aSSH.setIdentity(aIdentity        );
     		
     		m_aSSH = aSSH;
