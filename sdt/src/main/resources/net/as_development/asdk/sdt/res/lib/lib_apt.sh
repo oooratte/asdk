@@ -89,3 +89,22 @@ function lib_apt_add_package_repo ()
         lib_fileutils_append_text_to_file "${v_pkg_registry_file}" "${v_pkg_entry}"
     fi
 }
+
+#-----------------------------------------------------------------------------------------
+function lib_apt_remove_packages_by_name ()
+{
+    local v_pkg_search="$1"
+
+    lib_validate_var_is_set "v_pkg_search" "Invalid argument 'package_search'."
+
+    local v_pkg_list=$(dpkg --get-selections | grep -i "${v_pkg_search}" | sed 's:install$::' )
+    local v_pkg=
+
+    for v_pkg in ${v_pkg_list};
+    do
+        lib_exec "apt-get purge -y \"${v_pkg}\""
+    done
+
+    lib_exec "apt-get autoremove -y"
+}
+

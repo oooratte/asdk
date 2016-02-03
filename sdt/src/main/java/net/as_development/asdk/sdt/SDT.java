@@ -120,6 +120,36 @@ public class SDT
 	}
 	
 	//-------------------------------------------------------------------------
+	/** start all configured nodes
+	 * 
+	 * TODO order nodes in run level
+	 */
+	public void startAllNodes ()
+		throws Exception
+	{
+		final List< Node > lNodes = mem_Nodes ();
+		for (final Node aNode : lNodes)
+		{
+			aNode.start();
+		}
+	}
+
+	//-------------------------------------------------------------------------
+	/** stop all configured nodes
+	 * 
+	 * TODO order nodes in run level
+	 */
+	public void stopAllNodes ()
+		throws Exception
+	{
+		final List< Node > lNodes = mem_Nodes ();
+		for (final Node aNode : lNodes)
+		{
+			aNode.stop();
+		}
+	}
+
+	//-------------------------------------------------------------------------
 	public static String defineSDTResource (final String... lParts)
 	    throws Exception
 	{

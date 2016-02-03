@@ -47,6 +47,14 @@ function lib_log_set_colorize()
 }
 
 #-----------------------------------------------------------------------------------------
+function lib_log_enable_printf()
+{
+    local v_state="$1"
+
+    lib_log_m_use_printf=${v_state}
+}
+
+#-----------------------------------------------------------------------------------------
 function lib_log_trace()
 {
 	local v_msg="$1"
@@ -128,7 +136,13 @@ function lib_log_to_std()
 
 	if [ $lib_log_m_colorize == true ];
 	then
-		echo -e "\e[${v_color}m${v_msg}\e[0m"
+        if [ $lib_log_m_use_printf == true ];
+        then
+            # mac terminal needs printf instead of echo
+            printf "\e[${v_color}m${v_msg}\e[0m\n"
+        else
+    		echo -e "\e[${v_color}m${v_msg}\e[0m"
+        fi
 	else
 		echo "${v_msg}"
 	fi
@@ -137,3 +151,5 @@ function lib_log_to_std()
 #-----------------------------------------------------------------------------------------
 lib_log_set_level $LIB_LOG_LEVEL_INFO
 lib_log_set_colorize false
+lib_log_enable_printf false
+
