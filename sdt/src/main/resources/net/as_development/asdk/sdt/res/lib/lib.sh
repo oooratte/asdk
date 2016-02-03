@@ -31,3 +31,4 @@ set -e
 . $SDT_LIB_DIR/lib_config.sh
 . $SDT_LIB_DIR/lib_apt.sh
 . $SDT_LIB_DIR/lib_packageinst.sh
+. $SDT_LIB_DIR/lib_user.sh

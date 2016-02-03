@@ -19,11 +19,15 @@ package net.as_development.asdk.sdt;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import net.as_development.asdk.sdt.desc.AuthenticationDescriptor;
 import net.as_development.asdk.sdt.desc.NodeDescriptor;
 import net.as_development.asdk.sdt.impl.TaskDeployFrameworkCore;
+import net.as_development.asdk.sdt.impl.TaskStart;
+import net.as_development.asdk.sdt.impl.TaskStop;
 import net.as_development.asdk.ssh.SSHIdentity;
 import net.as_development.asdk.ssh.SSHServer;
 
@@ -88,11 +92,17 @@ public class Node
 	public void addTasks (final TaskBase... lNewTasks)
 		throws Exception
 	{
-		final List< TaskBase > lTasks = mem_Tasks ();
 		for (final TaskBase aNewTask : lNewTasks)
 		{
-			if ( ! lTasks.contains(aNewTask))
-				lTasks.add(aNewTask);
+			final Class< ? > aTaskClass = aNewTask.getClass();
+
+			if (TaskStart.class.isAssignableFrom(aTaskClass))
+				impl_addStartTasks  (aNewTask);
+			else
+			if (TaskStop.class.isAssignableFrom(aTaskClass))
+				impl_addStopTasks   (aNewTask);
+			else
+				impl_addDeployTasks (aNewTask);
 		}
 	}
 
@@ -108,7 +118,7 @@ public class Node
 	 * 
 	 *  @throws Exception
 	 */
-	protected void deploy ()
+	public void deploy ()
 		throws Exception
 	{
 		final SSHServer aSSH = mem_SSH ();
@@ -116,13 +126,51 @@ public class Node
 		
 		try
 		{
-			final List< TaskBase > lTasks = mem_Tasks ();
+			final List< TaskBase > lTasks = mem_DeployTasks ();
 			for (final TaskBase aTask : lTasks)
 				aTask.execute(this);
 		}
 		finally
 		{
 			aSSH.disconnect();
+		}
+	}
+
+	//-------------------------------------------------------------------------
+	public void start ()
+	    throws Exception
+	{
+		final Map< Integer, List< TaskStart >> aRegistry = mem_StartTasks ();
+		
+		for (int nLevel=0; nLevel<10; ++nLevel)
+		{
+			final List< TaskStart > lTasks4Level = aRegistry.get(nLevel);
+			if (lTasks4Level == null)
+				continue;
+
+			for (final TaskStart aTask : lTasks4Level)
+			{
+				aTask.execute(this);
+			}
+		}
+	}
+	
+	//-------------------------------------------------------------------------
+	public void stop ()
+	    throws Exception
+	{
+		final Map< Integer, List< TaskStop >> aRegistry = mem_StopTasks ();
+		
+		for (int nLevel=0; nLevel<10; ++nLevel)
+		{
+			final List< TaskStop > lTasks4Level = aRegistry.get(nLevel);
+			if (lTasks4Level == null)
+				continue;
+
+			for (final TaskStop aTask : lTasks4Level)
+			{
+				aTask.execute(this);
+			}
 		}
 	}
 
@@ -167,27 +215,108 @@ public class Node
 	}
 
 	//-------------------------------------------------------------------------
+	private void impl_addDeployTasks (final TaskBase... lNewTasks)
+		throws Exception
+	{
+		final List< TaskBase > lTasks = mem_DeployTasks ();
+		
+		for (final TaskBase aNewTask : lNewTasks)
+		{
+			if ( ! lTasks.contains(aNewTask))
+				lTasks.add(aNewTask);
+		}
+	}
+	
+	//-------------------------------------------------------------------------
+	private void impl_addStartTasks (final TaskBase... lNewTasks)
+		throws Exception
+	{
+		final Map< Integer, List< TaskStart >> aRegistry = mem_StartTasks ();
+		
+		for (final TaskBase aNewTask : lNewTasks)
+		{
+			final TaskStart         aStartTask   = (TaskStart) aNewTask;
+			final int               nRunLevel    = aStartTask.getRunLevel();
+				  List< TaskStart > lTasks4Level = aRegistry.get(nRunLevel);
+
+			if (lTasks4Level == null)
+			{
+				lTasks4Level = new ArrayList< TaskStart > ();
+				aRegistry.put(nRunLevel, lTasks4Level);
+			}
+			
+			if ( ! lTasks4Level.contains(aStartTask))
+			{
+				lTasks4Level.add(aStartTask);
+			}
+		}
+	}
+
+	//-------------------------------------------------------------------------
+	private void impl_addStopTasks (final TaskBase... lNewTasks)
+		throws Exception
+	{
+		final Map< Integer, List< TaskStop >> aRegistry = mem_StopTasks ();
+		
+		for (final TaskBase aNewTask : lNewTasks)
+		{
+			final TaskStop         aStopTask    = (TaskStop) aNewTask;
+			final int              nRunLevel    = aStopTask.getRunLevel();
+				  List< TaskStop > lTasks4Level = aRegistry.get(nRunLevel);
+
+			if (lTasks4Level == null)
+			{
+				lTasks4Level = new ArrayList< TaskStop > ();
+				aRegistry.put(nRunLevel, lTasks4Level);
+			}
+			
+			if ( ! lTasks4Level.contains(aStopTask))
+			{
+				lTasks4Level.add(aStopTask);
+			}
+		}
+	}
+
+	//-------------------------------------------------------------------------
 	/** add all default tasks of SDT to every node.
 	 * 
 	 *  E.g. one default task is the deployment of the remote SDT framework
 	 *  (a bunch of script files). It's the core framework and can't be omitted.
 	 */
-	private void impl_addDefaultTasks (final List< TaskBase > lTasks)
+	private void impl_addDefaultDeployTasks (final List< TaskBase > lTasks)
 	    throws Exception
 	{
 		lTasks.add(new TaskDeployFrameworkCore());
 	}
 
 	//-------------------------------------------------------------------------
-	private List< TaskBase > mem_Tasks ()
+	private List< TaskBase > mem_DeployTasks ()
 	    throws Exception
 	{
-		if (m_lTasks == null)
+		if (m_lDeployTasks == null)
 		{
-			m_lTasks = new ArrayList< TaskBase > ();
-			impl_addDefaultTasks (m_lTasks);
+			m_lDeployTasks = new ArrayList< TaskBase > ();
+			impl_addDefaultDeployTasks (m_lDeployTasks);
 		}
-		return m_lTasks;
+		return m_lDeployTasks;
+	}
+
+	//-------------------------------------------------------------------------
+	private Map< Integer, List< TaskStart >> mem_StartTasks ()
+	    throws Exception
+	{
+		if (m_lStartTasks == null)
+			m_lStartTasks = new HashMap< Integer, List< TaskStart >> ();
+		return m_lStartTasks;
+	}
+
+	//-------------------------------------------------------------------------
+	private Map< Integer, List< TaskStop >> mem_StopTasks ()
+	    throws Exception
+	{
+		if (m_lStopTasks == null)
+			m_lStopTasks = new HashMap< Integer, List< TaskStop >> ();
+		return m_lStopTasks;
 	}
 
 	//-------------------------------------------------------------------------
@@ -215,7 +344,13 @@ public class Node
 	private NodeDescriptor m_aDesc = null;
 
 	//-------------------------------------------------------------------------
-	private List< TaskBase > m_lTasks = null;
+	private List< TaskBase > m_lDeployTasks = null;
+
+	//-------------------------------------------------------------------------
+	private Map< Integer, List< TaskStart > > m_lStartTasks = null;
+
+	//-------------------------------------------------------------------------
+	private Map< Integer, List< TaskStop > > m_lStopTasks = null;
 
 	//-------------------------------------------------------------------------
 	private SSHServer m_aSSH = null;

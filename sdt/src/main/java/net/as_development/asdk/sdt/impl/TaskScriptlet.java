@@ -17,7 +17,6 @@
  */
 package net.as_development.asdk.sdt.impl;
 
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.ArrayUtils;
 
 import net.as_development.asdk.sdt.Node;
@@ -79,8 +78,8 @@ public class TaskScriptlet extends TaskBase
 	}
 
     //--------------------------------------------------------------------------
-	private String m_sScriptlet = null;
+	protected String m_sScriptlet = null;
 
 	//--------------------------------------------------------------------------
-	private String[] m_lArguments = null;
+	protected String[] m_lArguments = null;
 }
