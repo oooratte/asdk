@@ -29,6 +29,8 @@ import java.util.concurrent.Future;
 
 import org.apache.commons.lang3.StringUtils;
 
+import net.as_development.asdk.sdt.impl.TaskDeployFrameworkCore;
+
 //=============================================================================
 /** MAIN entry point of the SDT framework.
  *  Create an instance ... add some nodes to it and call deploy().
@@ -192,6 +194,35 @@ public class SDT
 	}
 
 	//-------------------------------------------------------------------------
+	/** run task direct on node(s) - immediately
+	 * 
+	 *  @param	lNodeIds [IN]
+	 *  		the list of the nodes (id's) where the given task has to be executed.
+	 *  
+	 *  @param	aTask [IN]
+	 *  		the task to be executed at those nodes
+	 */
+	public void runTaskOnNodes (final TaskBase  aTask   ,
+							    final String... lNodeIds)
+		throws Exception
+	{
+		final List< Node > lNodes = impl_listNodesById (lNodeIds);
+		for (final Node aNode : lNodes)
+			aTask.execute(aNode);
+	}
+
+	//-------------------------------------------------------------------------
+	public void forceReDeployOfSDTOnNodes (final String... lNodeIds)
+	    throws Exception
+	{
+		final List< Node > lNodes    = impl_listNodesById (lNodeIds);
+		final TaskBase     aReDeploy = TaskDeployFrameworkCore.createForceUpdate ();
+
+		for (final Node aNode : lNodes)
+			aReDeploy.execute(aNode);
+	}
+	
+	//-------------------------------------------------------------------------
 	public static String defineSDTResource (final String... lParts)
 	    throws Exception
 	{
@@ -339,6 +370,19 @@ public class SDT
 		}
 		
 		return lNodes;
+	}
+
+    //--------------------------------------------------------------------------
+	private Node impl_getNodeById (final String sNodeId)
+	    throws Exception
+	{
+		final Map< String, Node > lAllNodes = mem_Nodes ();
+		final Node                aNode     = lAllNodes.get(sNodeId);
+
+		if (aNode == null)
+			throw new Error ("No node found for ID '"+sNodeId+"'.");
+		
+		return aNode;
 	}
 
 	//--------------------------------------------------------------------------
