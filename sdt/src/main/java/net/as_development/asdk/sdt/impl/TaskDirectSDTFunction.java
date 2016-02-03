@@ -27,29 +27,29 @@ import net.as_development.asdk.ssh.SSHMacros;
 import net.as_development.asdk.ssh.SSHServer;
 
 //==============================================================================
-public class TaskDirectCommand extends TaskBase
+public class TaskDirectSDTFunction extends TaskBase
 {
     //--------------------------------------------------------------------------
-	public TaskDirectCommand ()
+	public TaskDirectSDTFunction ()
 		throws Exception
 	{}
 
     //--------------------------------------------------------------------------
-	public static TaskDirectCommand create (final String    sCommand  ,
-			  							    final String... lArguments)
+	public static TaskDirectSDTFunction create (final String    sFunction ,
+			  							        final String... lArguments)
 		throws Exception
 	{
-		final TaskDirectCommand aTask = new TaskDirectCommand ();
-		aTask.setCommand(sCommand, lArguments);
+		final TaskDirectSDTFunction aTask = new TaskDirectSDTFunction ();
+		aTask.setFunction(sFunction, lArguments);
 		return aTask;
 	}
 	
     //--------------------------------------------------------------------------
-	public void setCommand (final String    sCommand  ,
-							final String... lArguments)
+	public void setFunction (final String    sFunction ,
+							 final String... lArguments)
 	    throws Exception
 	{
-		m_sCommand   = sCommand  ;
+		m_sFunction  = sFunction ;
 		m_lArguments = lArguments;
 	}
 	
@@ -58,56 +58,43 @@ public class TaskDirectCommand extends TaskBase
 	public void execute(final Node aNode)
 		throws Exception
 	{
-		System.out.println("execute direct command '"+m_sCommand+"' ...");
+		System.out.println("execute direct SDT function '"+m_sFunction+"' ...");
 
-		final boolean  bDebug    = aNode.accessSDT().isDebug();
+		final SDT      aSDT      = aNode.accessSDT();
+		final boolean  bDebug    = aSDT.isDebug();
 		final String   sSDT_HOME = SDTConst.DEFAULT_SDT_HOME;
 		final String   sSdtSh    = SDT.defineSDTResource(sSDT_HOME, SDTConst.SDT_DIR_BIN, SDTConst.SDT_SH_STD);
-		final String   sTempSh   = SDT.defineSDTResource(sSDT_HOME, SDTConst.SDT_DIR_TEMP, "direct-command.sh");
-		final String   sContent  = impl_defineTempScriptContent ();
-              String[] lArgs     = new String[4];
+              String[] lShArgs   = new String[4];
+		final String[] lFuncArgs = impl_quoteArgs (m_lArguments);
+              
+  		lShArgs[0] = "--debug";
+		lShArgs[1] = Boolean.toString(bDebug);
+		lShArgs[2] = "--run-function";
+		lShArgs[3] = m_sFunction;
+		lShArgs    = ArrayUtils.addAll(lShArgs, lFuncArgs);
 		
 		final SSHServer aSSH = aNode.accessSSH();
-		SSHMacros.dumpToFile(aSSH, sTempSh, sContent);
-		SSHMacros.chmod     (aSSH, sTempSh, "755"   );
-		      
-		lArgs[0] = "--debug";
-		lArgs[1] = Boolean.toString(bDebug);
-		lArgs[2] = "--run-command";
-		lArgs[3] = sTempSh;
-		
-		SSHMacros.execScript(aSSH, sSdtSh, lArgs);
+		SSHMacros.execScript(aSSH, sSdtSh, lShArgs);
 
 		System.out.println("ok");
 	}
 
     //--------------------------------------------------------------------------
-	private String impl_defineTempScriptContent ()
+	private String[] impl_quoteArgs (final String[] lArgs)
 	    throws Exception
 	{
-		final StringBuffer sContent = new StringBuffer (256);
-		
-		sContent.append("#!/bin/bash\n");
-		sContent.append("set -e\n"     );
-		sContent.append("lib_exec \""  );
-		sContent.append(m_sCommand     );
-		
-		if (m_lArguments != null)
-		{
-			for (final String sArg : m_lArguments)
-			{
-				sContent.append(" " );
-				sContent.append(sArg);
-			}
-		}
-		
-		sContent.append("\""           );
-		
-		return sContent.toString ();
+        final int      c           = lArgs.length;
+        final String[] lQuotedArgs = new String[c];
+              int      i           = 0;
+
+        for (i=0; i<c; ++i)
+        	lQuotedArgs[i] = "\\\"" + lArgs[i] + "\\\"";
+        
+        return lQuotedArgs;
 	}
 	
     //--------------------------------------------------------------------------
-	protected String m_sCommand = null;
+	protected String m_sFunction = null;
 
 	//--------------------------------------------------------------------------
 	protected String[] m_lArguments = null;
