@@ -97,6 +97,12 @@ function sdt_show_help ()
     lib_log_info "                 The command will be executed within the context of SDT."
     lib_log_info "                 All arguments are passed to the command."
     lib_log_info " "
+    lib_log_info "    -rf | --run-function <name> [arguments]"
+    lib_log_info " "
+    lib_log_info "                 run the specified (internal) SDT library function"
+    lib_log_info "                 The function will be executed within the context of SDT."
+    lib_log_info "                 All arguments are passed to that function."
+    lib_log_info " "
     lib_log_info "    -d | --debug"
     lib_log_info " "
     lib_log_info "                 enable debug logging"
@@ -142,8 +148,27 @@ function sdt_run_command ()
         v_command="${v_command}${v_args}"
     fi
     
-    lib_log_info "sdt_run_command ${v_command} ..."
     lib_exec "${v_command}"
+}
+
+#-----------------------------------------------------------------------------------------
+function sdt_run_function ()
+{
+    local v_function="$1"
+    local v_args="$2"
+    
+    lib_validate_var_is_set v_function "Illegal argument 'v_function'."
+    # args are optional !
+
+    local v_call="${v_function}"
+
+    if [ ! -z "${v_args}" ];
+    then
+        # note: args starts with space already !
+        v_call="${v_call}${v_args}"
+    fi
+    
+    eval "${v_call}"
 }
 
 #-----------------------------------------------------------------------------------------
@@ -157,6 +182,7 @@ echo "... parse command line"
 
 ARG_RUN_SCRIPTLET=
 ARG_RUN_COMMAND=
+ARG_RUN_FUNCTION=
 ARG_LIST_OF_UNKNOWNS=
 ARG_ENABLE_DEBUG=false
 
@@ -177,8 +203,17 @@ while [[ $# > 0 ]]
         shift
         ;;
 
+        -rf|--run-function)
+        ARG_RUN_FUNCTION="$1"
+        shift
+        ;;
+
         -d|--debug)
         ARG_ENABLE_DEBUG=true
+        if [ "$1" == "true" ] || [ "$1" == "false" ];
+        then
+            shift
+        fi
         ;;
 
 	    -h|--help)
@@ -186,7 +221,7 @@ while [[ $# > 0 ]]
 	    ;;
 
 	    *)
-	    ARG_LIST_OF_UNKNOWNS="${ARG_LIST_OF_UNKNOWNS} $1"
+	    ARG_LIST_OF_UNKNOWNS="${ARG_LIST_OF_UNKNOWNS} $key"
 	    ;;
 
 	esac
@@ -206,6 +241,13 @@ else
 fi
 
 #-----------------------------------------------------------------------------------------
+
+lib_log_debug "ARG_RUN_SCRIPTLET    = ${ARG_RUN_SCRIPTLET}"
+lib_log_debug "ARG_RUN_COMMAND      = ${ARG_RUN_COMMAND}"
+lib_log_debug "ARG_RUN_FUNCTION     = ${ARG_RUN_FUNCTION}"
+lib_log_debug "ARG_LIST_OF_UNKNOWNS = ${ARG_LIST_OF_UNKNOWNS}"
+
+#-----------------------------------------------------------------------------------------
 # MAIN
 
 echo "... do main"
@@ -218,6 +260,11 @@ fi
 if [ ! -z "${ARG_RUN_COMMAND}" ];
 then
     sdt_run_command "${ARG_RUN_COMMAND}" "${ARG_LIST_OF_UNKNOWNS}"
+fi
+
+if [ ! -z "${ARG_RUN_FUNCTION}" ];
+then
+    sdt_run_function "${ARG_RUN_FUNCTION}" "${ARG_LIST_OF_UNKNOWNS}"
 fi
 
 exit 0
