@@ -53,7 +53,7 @@ public enum EOS
 		if (eOS == E_SLES)
 			return STR_SLES;
 		else
-			throw new UnsupportedOperationException ("No supoprt for '"+eOS+"' implemented yet.");
+			throw new UnsupportedOperationException ("No support for '"+eOS+"' implemented yet.");
 	}
 
 	//-------------------------------------------------------------------------
@@ -69,6 +69,6 @@ public enum EOS
 		if (StringUtils.equalsIgnoreCase(sOS, STR_SLES))
 			return E_SLES;
 		else
-			throw new UnsupportedOperationException ("No supoprt for '"+sOS+"' implemented yet.");
+			throw new UnsupportedOperationException ("No support for '"+sOS+"' implemented yet.");
 	}
 }

@@ -36,6 +36,12 @@ function lib_apt_selfupdate ()
 }
 
 #-----------------------------------------------------------------------------------------
+function lib_apt_clean_cache ()
+{
+    lib_exec "apt-get clean"
+}
+
+#-----------------------------------------------------------------------------------------
 function lib_apt_install_package ()
 {
     local v_package="$1"
@@ -112,7 +118,7 @@ function lib_apt_update_packages_by_name ()
 
     for v_pkg in ${v_pkg_list};
     do
-        lib_exec "apt-get install -y \"${v_pkg}\" ${v_args[@]}"
+        lib_exec "apt-get install --reinstall -y \"${v_pkg}\" ${v_args[@]}"
     done
 }
 
