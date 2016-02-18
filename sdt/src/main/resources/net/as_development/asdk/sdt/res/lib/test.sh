@@ -43,4 +43,4 @@ v_args=(
     "Dpkg::Options::=\"--force-confdef\""
 )
 
-lib_apt_install_package_with_args "open-xchange-documentconverter-api"   "v_args[*]"
+lib_apt_update_packages_by_name "open-xchange-documentconverter-api" "v_args[*]"
