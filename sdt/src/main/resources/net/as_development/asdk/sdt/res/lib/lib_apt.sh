@@ -120,7 +120,7 @@ function lib_apt_update_packages_by_name ()
 
     for v_pkg in ${v_pkg_list};
     do
-        lib_exec "apt-get install --reinstall -y --fix-missing \"${v_pkg}\" ${v_args}"
+        lib_exec "apt-get install --reinstall -y --force-yes --fix-missing \"${v_pkg}\" ${v_args}"
     done
 }
 
