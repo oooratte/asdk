@@ -55,11 +55,12 @@ function lib_apt_install_package ()
 function lib_apt_install_package_with_args ()
 {
     local v_package="$1"
-    declare -a v_args=("${!2}")
+    local v_args="$2"
     
     lib_validate_var_is_set "v_package" "Invalid argument 'package'."
+    # v_args are optional !
 
-    lib_exec "apt-get install -y --force-yes ${v_package} ${v_args[@]}"
+    lib_exec "apt-get install -y --force-yes ${v_package} ${v_args}"
 }
 
 #-----------------------------------------------------------------------------------------
@@ -109,16 +110,17 @@ function lib_apt_add_package_repo ()
 function lib_apt_update_packages_by_name ()
 {
     local v_pkg_search="$1"
-    declare -a v_args=("${!2}")
+    local v_args="$2"
 
     lib_validate_var_is_set "v_pkg_search" "Invalid argument 'package_search'."
+    # v_args are optional !
 
     local v_pkg_list=$(dpkg --get-selections | grep -i "${v_pkg_search}" | sed 's:install$::')
     local v_pkg=
 
     for v_pkg in ${v_pkg_list};
     do
-        lib_exec "apt-get install --reinstall -y --fix-missing \"${v_pkg}\" ${v_args[@]}"
+        lib_exec "apt-get install --reinstall -y --fix-missing \"${v_pkg}\" ${v_args}"
     done
 }
 
