@@ -113,12 +113,12 @@ function lib_apt_update_packages_by_name ()
 
     lib_validate_var_is_set "v_pkg_search" "Invalid argument 'package_search'."
 
-    local v_pkg_list=$(dpkg --get-selections | grep -i "${v_pkg_search}" | sed 's:install$::' )
+    local v_pkg_list=$(dpkg --get-selections | grep -i "${v_pkg_search}" | sed 's:install$::')
     local v_pkg=
 
     for v_pkg in ${v_pkg_list};
     do
-        lib_exec "apt-get install --reinstall -y \"${v_pkg}\" ${v_args[@]}"
+        lib_exec "apt-get install --reinstall -y --fix-missing \"${v_pkg}\" ${v_args[@]}"
     done
 }
 
