@@ -21,7 +21,7 @@
       -->
 	<groupId>net.as-development.asdk</groupId>
 	<artifactId>pom-parent-root</artifactId>
-	<version>-version=1.2.0</version>
+	<version>1.2.0</version>
     <packaging>pom</packaging>
 
     <!-- ===========================================================
