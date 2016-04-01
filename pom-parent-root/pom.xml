@@ -21,7 +21,7 @@
       -->
 	<groupId>net.as-development.asdk</groupId>
 	<artifactId>pom-parent-root</artifactId>
-	<version>1.1.0-SNAPSHOT</version>
+	<version>-version=1.2.0</version>
     <packaging>pom</packaging>
 
     <!-- ===========================================================
@@ -249,15 +249,32 @@ For more information, please refer to <http://unlicense.org/>
       -->
     <distributionManagement>
         <repository>
-           <id>deploy-releases</id>
-           <name>Internal Releases</name>
-           <url>http://maven.as-development.net/nexus/content/repositories/releases/</url>
+            <id>repo-sonatype-releases</id>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
         </repository>
+
         <snapshotRepository>
-           <id>deploy-snapshots</id>
-           <name>Internal Snapshots</name>
-           <url>http://maven.as-development.net/nexus/content/repositories/snapshots/</url>
+            <id>repo-sonatype-snapshots</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
         </snapshotRepository>
     </distributionManagement>
+    
+    <!-- ===========================================================
+      -->
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.sonatype.plugins</groupId>
+                <artifactId>nexus-staging-maven-plugin</artifactId>
+                <version>1.6.3</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <serverId>repo-sonatype</serverId>
+                    <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+                    <autoReleaseAfterClose>true</autoReleaseAfterClose>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>    
     
 </project>
