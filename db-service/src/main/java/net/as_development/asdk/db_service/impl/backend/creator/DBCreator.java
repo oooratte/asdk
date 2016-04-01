@@ -121,7 +121,7 @@ public class DBCreator
      *  Those units will be used later for all requested operations as e.g.
      *  create schema, update schema, migrate data etcpp.
      *  
-     *  @note   an empty list means using of ALL available units
+     *  Note   an empty list means using of ALL available units
      *          within the classpath.
      *  
      *  @param  lUnits [IN]
@@ -146,7 +146,7 @@ public class DBCreator
      *  Those units will be used later for all requested operations as e.g.
      *  create schema, update schema, migrate data etcpp.
      *  
-     *  @note   an empty list means using of ALL available entities
+     *  Note   an empty list means using of ALL available entities
      *          within the classpath.
      *  
      *  @param  lEntities [IN]
@@ -169,7 +169,7 @@ public class DBCreator
     //-------------------------------------------------------------------------
     /** do the requested operation.
      * 
-     *  @see    DBCreator.EOperation for more details.
+     *  see    DBCreator.EOperation for more details.
      * 
      *  @param  eOperation [IN]
      *          the requested operation.
@@ -192,7 +192,7 @@ public class DBCreator
     /** create schema and tables new for the specified set of persistence units
      *  and DB entities.
      *  
-     *  @note   There is no option to 'recreate' an existing schema.
+     *  Note   There is no option to 'recreate' an existing schema.
      *          Use operation E_REMOVE in combination with E_CREATE to
      *          recreate an existing schema.
      */
@@ -325,7 +325,7 @@ public class DBCreator
             PersistenceUnit aUnit = PersistenceUnit.loadUnit(sUnit);
             lUnits.add (aUnit);
             
-            // @todo think about me
+            // TODO think about me
             //       filter or reject duplicate entities (is it an error ?)
             if (bAllEntities)
                 lEntities.addAll(aUnit.getEntities());

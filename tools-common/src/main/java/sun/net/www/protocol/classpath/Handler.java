@@ -34,7 +34,7 @@ import java.net.URLStreamHandler;
 //=============================================================================
 /** custom URL protocol for 'classpath:' schema. 
  * 
- *  @note	THE NAME OF THIS CLASS HAS TO BE 'Handler'.
+ *  Note	THE NAME OF THIS CLASS HAS TO BE 'Handler'.
  *          No chance to change that ... as Java protocol
  *          handler registration rely on that !
  */

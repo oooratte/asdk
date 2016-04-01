@@ -28,7 +28,7 @@ package net.as_development.asdk.db_service.impl;
 
 //==============================================================================
 /**
- * @todo document me
+ * TODO document me
  */
 public class Column
 {

@@ -39,7 +39,7 @@ public class JdbcDriver
     public static synchronized void load (String sDriver)
         throws Exception
     {
-        // @todo detect calling these method with different drivers at runtime
+        // TODO detect calling these method with different drivers at runtime
         //       and throw an exception in such case.
         //       Switching the driver at runtime seems to be dangerous.
 

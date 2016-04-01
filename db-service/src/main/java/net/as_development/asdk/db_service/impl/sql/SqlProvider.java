@@ -184,7 +184,7 @@ public class SqlProvider implements IDBBackend
                 if (StringUtils.equals(sColumn, sIdColumn))
                 	continue;
 
-            	// @todo ignore all further columns where meta say they are not allowed within update !
+            	// TODO ignore all further columns where meta say they are not allowed within update !
 
                 mem_SqlGenerator ().setValueOnPreparedStatement (aSql, nColumn, aType, aValue);
                 ++nColumn;
@@ -257,7 +257,7 @@ public class SqlProvider implements IDBBackend
         	if (eOperation == EQueryPartOperation.E_LIKE)
         	{
         		String sValue = (String) aValue;
-     		           sValue = StringUtils.replaceChars(sValue, '*', '%'); // @todo use db-dialect-config (or something similar) to know which chars has to be used here for which real DB .-)
+     		           sValue = StringUtils.replaceChars(sValue, '*', '%'); // TODO use db-dialect-config (or something similar) to know which chars has to be used here for which real DB .-)
     		           sValue = StringUtils.replaceChars(sValue, '?', '_');
     		    mem_SqlGenerator ().setValueOnPreparedStatement (aSql, nPlaceHolder++, aType, sValue);
         	}
@@ -408,7 +408,7 @@ public class SqlProvider implements IDBBackend
      *  Next call to mem_Connection () will recreate the connection member ...
      *  .-)
      *
-     *  @note	Don't forget to clean up our internal SQL statement cache.
+     *  Note	Don't forget to clean up our internal SQL statement cache.
      *          Those PreparedStatement objects are bound to this connection and
      *          will throw exception in case they are used AFTER closing the connection object.
      */
@@ -427,7 +427,7 @@ public class SqlProvider implements IDBBackend
 
 		try
 		{
-    		// @todo get timeout from anywhere else ...
+    		// TODO get timeout from anywhere else ...
     		if ( ! m_aConnection.isValid (5000))
     		{
     			mem_SqlCache ().clear ();

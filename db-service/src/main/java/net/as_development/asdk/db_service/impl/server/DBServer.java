@@ -118,7 +118,7 @@ public class DBServer implements IDBServer
 		throws Exception
 	{
 		IDBPool iPool = ServiceEnv.get ().getService (IDBPool.class);
-		// @todo do we need listing of persistence units within pool ?
+		// TODO do we need listing of persistence units within pool ?
 		
 		Iterator< IPersistenceUnit > lPUs = mem_PUs ().values().iterator();
 		while (lPUs.hasNext())

@@ -35,7 +35,7 @@ import com.jcraft.jsch.UserInfo;
 
 //==============================================================================
 /**
- * @todo document me
+ * TODO document me
  */
 public class SSHIdentity implements UserInfo
 {

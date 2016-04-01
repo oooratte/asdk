@@ -62,7 +62,7 @@ public interface IDBBackend
     //--------------------------------------------------------------------------
     /** back end should remove an existing table.
      * 
-     *  @note   Do nothing in case table do not exists.
+     *  Note   Do nothing in case table do not exists.
      *          Don't throw an exception in that special case.
      * 
      *  @param  aMeta [IN]
@@ -76,9 +76,9 @@ public interface IDBBackend
      *
      *  @param  lRows [IN]
      *          contains all information about the new rows.
-     *          (meta info & values)
+     *          (meta info and values)
      *
-     *  @throws an exception in case operation failed (by any reason).
+     *  @throws Exception in case operation failed (by any reason).
      */
     public void insertRows (List< Row > lRows)
         throws Exception;
@@ -88,9 +88,9 @@ public interface IDBBackend
      *
      *  @param  lRows [IN]
      *          contains all information about all rows for updating.
-     *          (meta info & values)
+     *          (meta info and values)
      *
-     *  @throws an exception in case operation failed (by any reason).
+     *  @throws Exception in case operation failed (by any reason).
      */
     public void updateRows (List< Row > lRows)
         throws Exception;
@@ -100,9 +100,9 @@ public interface IDBBackend
      *
      *  @param  lRows [IN]
      *          contains all information about all rows to be deleted.
-     *          (meta info & values)
+     *          (meta info and values)
      *
-     *  @throws an exception in case operation failed (by any reason).
+     *  @throws Exception in case operation failed (by any reason).
      */
     public void deleteRows (List< Row > lRows)
         throws Exception;
@@ -114,7 +114,7 @@ public interface IDBBackend
      *  @param  aMeta [IN]
      *  		describe the table (one row of it) more in detail.
      *
-     *  @throws an exception in case operation failed (by any reason).
+     *  @throws Exception in case operation failed (by any reason).
      */
     public void deleteAllRows (Row aMeta)
         throws Exception;
@@ -124,11 +124,10 @@ public interface IDBBackend
      *
      *  @param  aRow [IN/OUT]
      *          contains all information about the queried entity.
-     *          (meta info & id)
+     *          (meta info and id)
+     *          return row filled with all values retrieved from DB.
      *
-     *  @return row filled with all values retrieved from DB.
-     *
-     *  @throws an exception in case operation failed (by any reason).
+     *  @throws Exception in case operation failed (by any reason).
      */
     public void getRowById (Row aRow)
         throws Exception;
@@ -153,7 +152,7 @@ public interface IDBBackend
      *          to be used for a sub sequential query.
      *          An empty or null token means: no further query results available.
      *
-     *  @throws an exception in case operation failed (by any reason).
+     *  @throws Exception in case operation failed (by any reason).
      */
     public String getAllRows (Row         aMeta     ,
                               String      sNextToken,
@@ -183,7 +182,7 @@ public interface IDBBackend
      *          to be used for a sub sequential query.
      *          An empty or null token means: no further query results available.
      *
-     *  @throws an exception in case operation failed (by any reason).
+     *  @throws Exception in case operation failed (by any reason).
      */
     public String queryRows (Row             aMeta     ,
                              String          sNextToken,

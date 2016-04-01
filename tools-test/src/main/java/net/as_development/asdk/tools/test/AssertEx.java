@@ -38,7 +38,6 @@ import org.junit.Assert;
 public class AssertEx extends Assert
 {
 	//-------------------------------------------------------------------------
-	/// @see {@link #assertThrowsException(java.lang.String, ...) }
 	public static final void assertThrowsException(Class< ? > aExpectedException,
 												   Object     aObject			,
 												   String     sMethod			,
@@ -66,7 +65,7 @@ public class AssertEx extends Assert
 	 *	@param	lArguments [IN, OPTIONAL]
 	 *			the list of (optional) arguments.
 	 *
-	 *	@throws	an exception if method does not throw any exception
+	 *	@throws Exception if method does not throw any exception
 	 *			or thrown exception does not match the expected one.
 	 */
 	public static final void assertThrowsException(String  	  sMessage			,
@@ -74,7 +73,7 @@ public class AssertEx extends Assert
 												   Object     aObject			,
 												   String     sMethod			,
 												   Object...  lArguments		)
-	throws Exception
+	    throws Exception
 	{
 		Class< ? > aClass   = aObject.getClass();
 		Method[]   lMethods = aClass.getDeclaredMethods();
@@ -100,7 +99,6 @@ public class AssertEx extends Assert
 	}
 	
     //-------------------------------------------------------------------------
-	/// @see @link #assertNotEquals(java.lang.String,...)
 	public static < T > void assertNotEquals (T aNotExpected,
 	                                          T aActual     )
 	    throws Exception
@@ -112,7 +110,7 @@ public class AssertEx extends Assert
 	/** check if both values are not equals.
 	 *  Throw an error if they are equals.
 	 *
-	 *  @param sMessgae [IN]
+	 *  @param sMessage [IN]
 	 *         the error message shown in case both values are equals.
 	 *         
 	 *  @param aNotExpected [IN]
@@ -144,7 +142,7 @@ public class AssertEx extends Assert
     }
     
     //-------------------------------------------------------------------------
-    /// @see @link #assertArrayNotEquals(java.lang.String,...);
+    /// see @link #assertArrayNotEquals(java.lang.String,...);
     public static < T >  void assertArrayNotEquals (T[] aNotExpected,
                                                     T[] aActual     )
         throws Exception
@@ -199,7 +197,7 @@ public class AssertEx extends Assert
     }
     
     //-------------------------------------------------------------------------
-    /// @see @link #assertArrayNotEquals(java.lang.String,...);
+    /// see @link #assertArrayNotEquals(java.lang.String,...);
     public static void assertArrayNotEquals (byte[] aNotExpected,
                                              byte[] aActual     )
         throws Exception

@@ -610,7 +610,7 @@ public class AnsiSqlGenerator implements ISqlGenerator
         	if (StringUtils.equals(sIdColumn, sColumn))
     			continue;
 
-        	// @todo ignore all further columns where meta say they are not allowed within update !
+        	// TODO ignore all further columns where meta say they are not allowed within update !
 
             if (bAddSeparator)
                 sSql.append (", ");
@@ -786,7 +786,7 @@ public class AnsiSqlGenerator implements ISqlGenerator
      *  Then we do the right things to get a table name to be used within
      *  SQL statements.
      *  
-     *  @note   returning name will contain quotes. (if enabled)
+     *  Note   returning name will contain quotes. (if enabled)
      *          So you don't have to add quotes outside.
      *          
      *  @param  aMeta [IN]
@@ -831,7 +831,7 @@ public class AnsiSqlGenerator implements ISqlGenerator
      *  of that entity. Because tables are unique too ... and the prefix make
      *  it possible to generate several depending resources based on that.
      *  
-     *  @note   returning name will contain quotes (if enabled).
+     *  Note   returning name will contain quotes (if enabled).
      *          So you don't have to add quotes outside.
      *          
      *  @param  aMeta [IN]

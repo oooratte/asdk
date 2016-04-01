@@ -88,7 +88,7 @@ public interface ISqlServer
     /** starts the sql server.
      *  Does nothing if server was already started.
      *
-     *  @throws an exception if starting failed by any reason.
+     *  @throws Exception if starting failed by any reason.
      */
     public void start ()
         throws Exception;
@@ -97,7 +97,7 @@ public interface ISqlServer
     /** stop the sql server.
      *  Does nothing in case server was not started before.
      *
-     *  @throws an exception if stop failed by any reason.
+     *  @throws Exception if stop failed by any reason.
      */
     public void stop ()
         throws Exception;

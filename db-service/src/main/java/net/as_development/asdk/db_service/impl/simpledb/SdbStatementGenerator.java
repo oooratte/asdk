@@ -38,7 +38,7 @@ import org.apache.commons.lang3.StringUtils;
 
 //==============================================================================
 /**
- * @todo document me
+ * TODO document me
  */
 public class SdbStatementGenerator
 {
@@ -143,11 +143,11 @@ public class SdbStatementGenerator
      *  This method is idempotent - you can call it as often as you want.
      *  It checks if there is something real to do.
      * 
-     *  @note   returning name will contain quotes. (if enabled)
+     *  Note   returning name will contain quotes. (if enabled)
      *          So you don't have to add quotes outside.
      *          
-     *  @param  aMeta [IN]
-     *          the set of meta information.
+     *  @param  sTable [IN]
+     *          the original table name.
      */
     public static String quoteTable (String sTable)
         throws Exception

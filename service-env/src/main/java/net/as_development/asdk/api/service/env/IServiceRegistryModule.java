@@ -43,14 +43,14 @@ public interface IServiceRegistryModule
 {
     //--------------------------------------------------------------------------
     /** @return a list of service names where this module knows special meta data for.
-     *  @note   Those list wont be null - but can be empty.
+     *  Note   Those list wont be null - but can be empty.
      */
     public List< String > listMetaServices ()
         throws Exception;
     
     //--------------------------------------------------------------------------
     /** @return a list of service names where this module can map a real implementation.
-     *  @note   Those list wont be null - but can be empty.
+     *  Note   Those list wont be null - but can be empty.
      */
     public List< String > listServices ()
         throws Exception;
@@ -58,7 +58,7 @@ public interface IServiceRegistryModule
     //--------------------------------------------------------------------------
     /** @return	a meta object which describe the asked service more in detail.
      *
-     * 	@note	return value will be null in case service is not registered here.
+     * 	Note	return value will be null in case service is not registered here.
      *
      *  @param	aService [IN]
      *  		the service those meta are asked for.
@@ -69,7 +69,7 @@ public interface IServiceRegistryModule
     //--------------------------------------------------------------------------
     /** @return a meta object which describe the asked service more in detail.
      *
-     *  @note   return value will be null in case service is not registered here.
+     *  Note   return value will be null in case service is not registered here.
      *
      *  @param  sService [IN]
      *          the full qualified service name where meta data are asked for.

@@ -35,7 +35,7 @@ import net.as_development.asdk.api.db.PersistentId;
 
 //==============================================================================
 /**
- * @todo document me
+ * TODO document me
  */
 public class EntityMetaInfo
 {

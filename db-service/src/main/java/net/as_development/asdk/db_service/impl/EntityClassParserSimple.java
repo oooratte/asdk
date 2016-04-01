@@ -32,7 +32,7 @@ import java.lang.reflect.Field;
 import java.util.Iterator;
 
 /**
- * @todo document me
+ * TODO document me
  */
 public class EntityClassParserSimple
 {
@@ -66,7 +66,7 @@ public class EntityClassParserSimple
     }
 
     //--------------------------------------------------------------------------
-    // @todo move to more generic ferlection helper .-)
+    // TODO move to more generic ferlection helper .-)
 	private static Field impl_getField (Class< ? >  aClass,
                                         String      sField)
         throws Exception

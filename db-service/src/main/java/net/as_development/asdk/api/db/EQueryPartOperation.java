@@ -54,13 +54,13 @@ public enum EQueryPartOperation
 	
     //--------------------------------------------------------------------------
 	/** can be used to find all entities less than a specified reference value.
-	 *  @note means NOT lees-or-equals ! 
+	 *  Note means NOT lees-or-equals ! 
 	 */
 	E_LESS_THAN,
 	
     //--------------------------------------------------------------------------
 	/** can be used to find all entities greater than a specified reference value.
-	 *  @note means NOT greater-or-equals ! 
+	 *  Note means NOT greater-or-equals ! 
 	 */
 	E_GREATER_THAN;
 }

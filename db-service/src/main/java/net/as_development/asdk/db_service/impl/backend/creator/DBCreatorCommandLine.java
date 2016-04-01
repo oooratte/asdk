@@ -143,7 +143,7 @@ public class DBCreatorCommandLine extends CommandLineBase
     
     //-------------------------------------------------------------------------
     /* (non-Javadoc)
-     * @see net.as_development.dblayer.impl.backend.creator.CommandLineBase#verify()
+     * see net.as_development.dblayer.impl.backend.creator.CommandLineBase#verify()
      */
     @Override
     protected void verify()

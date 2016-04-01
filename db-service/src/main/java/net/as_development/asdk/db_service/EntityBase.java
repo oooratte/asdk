@@ -257,7 +257,7 @@ public class EntityBase implements IEntity
     */
 
 	//--------------------------------------------------------------------------
-	/** @todo implement me */
+	/** TODO implement me */
     @Override
 	public Object clone()
     	throws CloneNotSupportedException

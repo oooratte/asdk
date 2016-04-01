@@ -78,7 +78,7 @@ public class DBQuery< TEntity extends IEntity > implements IDBQuery< TEntity >
 	 *  Those meta information knows nearly everything about the bound
 	 *  entity class where this query is good for.
 	 *  
-	 *  @note  Those template will might be cached elsewhere and referenced by more
+	 *  Note  Those template will might be cached elsewhere and referenced by more
 	 *         then one DBQuery instance. DONT use it in writable mode. Use it READONLY.
 	 *         On the other side ... after query template was compiled first time
 	 *         it throws exceptions in case you try to call any set method on it ...
@@ -129,7 +129,7 @@ public class DBQuery< TEntity extends IEntity > implements IDBQuery< TEntity >
 		    // We should check if the user of the query use same query
 		    // parameter for nPosition as he used before compile.
 		    
-		    //  @todo enable this check for debug builds only .-)
+		    //  TODO enable this check for debug builds only .-)
 		    
 		    String                        sId    = m_aTemplate.getId();
 		    DynamicArrayList< QueryPart > lParts = m_aTemplate.getQueryParts();
@@ -145,7 +145,7 @@ public class DBQuery< TEntity extends IEntity > implements IDBQuery< TEntity >
             m_aTemplate.setQueryPart(nPosition, eBinding, eOperation, sAttribute);
 		}
 		
-		// @todo ifdef DEBUG ?
+		// TODO ifdef DEBUG ?
         if (aValue != null)
         {
             if (
@@ -163,7 +163,7 @@ public class DBQuery< TEntity extends IEntity > implements IDBQuery< TEntity >
 		
 		// cache new value for this query independent from the set of meta
 		// data which are hold within the template
-		// @note order of values must match order of attributes within template !
+		// Note order of values must match order of attributes within template !
 		DynamicArrayList< Object > lValues = mem_Values ();
 		lValues.set (nPosition, aValue);
 	}

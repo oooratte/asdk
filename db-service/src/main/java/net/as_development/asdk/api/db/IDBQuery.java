@@ -91,7 +91,7 @@ public interface IDBQuery< TEntity extends IEntity >
 	 *  @param	aValue [IN]
 	 *  		the search value itself.
 	 *  
-	 *  @note	For the given value there exists some conditions ...
+	 *  Note	For the given value there exists some conditions ...
 	 *  		a) if eOperation=like it must be from type String.
 	 *  		b) if eOperation=between it must be from type BetweenQueryRange.
 	 */

@@ -58,7 +58,7 @@ import com.amazonaws.services.simpledb.model.SelectResult;
 
 //==============================================================================
 /**
- * @todo document me
+ * TODO document me
  */
 public class SimpleDbProvider implements IDBBackend
 {

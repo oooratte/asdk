@@ -43,7 +43,7 @@ import net.as_development.asdk.api.service.env.ServiceDescriptor;
  *  - define meta data for service interfaces
  *  - and implement the mapServiceToInstance () method.
  *
- *  @see IServiceRegistry
+ *  see IServiceRegistry
  */
 public class ServiceRegistry implements IServiceRegistry
 {

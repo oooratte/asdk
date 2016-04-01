@@ -19,6 +19,8 @@
 
     <!-- ===========================================================
       -->
+    <name>ASDK</name>
+      
 	<groupId>net.as-development.asdk</groupId>
 	<artifactId>pom-parent-root</artifactId>
 	<version>1.2.0</version>
@@ -26,10 +28,34 @@
 
     <!-- ===========================================================
       -->
+    <description>
+    ASDK - as-development.net
+    A framework collecting tools, helper classes and services.
+    </description>
+
+    <!-- ===========================================================
+      -->
+    <url>https://github.com/andreas-schluens-asdev/asdk</url>
+
+    <!-- ===========================================================
+      -->
     <organization>
-        <name>AS-Development</name>
+        <name>as-development.net</name>
     	<url>http://as-development.net</url>
     </organization>
+
+    <!-- ===========================================================
+      -->
+    <developers>
+        <developer>
+            <id>Andreas Schlüns &lt;andreas.schluens@open-xchange.com&gt;</id>
+            <name>Andreas Schlüns</name>
+            <email>andreas.schluens@as-development.net</email>
+        	<url>http://as-development.net</url>
+        	<organization>as-development.net</organization>
+        	<organizationUrl>http://as-development.net</organizationUrl>
+        </developer>
+    </developers>
 
     <!-- ===========================================================
       -->
@@ -68,6 +94,13 @@ For more information, please refer to <http://unlicense.org/>
             </comments>
         </license>
     </licenses>
+
+    <!-- ===========================================================
+      -->
+    <scm>
+        <url>git@github.com:andreas-schluens-asdev/asdk.git</url>
+        <connection>scm:git:git@github.com:andreas-schluens-asdev/asdk.git</connection>
+    </scm>
 
     <!-- ===========================================================
       -->
@@ -263,6 +296,22 @@ For more information, please refer to <http://unlicense.org/>
       -->
     <build>
         <plugins>
+        
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-gpg-plugin</artifactId>
+                <version>1.5</version>
+                <executions>
+                    <execution>
+                        <id>sign-artifacts</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>sign</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            
             <plugin>
                 <groupId>org.sonatype.plugins</groupId>
                 <artifactId>nexus-staging-maven-plugin</artifactId>

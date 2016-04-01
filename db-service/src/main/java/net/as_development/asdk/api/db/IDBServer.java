@@ -71,7 +71,7 @@ public interface IDBServer
 	 *  E.g. the global DBPool will be filled with valid data so
 	 *  YOU can use it .-)
 	 * 
-	 *  @throws an exception if initialization failed by any reason.
+	 *  @throws Exception if initialization failed by any reason.
 	 */
 	public void initRuntime ()
 		throws Exception;
@@ -80,9 +80,9 @@ public interface IDBServer
 	/** create all schema within this server.
 	 *  Schema will be defined by all persistence units registered before ...
 	 *  
-	 *  @note	this will remove ALL schema/data already existing within this server instance !
+	 *  Note	this will remove ALL schema/data already existing within this server instance !
 	 *  
-	 *  @throws an exception if (at least one) schema could not be created successfully.
+	 *  @throws Exception if (at least one) schema could not be created successfully.
 	 */
 	public void createSchema ()
 		throws Exception;

@@ -89,7 +89,7 @@ public interface IServiceEnv
    *  @param  aService
    *          the service where an implementation is searched for.
    *
-   *  @throws an exception if service registry lookup or service creation failed.
+   *  @throws Exception if service registry lookup or service creation failed.
    */
   public < T > T getService (final Class< ? > aService)
       throws Exception;
@@ -106,7 +106,7 @@ public interface IServiceEnv
    *  @param  sService
    *          the service where an implementation is searched for.
    *
-   *  @throws an exception if service registry lookup or service creation failed.
+   *  @throws Exception if service registry lookup or service creation failed.
    */
   public < T > T getService (final String sService)
       throws Exception;

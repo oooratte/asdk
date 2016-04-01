@@ -59,7 +59,7 @@ public interface IPersistenceUnit
     //--------------------------------------------------------------------------
     /** @return list of all entities registered for these unit.
      *
-     *  @note   returned list wont be NULL ... but it can be empty.
+     *  Note   returned list wont be NULL ... but it can be empty.
      */
     public List< String > getEntities ()
         throws Exception;
@@ -67,7 +67,7 @@ public interface IPersistenceUnit
     //--------------------------------------------------------------------------
     /** @return value of requested property.
      *
-     *  @note   if property is unknown an empty string will be returned.
+     *  Note   if property is unknown an empty string will be returned.
      */
     public String getProperty (String sProperty)
         throws Exception;
@@ -79,7 +79,7 @@ public interface IPersistenceUnit
     //--------------------------------------------------------------------------
     /** @return set of all property names.
      *
-     *  @note   set wont be null ... but can be empty.
+     *  Note   set wont be null ... but can be empty.
      */
     public Set< String > getPropertNames ()
         throws Exception;
