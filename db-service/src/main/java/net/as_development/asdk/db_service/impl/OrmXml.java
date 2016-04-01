@@ -40,7 +40,7 @@ import org.w3c.dom.NodeList;
 
 //==============================================================================
 /**
- * @todo document me
+ * TODO document me
  */
 public class OrmXml
 {
@@ -90,14 +90,14 @@ public class OrmXml
     //--------------------------------------------------------------------------
     /** read orm.xml into given descriptor.
      *
-     *  @note   Such descriptor wont be cleaned before used!
+     *  Note   Such descriptor wont be cleaned before used!
      *          But existing properties will be overriden.
      *
-     *  @param  aEntity [OUT]
+     *  @param  lMetaInfo [OUT]
      *          after reading of orm.xml it contains all
      *          properties from that place.
      *
-     *  @throws an exception in case configuration seems to be damaged
+     *  @throws Exception in case configuration seems to be damaged
      *          but no exception if config will be empty.
      */
     public void readXml (String                 sPathToOrmXml,

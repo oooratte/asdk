@@ -94,7 +94,7 @@ public class CachedEntity implements Serializable
     //--------------------------------------------------------------------------
     /** Makes it easy to change strategy for copying cache values ...
      *
-     *  @see    using of this method.
+     *  see    using of this method.
      *  
      *  @param  aValue [IN]
      *          the original value to be copied here.
@@ -102,7 +102,7 @@ public class CachedEntity implements Serializable
      *  @return the copied value.
      *          Must be equals - not same .-)
      * 
-     *  @todo   Think about making deep copies of values here.
+     *  TODO   Think about making deep copies of values here.
      *  
      *          If outside code calls fromRow() and CacheEntity.serialize()
      *          without the chance somewhere else change the original row object

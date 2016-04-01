@@ -103,7 +103,7 @@ public class EntityBaseTest
 		AssertEx.assertTrue("testIsExpired [01] expect to get TRUE if isExpired() is called to late.", aEntity.isExpired());
 	}
 /*
-    @todo those feature will be used first if we implement caching .-)
+    TODO those feature will be used first if we implement caching .-)
     
     //--------------------------------------------------------------------------
 	@Test

@@ -87,7 +87,7 @@ public class CacheProvider implements IDBBackend
     public void removeTable(Row aRow)
         throws Exception
     {
-        // @todo think about me
+        // TODO think about me
         // ... how we can remove all items for this table from our cache
         // ... in an acceptable time frame .-)
         mem_Db ().removeTable(aRow);

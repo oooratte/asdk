@@ -58,7 +58,7 @@ public abstract class TaskBase
 	 *  @param	aNode [IN]
 	 *  		the node where this task should run it's deployment.
 	 *  
-	 *  @throws any exception you want (if it indicates a real error - of course)
+	 *  @throws Exception you want (if it indicates a real error - of course)
 	 */
 	public abstract void execute (final Node aNode)
 		throws Exception;

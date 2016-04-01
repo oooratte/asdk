@@ -54,7 +54,7 @@ public class PersistenceUnit implements IPersistenceUnit
     		return;
     	
     	if ( ! (iSource instanceof PersistenceUnit))
-    		return; // @todo implement me .-)
+    		return; // TODO implement me .-)
     	
     	PersistenceUnit aSource = (PersistenceUnit)iSource;
     	m_sName          = aSource.m_sName;
@@ -86,7 +86,7 @@ public class PersistenceUnit implements IPersistenceUnit
      *  @param	sName [IN]
      *  		name of the persistence unit to be loaded here.
      *
-     *  @throws	an exception if specified persistence unit does not exists
+     *  @throws	Exception if specified persistence unit does not exists
      *          or couldn't be loaded successfully.
      */
     public static PersistenceUnit loadUnit(String sName)
@@ -117,7 +117,7 @@ public class PersistenceUnit implements IPersistenceUnit
      *          new name for these unit.
      *          Must not be empty or null !
      *
-     *  @throws an exception in case unit name is invalid.
+     *  @throws Exception in case unit name is invalid.
      */
     public  void setName (String sName)
         throws Exception
@@ -203,7 +203,7 @@ public class PersistenceUnit implements IPersistenceUnit
     //--------------------------------------------------------------------------
     /** add class name of an entity to these unit.
      *
-     *  @note   Duplicate entries will be filtered out.
+     *  Note   Duplicate entries will be filtered out.
      *          Further invalid entities (empty name) will
      *          be silently ignored.
      *
@@ -224,7 +224,7 @@ public class PersistenceUnit implements IPersistenceUnit
     //--------------------------------------------------------------------------
     /** @return list of all entities registered for these unit.
      *
-     *  @note   returned list wont be NULL ... but it can be empty.
+     *  Note   returned list wont be NULL ... but it can be empty.
      */
     public List< String > getEntities ()
         throws Exception
@@ -253,7 +253,7 @@ public class PersistenceUnit implements IPersistenceUnit
     //--------------------------------------------------------------------------
     /** @return value of requested property.
      *
-     *  @note   if property is unknown an empty string will be returned.
+     *  Note   if property is unknown an empty string will be returned.
      */
     public String getProperty (String sProperty)
         throws Exception
@@ -291,7 +291,7 @@ public class PersistenceUnit implements IPersistenceUnit
     //--------------------------------------------------------------------------
     /** @return set of all property names.
      *
-     *  @note   set wont be null ... but can be empty.
+     *  Note   set wont be null ... but can be empty.
      */
     public Set< String > getPropertNames ()
         throws Exception

@@ -29,7 +29,7 @@ package net.as_development.asdk.ssh;
 import com.jcraft.jsch.ChannelExec;
 
 /**
- * @todo document me
+ * TODO document me
  */
 public class SSHShellExecute
 {

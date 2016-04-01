@@ -56,7 +56,7 @@ public interface IDBPool
      *  @param  sName [IN]
      *          the name of the persistence unit.
      *          
-     *  @throws an exception if such persistence unit couldn't
+     *  @throws Exception if such persistence unit couldn't
      *  		be registered successfully.
      */
     public void registerPersistenceUnit (String sName)
@@ -65,10 +65,10 @@ public interface IDBPool
     //--------------------------------------------------------------------------
     /** register new persistence unit inside this pool.
      * 
-     *  @param  aPersistenceUnit [IN]
+     *  @param  aUnit [IN]
      *          the new persistence unit for this pool.
      *          
-     *  @throws an exception if such persistence unit couldn't
+     *  @throws Exception if such persistence unit couldn't
      *  		be registered successfully.
      */
     public void registerPersistenceUnit (IPersistenceUnit aUnit)

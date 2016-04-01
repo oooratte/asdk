@@ -129,18 +129,14 @@ public class PersistenceXml
     //--------------------------------------------------------------------------
     /** read persistence.xml into given set of properties.
      *
-     *  @note   Set of given properties wont be cleaned up before.
+     *  Note   Set of given properties wont be cleaned up before.
      *          But existing properties will be overriden.
      *
-     *  @param  sPersistenceUnit [IN]
+     *  @param  aUnit [IN]
      *          name of persistence unit where all config settings
      *          should be read for.
      *
-     *  @param  lProps [OUT]
-     *          after reading of persistence.xml it contains all
-     *          properties from that place.
-     *
-     *  @throws an exception in case configuration seems to be damaged
+     *  @throws Exception in case configuration seems to be damaged
      *          but no exception if config will be empty.
      */
     public static synchronized void readXml (PersistenceUnit aUnit)
@@ -299,7 +295,7 @@ public class PersistenceXml
      *          the unit object to be filled with all data read
      *          from that config.
      *
-     *  @throws an exception in case configuration is wrong.
+     *  @throws Exception in case configuration is wrong.
      */
     private static void impl_readPersistenceUnit (Node            aConfig,
                                                   PersistenceUnit aUnit  )
@@ -338,7 +334,7 @@ public class PersistenceXml
      *  @param  aUnit
      *          persistence unit object  where those properties has to be set.
      *
-     *  @throws an exception if some properties couldnt be read.
+     *  @throws Exception if some properties couldnt be read.
      */
     private static void impl_readProperties (Node            aConfig,
                                              PersistenceUnit aUnit  )

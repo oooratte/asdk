@@ -35,7 +35,7 @@ import org.apache.commons.lang3.StringUtils;
 
 //==============================================================================
 /**
- * @todo document me
+ * TODO document me
  */
 public class EntityMetaInfoProvider
 {
@@ -61,7 +61,7 @@ public class EntityMetaInfoProvider
      *
      *  @return the current bound (and initialize) persistence unit.
      *
-     *  @throws an exception in case persistence unit couldnt be created
+     *  @throws Exception in case persistence unit couldnt be created
      *          successfull ... e.g. because corresponding configuration
      *          seems to be invalid.
      */

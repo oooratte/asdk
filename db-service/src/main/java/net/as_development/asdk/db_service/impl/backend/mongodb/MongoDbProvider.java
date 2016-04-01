@@ -54,7 +54,7 @@ import com.mongodb.Mongo;
 
 //==============================================================================
 /**
- * @todo document me
+ * TODO document me
  */
 public class MongoDbProvider implements IDBBackend
 {
@@ -107,7 +107,7 @@ public class MongoDbProvider implements IDBBackend
         DBCollection  aTable    = impl_getTable (sTable);
         String        sIdColumn = aMeta.getIdColumn();
         
-        // @todo check existing index fields before creating new ones .-)
+        // TODO check existing index fields before creating new ones .-)
         BasicDBObject aIndex = new BasicDBObject ();
         aIndex.put   (sIdColumn, MongoDbProvider.INDEX_ASCENDING);
         aIndex.append("unique"  , "true");

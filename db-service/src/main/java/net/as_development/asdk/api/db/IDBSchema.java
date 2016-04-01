@@ -42,7 +42,7 @@ public interface IDBSchema
      *  @param  aType [IN]
      *          describe the entity type.
      *
-     *  @throws an exception is creating the schema was not successfully.
+     *  @throws Exception is creating the schema was not successfully.
      */
     public < TEntity extends IEntity > void createEntitySchema (Class< TEntity > aType)
             throws Exception;
@@ -53,9 +53,9 @@ public interface IDBSchema
      *  @param  aType [IN]
      *          describe the entity type.
      *          
-     *  @throws an exception if operation failed and entity data couldn't be removed.
+     *  @throws Exception if operation failed and entity data couldn't be removed.
      *  
-     *  @note   It throws NO exception in case entity is unknown within these DB.
+     *  Note   It throws NO exception in case entity is unknown within these DB.
      */
     public < TEntity extends IEntity > void removeEntitySchema (Class< TEntity > aType)
             throws Exception;

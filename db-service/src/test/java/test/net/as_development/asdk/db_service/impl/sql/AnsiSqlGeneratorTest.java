@@ -211,7 +211,7 @@ public class AnsiSqlGeneratorTest
         AssertEx.assertTrue("testSqlStatementCreation [14]", AnsiSqlGeneratorTest.impl_containSqlStringAllTestEntityColumns(sSql));
         
 /*        
-        // @todo Do we real need to check all possible combinations of queries ?! :-)
+        // TODO Do we real need to check all possible combinations of queries ?! :-)
         sSql = aSqlGenerator.createSql(ISqlGenerator.EStatementType.E_QUERY_BY_PROPS, aMeta, null);
         System.out.println ("### sql '"+sSql+"'");
 */        

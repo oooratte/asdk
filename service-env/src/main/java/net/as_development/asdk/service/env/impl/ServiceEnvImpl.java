@@ -41,7 +41,7 @@ import net.as_development.asdk.api.service.env.IServiceRegistry;
 import net.as_development.asdk.api.service.env.ServiceDescriptor;
 
 //=============================================================================
-/** @see IServiceEnv
+/** see IServiceEnv
  */
 public class ServiceEnvImpl implements IServiceEnv
 {
@@ -124,7 +124,7 @@ public class ServiceEnvImpl implements IServiceEnv
    *  If the pool isn't full - a new instance will be created and pooled.
    *  If the pool is filled complete - an existing instance will be returned ...
    *
-   *  @todo define algorithm for retrieving pooled instances (round robin?!)
+   *  TODO define algorithm for retrieving pooled instances (round robin?!)
    *
    *  @param	sService [IN]
    *  		the asked service interface.

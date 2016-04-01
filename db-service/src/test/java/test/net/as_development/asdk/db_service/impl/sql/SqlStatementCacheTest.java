@@ -100,6 +100,6 @@ public class SqlStatementCacheTest
 		
 		AssertEx.assertEquals("testClear [01] expect an empty cache.", 0, aCache.size());
 		
-		// @todo verify if close () was called on all mocks ...
+		// TODO verify if close () was called on all mocks ...
 	}
 }

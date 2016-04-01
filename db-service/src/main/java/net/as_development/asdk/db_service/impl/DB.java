@@ -319,7 +319,7 @@ public class DB implements IDB
             	continue;
 
             EntityBase aEntity = EntityHelper.createEntityFromRow(aMeta, aResult);
-            if (aEntity.isExpired()) /// @todo think about removing those entities from DB real ...
+            if (aEntity.isExpired()) /// TODO think about removing those entities from DB real ...
             	continue;
 
             lResults.add ((TEntity) aEntity);
@@ -433,7 +433,7 @@ public class DB implements IDB
      *
      *  @return the one time created and initialized entity provider instance.
      *
-     *  @throws an exception in case entity provider couldnt be created
+     *  @throws Exception in case entity provider couldnt be created
      *          successfull ... e.g. because corresponding configuration
      *          seems to be invalid.
      */

@@ -40,7 +40,7 @@ import net.as_development.asdk.tools.reflection.AnnotationSearch;
 
 //==============================================================================
 /**
- * @todo document me
+ * TODO document me
  */
 public class EntityClassParserAnnotations
 {

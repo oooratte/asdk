@@ -48,7 +48,7 @@ import test.net.as_development.asdk.db_service.test.entities.TestEntity;
 
 //==============================================================================
 /**
- * @todo document me
+ * TODO document me
  */
 @Ignore
 public class GenericDbTest
@@ -620,7 +620,7 @@ public class GenericDbTest
         impl_checkTypeMapping ("testTypeMapping - String [04] check 'any string you like'", iDb, "StringValue", "any string you like");
         impl_checkTypeMapping ("testTypeMapping - String [04] check 'öäüß#+´!§$%&/()=?'"  , iDb, "StringValue", "öäüß#+´!§$%&/()=?"  );
         impl_checkTypeMapping ("testTypeMapping - String [04] check '\n\t\r\\\""          , iDb, "StringValue", "\n\t\r\\\""         );
-        // @todo test unicode
+        // TODO test unicode
     }
     
     //--------------------------------------------------------------------------

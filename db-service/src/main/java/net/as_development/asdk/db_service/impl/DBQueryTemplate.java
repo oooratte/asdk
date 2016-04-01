@@ -103,7 +103,7 @@ public class DBQueryTemplate< TEntity extends IEntity >
 	}
 
     //--------------------------------------------------------------------------
-	/** @see IDBQuery.setQueryPart ()
+	/** see IDBQuery.setQueryPart ()
 	 * 
 	 *  ... but it define those part without any value.
 	 *  Here we define the structure of the query ...
@@ -118,7 +118,7 @@ public class DBQueryTemplate< TEntity extends IEntity >
 	    if (m_bIsCompiled)
 	        throw new RuntimeException ("DBQueryTemplate already compiled ... but somewhere try to change it by calling setQueryPart().");
 	    
-	    // @todo ifdef DEBUG ?
+	    // TODO ifdef DEBUG ?
 		if (nPosition < 0)
 			throw new IllegalArgumentException ("IDBQuery.setQueryPart () does not position < 0.");
 

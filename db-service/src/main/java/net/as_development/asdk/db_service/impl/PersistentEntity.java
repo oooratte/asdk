@@ -32,7 +32,7 @@ import net.as_development.asdk.db_service.EntityBase;
 
 //==============================================================================
 /**
- * @todo document me
+ * TODO document me
  */
 public class PersistentEntity
 {

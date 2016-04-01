@@ -106,7 +106,7 @@ public class AttributeListMetaInfo
     {
         if (m_lOrderedList == null)
         {
-            // @todo implement me right ! :-)
+            // TODO implement me right ! :-)
             List< String > lOrdered = new Vector< String >(10);
             lOrdered.addAll(mem_Attributes ().keySet());
 

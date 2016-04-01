@@ -68,7 +68,7 @@ public class ProcessChildVisitor implements ProcessVisitor
 
     //--------------------------------------------------------------------------
     /** ATTENTION : NEVER EVER RETURN TRUE WITHIN THAT METHOD !
-     *  Read the documentation of {@link ProcessVisitor.visit} carefully.
+     *  Read the documentation of ProcessVisitor.visit() carefully.
      *  Return TRUE means : kill the process you are visiting ...
      *  Do you want that here real ?
      */

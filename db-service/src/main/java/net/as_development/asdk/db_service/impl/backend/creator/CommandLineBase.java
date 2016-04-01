@@ -246,7 +246,7 @@ public abstract class CommandLineBase
     //--------------------------------------------------------------------------
     /** @return the value of the specified option.
      * 
-     *  @note   Return value can be null or empty.
+     *  Note   Return value can be null or empty.
      *  
      *  @param  sShort [IN]
      *          the short key of the option where the value must be returned.

@@ -51,8 +51,8 @@ public class SqlStatementCache extends HashMap< String, PreparedStatement >
     //--------------------------------------------------------------------------
     /** generate a new unique cache id for the given set of information.
      * 
-     *  @param	sFunc [IN]
-     *  		a function name describing the statement in general.
+     *  @param	eStatement [IN]
+     *  		describe the statement in general.
      *  		(e.g. insert, update, delete ...)
      *
      *  @param	aMeta [IN]

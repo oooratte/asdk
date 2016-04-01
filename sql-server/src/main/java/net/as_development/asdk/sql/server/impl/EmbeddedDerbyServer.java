@@ -37,7 +37,7 @@ import net.as_development.asdk.api.sql.ISqlServer;
 
 //==============================================================================
 /**
- * @todo document me
+ * TODO document me
  */
 public class EmbeddedDerbyServer implements ISqlServer
 {

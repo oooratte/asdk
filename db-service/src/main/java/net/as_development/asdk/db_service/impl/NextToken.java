@@ -44,7 +44,7 @@ import org.apache.commons.lang3.StringUtils;
  *  
  *  How an instance of this class has to be used:
  *  
- *  <code>
+ *  <pre><code>{@code
  *  
  *   public String queryRows(Row             aMeta     ,
  *                           String          sNextToken,
@@ -76,7 +76,7 @@ import org.apache.commons.lang3.StringUtils;
  *       return aNextToken.stepNext (nMaxResults);
  *   }
  *  
- *  </code>
+ *  }</code></pre>
  */
 public class NextToken
 {
@@ -219,7 +219,7 @@ public class NextToken
      *  
      *  @param  nOffset [IN]
      *          the new offset.
-     *          Has to be >= 0.
+     *          Has to be &gt;= 0.
      */
     public void setOffset (int nOffset)
         throws Exception
@@ -232,7 +232,7 @@ public class NextToken
     
     //--------------------------------------------------------------------------
     /** @return the page size from the last parsed token.
-     *  Has to return a default > 0 if last token was empty.
+     *  Has to return a default $gt; 0 if last token was empty.
      */
     public int getPageSize ()
         throws Exception
@@ -246,7 +246,7 @@ public class NextToken
      *  
      *  @param  nSize [IN]
      *          the new page size.
-     *          Has to be >= 1.
+     *          Has to be $gt;= 1.
      */
     public void setPageSize (int nSize)
         throws Exception

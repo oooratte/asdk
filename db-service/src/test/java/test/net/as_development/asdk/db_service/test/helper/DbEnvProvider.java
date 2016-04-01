@@ -42,7 +42,7 @@ import test.net.as_development.asdk.db_service.test.entities.TestEntity;
 
 //==============================================================================
 /**
- * @todo document me
+ * TODO document me
  */
 @Ignore
 public class DbEnvProvider
@@ -129,7 +129,7 @@ public class DbEnvProvider
         PersistenceUnit aUnit = new PersistenceUnit ();
 
         aUnit.setName    ("embedded_sql"             );
-        //aUnit.setMappFile("/META-INF/orm.xml"        ); // @todo make orm.xml generation more flexible .-)
+        //aUnit.setMappFile("/META-INF/orm.xml"        ); // TODO make orm.xml generation more flexible .-)
         aUnit.setProvider(SqlProvider.class.getName());
         
         aUnit.addEntity(TestEntity.class.getName());

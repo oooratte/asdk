@@ -94,7 +94,7 @@ import java.util.List;
  *  Furthermore the method return NULL as next token so you know - it's over ... no more data
  *  available.
  *  
- *  <code>
+ *  <pre><code>{@code
  *  	IQuery iQuery     = iDB.prepareQuery ("my_query");
  *  	// ... set query values on iQuery
  *  	String sNextToken = null;
@@ -116,30 +116,30 @@ import java.util.List;
  *  			...  
  *  	}
  *  	while (sNextToken != null);
- *  </code>
+ *  }</code></pre>
  *  
  *  It's not required to use such NextToken inside a loop. You can cache such token
  *  or even provide it to any other piece of code ... so if the token comes back to
  *  to DB-layer you can retrieve the next page of results.
  *  
  *  Problem doing so: ... those token might time out .-)
- *  @todo can it be solved ?
+ *  TODO can it be solved ?
  */
 public interface IDB
 {
     //-------------------------------------------------------------------------
 	/** bind these DB instance to a persistence unit configuration.
 	 *
-	 *  @note	Must be called as first method after creating a new
+	 *  Note	Must be called as first method after creating a new
 	 *  		instance of type IDB to initialize those instance
 	 *  		right and prepare it for it's further work.
      *
      *  @param	sUnit [IN]
      *          name of the persistence unit.
      *
-     *  @throws an IllegalArgumentException in case given persistence unit does not exists.
+     *  @throws IllegalArgumentException in case given persistence unit does not exists.
      *  
-     *  @throws an exception in case an internal (runtime) error occur.
+     *  @throws Exception in case an internal (runtime) error occur.
      */
     public void setPersistenceUnit (String sUnit)
         throws Exception;
@@ -150,9 +150,9 @@ public interface IDB
      *  @param	aUnit [IN]
      *          the persistence unit to be used here.
      *          
-     *  @throws an IllegalArgumentException in case given persistence unit does not exists.
+     *  @throws IllegalArgumentException in case given persistence unit does not exists.
      *  
-     *  @throws an exception in case an internal (runtime) error occur.
+     *  @throws Exception in case an internal (runtime) error occur.
      */
     public void setPersistenceUnit (IPersistenceUnit aUnit)
         throws Exception;
@@ -162,14 +162,14 @@ public interface IDB
 	 * 
 	 *  You can store different kind of entities here at the same time.
 	 *  E.g. you can create a collection of different entities which
-	 *  'works' together (e.g. user->file->storage) and put them
+	 *  'works' together (e.g. user...file...storage) and put them
 	 *  to the DB together also.
      *
      *  @param  lEntities [IN]
      *          the list of entities to be made persistent.
      *          If list will be empty or null - nothing will happen.
      *
-     *  @throws an exception in case an internal (runtime) error occured.
+     *  @throws Exception in case an internal (runtime) error occured.
      */
     public < TEntity extends IEntity > void storeEntities (TEntity... lEntities)
         throws Exception;
@@ -179,7 +179,7 @@ public interface IDB
 	 *
 	 *  You can remove different kind of entities here at the same time.
 	 *  E.g. you can create a collection of different entities which
-	 *  'works' together (e.g. user->file->storage) and remove them
+	 *  'works' together (e.g. user...file...storage) and remove them
 	 *  from the DB together also. Because there is no relation ship between
 	 *  those entities order of remove request can be ignored. 
 	 *  
@@ -212,7 +212,7 @@ public interface IDB
      *  		describe the type where all corresponding entities
      *  		has to be removed.
      *
-     *  @throws an exception in case an internal (runtime) error occur.
+     *  @throws Exception in case an internal (runtime) error occur.
      */
 	public < TEntity extends IEntity > void removeAllEntitiesOfType (Class< TEntity > aType)
 		throws Exception;
@@ -223,12 +223,12 @@ public interface IDB
 	 *  @param	aType [IN]
      *          the type of entity asked here.
      *          
-	 *  @param	aId [IN]
+	 *  @param	sId [IN]
      *          the unique ID (primary key) of those entity.
      *          
      *  @return	the queried entity if it exists; null otherwise.
      *
-     *  @throws an exception in case an internal (runtime) error occur.
+     *  @throws Exception in case an internal (runtime) error occur.
 	 */
     public < TEntity extends IEntity > TEntity getEntityById(Class< TEntity > aType,
             							   					    String           sId  )
@@ -255,7 +255,7 @@ public interface IDB
      * 	@return	the new next token (if there is one).
      * 			Return null if no further results exists.	
      *
-     *  @throws an exception in case an internal (runtime) error occur.
+     *  @throws Exception in case an internal (runtime) error occur.
      */
 	public < TEntity extends IEntity > String getEntitiesById (Class< TEntity > aType     ,
 																  String           sNextToken,
@@ -282,7 +282,7 @@ public interface IDB
      *  @return the new next token (if there is one).
      *          Return null if no further results exists.   
      *
-     *  @throws an exception in case an internal (runtime) error occur.
+     *  @throws Exception in case an internal (runtime) error occur.
      */
 	public < TEntity extends IEntity > String getAllEntitiesOfType (Class< TEntity > aType     ,
 	                                                                   String           sNextToken,
@@ -312,8 +312,8 @@ public interface IDB
 	 *  
 	 *  An instance of IDBQuery can be obtained by calling IDB.prepareQuery ().
 	 *  
-	 *  @see	IDBQuery
-	 *  @see	prepareQuery(java.lang.String)
+	 *  see	IDBQuery
+	 *  see	prepareQuery(java.lang.String)
 	 *  
      *	@param	aType [IN]
      *			the entity type where this query is for.

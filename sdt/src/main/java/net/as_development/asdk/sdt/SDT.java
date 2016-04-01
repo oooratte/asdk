@@ -126,7 +126,7 @@ public class SDT
 	/** deploy all registered nodes.
 	 *  Use the configured deployment strategy.
 	 *  
-	 *  @see (link setDeploymentStrategy)
+	 *  see (link setDeploymentStrategy)
 	 */
 	public void deploy ()
 		throws Exception
