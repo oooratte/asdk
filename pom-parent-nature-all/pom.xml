@@ -43,7 +43,7 @@
 	<parent>
 	    <groupId>net.as-development.asdk</groupId>
 	    <artifactId>pom-parent-root</artifactId>
-	    <version>2.0.0</version>
+	    <version>3.0.0-SNAPSHOT</version>
 	    <relativePath>../pom-parent-root</relativePath>
 	</parent>
 

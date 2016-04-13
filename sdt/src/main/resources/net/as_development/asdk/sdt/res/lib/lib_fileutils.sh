@@ -67,3 +67,22 @@ function lib_fileutils_append_text_to_file ()
 
     echo "${v_text}" >> "${v_file}"    
 }
+
+#-----------------------------------------------------------------------------------------
+function lib_fileutils_append_text_to_file_if_not_exists ()
+{
+    local v_file="$1"
+    local v_text="$2"
+    
+    lib_validate_var_is_set "v_file" "Invalid argument 'file'."
+    lib_validate_var_is_set "v_text" "Invalid argument 'text'."
+
+    lib_fileutils_file_contains_string "${v_file}" "${v_text}" "v_exists"
+    if [ "${v_exists}" == "true" ];
+    then
+        lib_log_debug "text [${v_text}] already defined in file [${v_file}] ..."
+    else
+        lib_log_debug "text [${v_text}] not defined in file [${v_file}] - will be defined now ..."
+        lib_fileutils_append_text_to_file "${v_file}" "${v_text}"
+    fi
+}
