@@ -69,6 +69,19 @@ function lib_fileutils_append_text_to_file ()
 }
 
 #-----------------------------------------------------------------------------------------
+function lib_fileutils_remove_text_from_file ()
+{
+    local v_file="$1"
+    local v_text="$2"
+    
+    lib_validate_var_is_set "v_file" "Invalid argument 'file'."
+    lib_validate_var_is_set "v_text" "Invalid argument 'text'."
+
+    local v_escaped_text=$(echo "${v_text}" | sed 's,/,\/,g')
+    sed -i -e "\|${v_escaped_text}|d" "${v_file}"
+}
+
+#-----------------------------------------------------------------------------------------
 function lib_fileutils_append_text_to_file_if_not_exists ()
 {
     local v_file="$1"
@@ -84,5 +97,24 @@ function lib_fileutils_append_text_to_file_if_not_exists ()
     else
         lib_log_debug "text [${v_text}] not defined in file [${v_file}] - will be defined now ..."
         lib_fileutils_append_text_to_file "${v_file}" "${v_text}"
+    fi
+}
+
+#-----------------------------------------------------------------------------------------
+function lib_fileutils_remove_text_from_file_if_exists ()
+{
+    local v_file="$1"
+    local v_text="$2"
+    
+    lib_validate_var_is_set "v_file" "Invalid argument 'file'."
+    lib_validate_var_is_set "v_text" "Invalid argument 'text'."
+
+    lib_fileutils_file_contains_string "${v_file}" "${v_text}" "v_exists"
+    if [ "${v_exists}" == "false" ];
+    then
+        lib_log_debug "text [${v_text}] not defined in file [${v_file}] ..."
+    else
+        lib_log_debug "text [${v_text}]  defined in file [${v_file}] - will be removed now ..."
+        lib_fileutils_remove_text_from_file "${v_file}" "${v_text}"
     fi
 }
