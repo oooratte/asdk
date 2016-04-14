@@ -30,6 +30,11 @@
 set -e
 
 #-----------------------------------------------------------------------------------------
+# const values
+
+SDT_PKG_REGISTRY=/etc/apt/sources.list.d/sdt.list
+
+#-----------------------------------------------------------------------------------------
 function lib_apt_selfupdate ()
 {
 	lib_exec "apt-get update"
@@ -93,17 +98,23 @@ function lib_apt_add_package_repo ()
     
     lib_validate_var_is_set "v_package_repo" "Invalid argument 'package_repo'."
 
-    local v_pkg_registry_file="/etc/apt/sources.list.d/sdt.list"
+    local v_pkg_registry_file="${SDT_PKG_REGISTRY}"
     local v_pkg_entry="deb ${v_package_repo} /"
 
-    lib_fileutils_file_contains_string "${v_pkg_registry_file}" "${v_pkg_entry}" "v_exists"
+    lib_fileutils_append_text_to_file_if_not_exists "${v_pkg_registry_file}" "${v_pkg_entry}"
+}
+
+#-----------------------------------------------------------------------------------------
+function lib_apt_remove_package_repo ()
+{
+    local v_package_repo="$1"
     
-    if [ "${v_exists}" == "true" ];
-    then
-        lib_log_warn "APT Repo '${v_package_repo}' already registered."
-    else
-        lib_fileutils_append_text_to_file "${v_pkg_registry_file}" "${v_pkg_entry}"
-    fi
+    lib_validate_var_is_set "v_package_repo" "Invalid argument 'package_repo'."
+
+    local v_pkg_registry_file="${SDT_PKG_REGISTRY}"
+    local v_pkg_entry="deb ${v_package_repo} /"
+
+    lib_fileutils_remove_text_from_file_if_exists "${v_pkg_registry_file}" "${v_pkg_entry}"
 }
 
 #-----------------------------------------------------------------------------------------
