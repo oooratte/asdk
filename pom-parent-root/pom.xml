@@ -308,6 +308,44 @@ For more information, please refer to <http://unlicense.org/>
 
         <profile>
         
+            <id>profile-snapshot-release</id>
+        
+            <build>
+                <plugins>
+
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+    			        <version>${version.maven.plugin.gpg}</version>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    
+                    <plugin>
+                        <groupId>org.sonatype.plugins</groupId>
+                        <artifactId>nexus-staging-maven-plugin</artifactId>
+    			        <version>${version.maven.plugin.nexus-staging}</version>
+                        <extensions>true</extensions>
+                        <configuration>
+                            <serverId>repo-sonatype</serverId>
+                            <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+                            <autoReleaseAfterClose>true</autoReleaseAfterClose>
+                        </configuration>
+                    </plugin>
+
+                </plugins>
+            </build>
+        </profile>
+        
+        <profile>
+        
             <id>profile-release</id>
         
             <build>
