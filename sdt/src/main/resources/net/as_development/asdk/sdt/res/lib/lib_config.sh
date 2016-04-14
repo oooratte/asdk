@@ -89,22 +89,33 @@ function lib_config_save_prop()
 	local v_file="$1"
 	local v_key="$2"
 	local v_value="$3"
+    local v_quote_value="$4"
 	
 	lib_validate_var_is_set "v_file"  "Illegal argument 'file'."
 	lib_validate_var_is_set "v_key"   "Illegal argument 'key'."
 	lib_validate_var_is_set "v_value" "Illegal argument 'value'."
-	
+
+	# v_quote_value is optional : default = false
+    if [ -z "${v_quote_value}" ];
+    then
+        v_quote_value=false
+    fi
+
  	local v_escaped_value=${v_value}
- 	
- 	v_escaped_value=$(echo -e "${v_escaped_value}" | sed 's,/,\/,g')
-    v_escaped_value=$(echo -e "${v_escaped_value}" | sed 's,:,\\:,g')
+          v_escaped_value=$(echo -e "${v_escaped_value}" | sed 's,/,\/,g')
+          v_escaped_value=$(echo -e "${v_escaped_value}" | sed 's,:,\\:,g')
+
+    if [ "${v_quote_value}" == "true" ];
+    then
+        v_escaped_value=\"${v_escaped_value}\"
+    fi
 
 	lib_config_contains_prop $v_file $v_key r_result
 	
 	if [[ $r_result = true ]];
 	then
 		echo "... patch [${v_file}] '${v_key}' = '${v_value}' ... escaped '${v_escaped_value}' "
-		sed -i -e 's:^[ \t]*'${v_key}'[ \t]*=\([ \t]*.*\)$:'${v_key}'='${v_escaped_value}':' "${v_file}"
+		sed -i -e "s:^[ \t]*${v_key}[ \t]*=\([ \t]*.*\)$:${v_key}=${v_escaped_value}:" "${v_file}"
 	else
 		echo "... new   [${v_file}] '${v_key}'='${v_value}' ... escaped '${v_escaped_value}' "
 		echo "${v_key}=${v_escaped_value}" >> "${v_file}"
