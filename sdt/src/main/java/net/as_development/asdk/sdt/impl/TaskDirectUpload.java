@@ -26,96 +26,84 @@
  */
 package net.as_development.asdk.sdt.impl;
 
+import java.io.File;
+import java.io.InputStream;
+
+import org.apache.commons.io.FileUtils;
+
 import net.as_development.asdk.sdt.Node;
-import net.as_development.asdk.sdt.SDT;
-import net.as_development.asdk.sdt.SDTConst;
 import net.as_development.asdk.sdt.TaskBase;
 import net.as_development.asdk.ssh.SSHMacros;
 import net.as_development.asdk.ssh.SSHServer;
 
 //==============================================================================
-public class TaskDirectCommand extends TaskBase
+public class TaskDirectUpload extends TaskBase
 {
     //--------------------------------------------------------------------------
-	public TaskDirectCommand ()
+	public TaskDirectUpload ()
 		throws Exception
 	{}
 
     //--------------------------------------------------------------------------
-	public static TaskDirectCommand create (final String    sCommand  ,
-			  							    final String... lArguments)
+	public static TaskDirectUpload create (final File   aSourceFile,
+			  							   final File   aTargetFile  ,
+			  							   final String sTargetOwner ,
+			  							   final String sTargetGroup ,
+			  							   final String sTargetRights)
 		throws Exception
 	{
-		final TaskDirectCommand aTask = new TaskDirectCommand ();
-		aTask.setCommand(sCommand, lArguments);
+		final InputStream      aStream = FileUtils.openInputStream(aSourceFile);
+		final TaskDirectUpload aTask   = TaskDirectUpload.create(aStream, aTargetFile, sTargetOwner, sTargetGroup, sTargetRights);
 		return aTask;
 	}
 	
     //--------------------------------------------------------------------------
-	public void setCommand (final String    sCommand  ,
-							final String... lArguments)
-	    throws Exception
+	public static TaskDirectUpload create (final InputStream aSourceStream,
+			  							   final File        aTargetFile  ,
+			  							   final String      sTargetOwner ,
+			  							   final String      sTargetGroup ,
+			  							   final String      sTargetRights)
+		throws Exception
 	{
-		m_sCommand   = sCommand  ;
-		m_lArguments = lArguments;
+		final TaskDirectUpload aTask = new TaskDirectUpload ();
+		aTask.m_aSourceStream = aSourceStream;
+		aTask.m_aTargetFile   = aTargetFile  ;
+		aTask.m_sTargetOwner  = sTargetOwner ;
+		aTask.m_sTargetGroup  = sTargetGroup ;
+		aTask.m_sTargetRights = sTargetRights;
+		return aTask;
 	}
-	
-    //--------------------------------------------------------------------------
+
+	//--------------------------------------------------------------------------
 	@Override
 	public void execute(final Node aNode)
 		throws Exception
 	{
-		System.out.println("execute direct command '"+m_sCommand+"' ...");
+		System.out.println("execute direct upload of file '"+m_aTargetFile+"' ...");
 
-		final boolean  bDebug    = aNode.accessSDT().isDebug();
-		final String   sSDT_HOME = SDTConst.DEFAULT_SDT_HOME;
-		final String   sSdtSh    = SDT.defineSDTResource(sSDT_HOME, SDTConst.SDT_DIR_BIN, SDTConst.SDT_SH_STD);
-		final String   sTempSh   = SDT.defineSDTResource(sSDT_HOME, SDTConst.SDT_DIR_TEMP, "direct-command.sh");
-		final String   sContent  = impl_defineTempScriptContent ();
-              String[] lArgs     = new String[4];
-		
-		final SSHServer aSSH = aNode.accessSSH();
-		SSHMacros.dumpToFile(aSSH, sTempSh, sContent);
-		SSHMacros.chmod     (aSSH, sTempSh, "755"   );
-		      
-		lArgs[0] = "--debug";
-		lArgs[1] = Boolean.toString(bDebug);
-		lArgs[2] = "--run-command";
-		lArgs[3] = sTempSh;
-		
-		SSHMacros.execScript(aSSH, sSdtSh, lArgs);
+		final SSHServer aSSH        = aNode.accessSSH();
+		final String    sRemoteFile = m_aTargetFile.getAbsolutePath();
+
+		SSHMacros.dumpToFile(aSSH, sRemoteFile, m_aSourceStream);
+		SSHMacros.chown     (aSSH, sRemoteFile, m_sTargetOwner );
+		SSHMacros.chgrp     (aSSH, sRemoteFile, m_sTargetGroup );
+		SSHMacros.chmod     (aSSH, sRemoteFile, m_sTargetRights);
 
 		System.out.println("ok");
 	}
-
-    //--------------------------------------------------------------------------
-	private String impl_defineTempScriptContent ()
-	    throws Exception
-	{
-		final StringBuffer sContent = new StringBuffer (256);
-		
-		sContent.append("#!/bin/bash\n");
-		sContent.append("set -e\n"     );
-		sContent.append("lib_exec \""  );
-		sContent.append(m_sCommand     );
-		
-		if (m_lArguments != null)
-		{
-			for (final String sArg : m_lArguments)
-			{
-				sContent.append(" " );
-				sContent.append(sArg);
-			}
-		}
-		
-		sContent.append("\""           );
-		
-		return sContent.toString ();
-	}
 	
     //--------------------------------------------------------------------------
-	protected String m_sCommand = null;
+	private InputStream m_aSourceStream = null;
 
 	//--------------------------------------------------------------------------
-	protected String[] m_lArguments = null;
+	private File m_aTargetFile = null;
+
+	//--------------------------------------------------------------------------
+	private String m_sTargetOwner = null;
+
+	//--------------------------------------------------------------------------
+	private String m_sTargetGroup = null;
+
+	//--------------------------------------------------------------------------
+	private String m_sTargetRights = null;
 }

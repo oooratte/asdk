@@ -32,9 +32,6 @@ import org.apache.commons.lang3.StringUtils;
 
 import net.as_development.asdk.sdt.Node;
 import net.as_development.asdk.sdt.TaskBase;
-import net.as_development.asdk.sdt.desc.AuthenticationDescriptor;
-import net.as_development.asdk.sdt.desc.NodeDescriptor;
-import net.as_development.asdk.ssh.SSHIdentity;
 import net.as_development.asdk.ssh.SSHMacros;
 import net.as_development.asdk.ssh.SSHServer;
 
