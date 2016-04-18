@@ -169,6 +169,34 @@ public class SSHMacros
 	}
 
 	//-------------------------------------------------------------------------
+	public static int chown (final SSHServer aServer          ,
+							 final String    sRemotePathOrFile,
+							 final String    sOwner           )
+	    throws Exception
+	{
+		final SSHShellExecute aShell = aServer.accessShell();
+		final String          sCmd   = "chown "+sOwner+" "+sRemotePathOrFile;
+			  int             nState = 0;
+			  
+	    nState = aShell.execute(sCmd);
+	    return nState;
+	}
+
+	//-------------------------------------------------------------------------
+	public static int chgrp (final SSHServer aServer          ,
+							 final String    sRemotePathOrFile,
+							 final String    sGroup           )
+	    throws Exception
+	{
+		final SSHShellExecute aShell = aServer.accessShell();
+		final String          sCmd   = "chgrp "+sGroup+" "+sRemotePathOrFile;
+			  int             nState = 0;
+			  
+	    nState = aShell.execute(sCmd);
+	    return nState;
+	}
+
+	//-------------------------------------------------------------------------
 	public static int chmodRecursive (final SSHServer aServer    ,
 							          final String    sRemotePath,
 							          final boolean   bFiles     ,
@@ -232,21 +260,12 @@ public class SSHMacros
 								  final String    sContent   )
 	    throws Exception
 	{
-		final String sRemotePath     = FilenameUtils.getFullPathNoEndSeparator(sRemoteFile);
-		final String sRemoteFileName = FilenameUtils.getName                  (sRemoteFile);
-              int    nState          = 0;
-		
-		nState = SSHMacros.mkdir (aServer, sRemotePath);
-		if (nState != 0)
-			return nState;
-		
-		final SSHSFtp     aUpload = aServer.accessSFTP ();
-	          InputStream aStream = null;
-	    
+        InputStream aStream = null;
+	    int         nState  = 0;
 	    try
 	    {
 			aStream = IOUtils.toInputStream(sContent);
-			nState  = aUpload.uploadStream(aStream, sRemotePath, sRemoteFileName);
+			dumpToFile (aServer, sRemoteFile, aStream);
 	    }
 	    finally
 	    {
@@ -256,6 +275,28 @@ public class SSHMacros
 	    return nState;
 	}
 	
+	//-------------------------------------------------------------------------
+	/**
+	 */
+	public static int dumpToFile (final SSHServer   aServer    ,
+								  final String      sRemoteFile,
+								  final InputStream aContent   )
+	    throws Exception
+	{
+		final String sRemotePath     = FilenameUtils.getFullPathNoEndSeparator(sRemoteFile);
+		final String sRemoteFileName = FilenameUtils.getName                  (sRemoteFile);
+              int    nState          = 0;
+		
+		nState = SSHMacros.mkdir (aServer, sRemotePath);
+		if (nState != 0)
+			return nState;
+		
+		final SSHSFtp aUpload = aServer.accessSFTP ();
+					  nState  = aUpload.uploadStream(aContent, sRemotePath, sRemoteFileName);
+
+	    return nState;
+	}
+
 	//-------------------------------------------------------------------------
 	/**
 	 * @param	sResourceFile [IN]
