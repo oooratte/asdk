@@ -72,10 +72,7 @@ function lib_os_get_platform ()
 	if [ -z $lib_os_m_platform ];
 	then
 		local v_done=false
-		local v_info=$(uname -a)
-
-# debug-mock ;-)
-#        v_info="Linux debian-jessie 3.16.0-4-amd64 #1 SMP Debian 3.16.7-ckt11-1+deb8u3 (2015-08-04) x86_64 GNU/Linux"
+		local v_info=$(lsb_release -a | tr '\n' ' ')
 
 		lib_log_trace "... os info : '${v_info}'"
 
@@ -121,21 +118,18 @@ function lib_os_get_version ()
     if [ -z $lib_os_m_version ];
     then
         local v_done=false
-        local v_info=$(uname -a)
-
-# debug-mock ;-)
-#        v_info="Linux debian-jessie 3.16.0-4-amd64 #1 SMP Debian 3.16.7-ckt11-1+deb8u3 (2015-08-04) x86_64 GNU/Linux"
+        local v_info=$(lsb_release -a | tr '\n' ' ')
 
         lib_log_trace "... os info : '${v_info}'"
 
-        if [ ${v_done} == false ] && [[ "${v_info}" == *"deb7"* ]];
+        if [ ${v_done} == false ] && [[ "${v_info}" == *"wheezy"* ]];
         then
             lib_log_trace "... found debian 7"
             lib_os_m_version=$LIB_OS_VERSION_DEBIAN_WHEEZY
             v_done=true
         fi
 
-        if [ ${v_done} == false ] && [[ "${v_info}" == *"deb8"* ]];
+        if [ ${v_done} == false ] && [[ "${v_info}" == *"jessie"* ]];
         then
             lib_log_trace "... found debian 8"
             lib_os_m_version=$LIB_OS_VERSION_DEBIAN_JESSIE
