@@ -147,9 +147,9 @@ function lib_apt_remove_packages_by_name ()
 
     for v_pkg in ${v_pkg_list};
     do
-        lib_exec "apt-get purge -y \"${v_pkg}\""
+        lib_exec "apt-get purge -y --fix-missing --fix-broken \"${v_pkg}\""
     done
 
-    lib_exec "apt-get autoremove -y"
+    lib_exec "apt-get autoremove -y --fix-missing --fix-broken"
 }
 
