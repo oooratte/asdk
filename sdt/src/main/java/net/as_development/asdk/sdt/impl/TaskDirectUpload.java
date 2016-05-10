@@ -29,6 +29,7 @@ package net.as_development.asdk.sdt.impl;
 import java.io.File;
 import java.io.InputStream;
 
+import org.apache.commons.compress.utils.IOUtils;
 import org.apache.commons.io.FileUtils;
 
 import net.as_development.asdk.sdt.Node;
@@ -52,8 +53,12 @@ public class TaskDirectUpload extends TaskBase
 			  							   final String sTargetRights)
 		throws Exception
 	{
-		final InputStream      aStream = FileUtils.openInputStream(aSourceFile);
-		final TaskDirectUpload aTask   = TaskDirectUpload.create(aStream, aTargetFile, sTargetOwner, sTargetGroup, sTargetRights);
+		final TaskDirectUpload aTask = new TaskDirectUpload ();
+		aTask.m_aSourceFile   = aSourceFile  ;
+		aTask.m_aTargetFile   = aTargetFile  ;
+		aTask.m_sTargetOwner  = sTargetOwner ;
+		aTask.m_sTargetGroup  = sTargetGroup ;
+		aTask.m_sTargetRights = sTargetRights;
 		return aTask;
 	}
 	
@@ -65,12 +70,13 @@ public class TaskDirectUpload extends TaskBase
 			  							   final String      sTargetRights)
 		throws Exception
 	{
-		final TaskDirectUpload aTask = new TaskDirectUpload ();
-		aTask.m_aSourceStream = aSourceStream;
-		aTask.m_aTargetFile   = aTargetFile  ;
-		aTask.m_sTargetOwner  = sTargetOwner ;
-		aTask.m_sTargetGroup  = sTargetGroup ;
-		aTask.m_sTargetRights = sTargetRights;
+		final File aTempDir  = FileUtils.getTempDirectory();
+		final File aTempFile = File.createTempFile("sdt-direct-upload-", ".data", aTempDir);
+
+		aTempFile.deleteOnExit();
+		FileUtils.copyInputStreamToFile(aSourceStream, aTempFile);
+		
+		final TaskDirectUpload aTask = create (aTempFile, aTargetFile, sTargetOwner, sTargetGroup, sTargetRights);
 		return aTask;
 	}
 
@@ -81,19 +87,27 @@ public class TaskDirectUpload extends TaskBase
 	{
 		System.out.println("execute direct upload of file '"+m_aTargetFile+"' ...");
 
-		final SSHServer aSSH        = aNode.accessSSH();
-		final String    sRemoteFile = m_aTargetFile.getAbsolutePath();
-
-		SSHMacros.dumpToFile(aSSH, sRemoteFile, m_aSourceStream);
-		SSHMacros.chown     (aSSH, sRemoteFile, m_sTargetOwner );
-		SSHMacros.chgrp     (aSSH, sRemoteFile, m_sTargetGroup );
-		SSHMacros.chmod     (aSSH, sRemoteFile, m_sTargetRights);
+		final SSHServer   aSSH          = aNode.accessSSH();
+		final String      sRemoteFile   = m_aTargetFile.getAbsolutePath();
+		final InputStream aSourceStream = FileUtils.openInputStream(m_aSourceFile);
+		
+		try
+		{
+			SSHMacros.dumpToFile(aSSH, sRemoteFile, aSourceStream  );
+			SSHMacros.chown     (aSSH, sRemoteFile, m_sTargetOwner );
+			SSHMacros.chgrp     (aSSH, sRemoteFile, m_sTargetGroup );
+			SSHMacros.chmod     (aSSH, sRemoteFile, m_sTargetRights);
+		}
+		finally
+		{
+			IOUtils.closeQuietly(aSourceStream);
+		}
 
 		System.out.println("ok");
 	}
 	
     //--------------------------------------------------------------------------
-	private InputStream m_aSourceStream = null;
+	private File m_aSourceFile = null;
 
 	//--------------------------------------------------------------------------
 	private File m_aTargetFile = null;
