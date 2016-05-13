@@ -290,26 +290,24 @@ For more information, please refer to <http://unlicense.org/>
 
     <!-- ===========================================================
       -->
-    <distributionManagement>
-        <repository>
-            <id>repo-sonatype-releases</id>
-            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-        </repository>
-
-        <snapshotRepository>
-            <id>repo-sonatype-snapshots</id>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-        </snapshotRepository>
-    </distributionManagement>
-    
-    <!-- ===========================================================
-      -->
     <profiles>
 
         <profile>
         
             <id>profile-snapshot-release</id>
         
+		    <distributionManagement>
+		        <repository>
+		            <id>repo-sonatype-releases</id>
+		            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+		        </repository>
+		
+		        <snapshotRepository>
+		            <id>repo-sonatype-snapshots</id>
+		            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+		        </snapshotRepository>
+		    </distributionManagement>
+
             <build>
                 <plugins>
 
@@ -348,6 +346,18 @@ For more information, please refer to <http://unlicense.org/>
         
             <id>profile-release</id>
         
+            <distributionManagement>
+                <repository>
+                    <id>repo-sonatype-releases</id>
+                    <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+                </repository>
+        
+                <snapshotRepository>
+                    <id>repo-sonatype-snapshots</id>
+                    <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+                </snapshotRepository>
+            </distributionManagement>
+
             <build>
                 <plugins>
 
@@ -405,5 +415,19 @@ For more information, please refer to <http://unlicense.org/>
             </build>
         </profile>
 
+        <profile>
+        
+            <id>profile-snapshot-hh</id>
+        
+            <distributionManagement>
+		        <snapshotRepository>
+		           <id>deploy-snapshots</id>
+		           <name>Internal Snapshots</name>
+		           <url>http://maven.docs.open-xchange.com:8081/nexus/content/repositories/snapshots/</url>
+		        </snapshotRepository>
+            </distributionManagement>
+
+        </profile>
+        
     </profiles>
 </project>
