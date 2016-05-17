@@ -1,12 +1,7 @@
 package net.as_development.asdk.distributed_cache;
 
-import java.net.DatagramPacket;
-import java.net.InetAddress;
-import java.net.MulticastSocket;
-import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -15,9 +10,14 @@ import org.apache.commons.lang3.StringUtils;
 
 import net.as_development.asdk.distributed_cache.impl.Message;
 import net.as_development.asdk.distributed_cache.impl.Set;
+import net.as_development.asdk.distributed_cache.impl.channel.IChannel;
+import net.as_development.asdk.distributed_cache.impl.channel.MulticastChannel;
+import net.as_development.asdk.distributed_cache.impl.channel.UnicastChannel;
+import net.as_development.asdk.tools.common.pattern.observation.Observable;
+import net.as_development.asdk.tools.common.pattern.observation.Observer;
 
 //=============================================================================
-public class DistributedCache
+public class DistributedCache implements Observer< Message >
 {
 	//-------------------------------------------------------------------------
 	public DistributedCache ()
@@ -32,52 +32,43 @@ public class DistributedCache
 	}
 
 	//-------------------------------------------------------------------------
+	@SuppressWarnings("unchecked")
 	public synchronized void connect ()
 	    throws Exception
 	{
-		if (m_aSocket != null)
+		if (m_iChannel != null)
 			return;
-		
-		final String                 sME      = mem_MyId   ();
-		final DistributedCacheConfig aConfig  = mem_Config ();
-		final String                 sAddress = aConfig.getMulticastAddress();
-		final int                    nPort    = aConfig.getMulticastPort   ();
-		final InetAddress            aAddress = InetAddress.getByName(sAddress); 
-		final MulticastSocket        aSocket  = new MulticastSocket(nPort);
 
-		aSocket.setReuseAddress     (true           );
-		aSocket.setReceiveBufferSize(Message.BUFSIZE);
-		aSocket.setSoTimeout        (15000          );
-		aSocket.setLoopbackMode     (false          ); // do not want to read own data packets ;-)
-		aSocket.joinGroup           (aAddress       );
+		final String                 sME          = mem_MyId   ();
+		final DistributedCacheConfig aConfig      = mem_Config ();
+		final boolean                bIsMulticast = aConfig.isMulticast();
+		      IChannel               iChannel     = null;
 		
-		System.out.println ("["+sME+"] connected to '"+sAddress+":"+nPort+"'");
-		m_aSocket  = aSocket ;
-		m_aAddress = aAddress;
-		m_nPort    = nPort   ;
+		if (bIsMulticast)
+			iChannel = new MulticastChannel ();
+		else
+			iChannel = new UnicastChannel ();
+
+		iChannel.setSenderId(sME    );
+		iChannel.configure  (aConfig);
+		iChannel.connect    (       );
+
+		((Observable< Message >)iChannel).addObserver(this);
 		
-		impl_listen ();
+		m_iChannel = iChannel;
 	}
 	
 	//-------------------------------------------------------------------------
 	public synchronized void disconnect ()
 	    throws Exception
 	{
-		if (m_aSocket == null)
+		if (m_iChannel == null)
 			return;
 		
-		final String            sME      = mem_MyId ();
-		final MulticastSocket   aSocket  = m_aSocket;
-		final String            sAddress = m_aAddress.getHostAddress();
-		final int               nPort    = m_nPort;
-		                      m_aSocket  = null;
-		                      m_aAddress = null;
-		                      m_nPort    = null;
+		final IChannel iChannel = m_iChannel;
 		
-		if (aSocket != null)
-			aSocket.close();
-
-		System.out.println ("["+sME+"] disconnected from '"+sAddress+":"+nPort+"'");
+		if (iChannel != null)
+			iChannel.disconnect();
 	}
 	
 	//-------------------------------------------------------------------------
@@ -165,69 +156,22 @@ public class DistributedCache
 		throws Exception
 	{
 		final String sME = mem_MyId ();
-		if (m_aSocket == null)
+		if (m_iChannel == null)
 			throw new RuntimeException ("["+sME+"] Not connected.");
 
+		System.out.println("... ["+sME+"] send out : '"+aMsg+"'");
 		aMsg.setSender(sME);
-
-		final String         sMsg  = Message.serialize(aMsg);
-		final DatagramPacket aData = new DatagramPacket(sMsg.getBytes(),sMsg.length(), m_aAddress, m_nPort);
-		m_aSocket.send(aData);
+		m_iChannel.send(aMsg);
 	}
 	
 	//-------------------------------------------------------------------------
-	private synchronized void impl_listen ()
+	@Override
+	public void notify(final Message aMsg)
 		throws Exception
 	{
-		if (m_aInQueue != null)
-			return;
-
-		final MulticastSocket aSocket  = m_aSocket;
-		final String          sME      = mem_MyId (); // needs to be retrieved here ... not inside thread !
-		final Thread          aInQueue = new Thread ()
-		{
-			@Override
-			public void run ()
-			{
-				try
-				{
-					while (true)
-					{
-						final byte[]         lBuf  = new byte[Message.BUFSIZE];
-						final DatagramPacket aData = new DatagramPacket (lBuf, lBuf.length);
-						aSocket.receive(aData);
-
-				        final int     nBytes = aData.getLength ();
-				        final byte[]  lBytes = aData.getData   ();
-				        final String  sMsg   = new String(lBytes, 0, nBytes);
-				        final Message aMsg   = Message.deserialize(sMsg);
-
-				        if (StringUtils.equals(sME, aMsg.getSender()))
-				        	continue;
-
-				        final String sAction = aMsg.getAction();
-				        if (StringUtils.equals(sAction, Message.ACTION_SET))
-				        	impl_doSet (aMsg);
-				        else
-				        	throw new UnsupportedOperationException ("No support for '"+sAction+"' implemented yet.");
-					}
-				}
-				catch (Throwable ex)
-				{
-					if (SocketException.class.isAssignableFrom(ex.getClass()))
-					{
-						if (StringUtils.containsIgnoreCase(ex.getMessage(), "socket closed"))
-							return;
-					}
-
-					System.err.println(ex.getMessage ());
-					ex.printStackTrace(System.err      );
-				}
-			}
-		};
-		
-		aInQueue.start();
-		m_aInQueue = aInQueue;
+        final String sAction = aMsg.getAction();
+        if (StringUtils.equals(sAction, Message.ACTION_SET))
+        	impl_doSet (aMsg);
 	}
 	
 	//-------------------------------------------------------------------------
@@ -278,16 +222,7 @@ public class DistributedCache
 	private DistributedCacheConfig m_aConfig = null;
 	
 	//-------------------------------------------------------------------------
-	private InetAddress m_aAddress = null;
-
-	//-------------------------------------------------------------------------
-	private Integer m_nPort = null;
-
-	//-------------------------------------------------------------------------
-	private MulticastSocket m_aSocket = null;
-
-	//-------------------------------------------------------------------------
-	private Thread m_aInQueue = null;
+	private IChannel m_iChannel = null;
 
 	//-------------------------------------------------------------------------
 	private Map< String, String > m_aCache = null;

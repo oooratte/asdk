@@ -1,12 +1,18 @@
 package net.as_development.asdk.distributed_cache;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
+
+import net.as_development.asdk.distributed_cache.impl.ERunMode;
 
 //=============================================================================
 public class DistributedCacheConfig
 {
 	//-------------------------------------------------------------------------
-	public static final String DEFAULT_MULTICAST_ADDRESS = "239.255.255.250";
+	public static final String DEFAULT_UNICAST_ADDRESS   = "127.0.0.1";
+	public static final int    DEFAULT_UNICAST_PORT      = 19876;
+
+	public static final String DEFAULT_MULTICAST_ADDRESS = "224.0.0.3";
 	public static final int    DEFAULT_MULTICAST_PORT    = 9876;
 	
 	//-------------------------------------------------------------------------
@@ -15,30 +21,85 @@ public class DistributedCacheConfig
 	{}
 
 	//-------------------------------------------------------------------------
-	public synchronized void setMulticastAddress (final String sAddress)
+	public synchronized void enableMulticast (final boolean bState)
+		throws Exception
+	{
+		m_bMulticast = bState;
+	}
+	
+	//-------------------------------------------------------------------------
+	public synchronized boolean isMulticast ()
+		throws Exception
+	{
+		return m_bMulticast;
+	}
+
+	//-------------------------------------------------------------------------
+	public synchronized void setRunMode (final ERunMode eMode)
+	    throws Exception
+	{
+		m_eRunMode = eMode;
+	}
+
+	//-------------------------------------------------------------------------
+	public synchronized ERunMode getRunMode ()
+	    throws Exception
+	{
+		return m_eRunMode;
+	}
+
+	//-------------------------------------------------------------------------
+	public synchronized void setAddress (final String sAddress)
 		throws Exception
 	{
 		Validate.notEmpty(sAddress, "Invalid argument 'address'.");
-		m_sMulticastAddress = sAddress;
+		m_sAddress = sAddress;
 	}
 
 	//-------------------------------------------------------------------------
-	public synchronized String getMulticastAddress ()
+	public synchronized String getAddress ()
 		throws Exception
 	{
-		return m_sMulticastAddress;
+		if (StringUtils.isEmpty(m_sAddress))
+		{
+			if (m_bMulticast)
+				m_sAddress = DEFAULT_MULTICAST_ADDRESS;
+			else
+				m_sAddress = DEFAULT_UNICAST_ADDRESS;
+		}
+		return m_sAddress;
 	}
 
 	//-------------------------------------------------------------------------
-	public synchronized int getMulticastPort ()
+	public synchronized void setPort (final int nPort)
 		throws Exception
 	{
-		return m_nMulticastPort;
+		m_nPort = nPort;
 	}
 
 	//-------------------------------------------------------------------------
-	private String m_sMulticastAddress = DEFAULT_MULTICAST_ADDRESS;
+	public synchronized int getPort ()
+		throws Exception
+	{
+		if (m_nPort == null)
+		{
+			if (m_bMulticast)
+				m_nPort = DEFAULT_MULTICAST_PORT;
+			else
+				m_nPort = DEFAULT_UNICAST_PORT;
+		}
+		return m_nPort;
+	}
 
 	//-------------------------------------------------------------------------
-	private int m_nMulticastPort = DEFAULT_MULTICAST_PORT;
+	private boolean m_bMulticast = false;
+
+	//-------------------------------------------------------------------------
+	private ERunMode m_eRunMode = null;
+
+	//-------------------------------------------------------------------------
+	private String m_sAddress = null;
+
+	//-------------------------------------------------------------------------
+	private Integer m_nPort = null;
 }
