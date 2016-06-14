@@ -196,6 +196,12 @@
 	            <artifactId>hsqldb</artifactId>
 	            <version>${version.hsqldb}</version>
 	        </dependency>
+
+			<dependency>
+			    <groupId>com.h2database</groupId>
+			    <artifactId>h2</artifactId>
+			    <version>${version.h2db}</version>
+			</dependency>
 	        
             <dependency>
 				<groupId>com.outr.javasysmon</groupId>
