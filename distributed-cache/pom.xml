@@ -46,6 +46,10 @@
 
 	<artifactId>${artifact-prefix}distributed-cache</artifactId>
 
+    <properties>
+        <profile.shade.var.main.class>net.as_development.asdk.distributed_cache.Main</profile.shade.var.main.class>
+    </properties>
+
 	<dependencies>
 	
         <dependency>
