@@ -222,6 +222,8 @@ public class AnsiSqlGeneratorTest
     public void testCreatingTableNames ()
             throws Exception
     {
+    	final String IDENTIFIER_QUOTE = "\"";
+    	
         // test data
         TestEntity       aEntity             = new TestEntity ();
         String           sEntitySchema       = AnsiSqlGeneratorTest.TEST_DB_SCHEMA; 
@@ -230,9 +232,11 @@ public class AnsiSqlGeneratorTest
         AnsiSqlGenerator aSqlGenerator       = new AnsiSqlGenerator ();
         String           sExpectedTableName  = null;
         String           sGeneratedTableName = null;
+        
+        aSqlGenerator.setIdentifierQuote(IDENTIFIER_QUOTE);
 
         // code under test
-        sExpectedTableName  = AnsiSqlGenerator.ANSI_QUOTE+sEntitySchema+AnsiSqlGenerator.ANSI_QUOTE+"."+AnsiSqlGenerator.ANSI_QUOTE+sEntityTable+AnsiSqlGenerator.ANSI_QUOTE; 
+        sExpectedTableName  = IDENTIFIER_QUOTE+sEntitySchema+IDENTIFIER_QUOTE+"."+IDENTIFIER_QUOTE+sEntityTable+IDENTIFIER_QUOTE; 
         sGeneratedTableName = ObjectManipulation.callPrivateMethod(aSqlGenerator, "impl_nameTable", aMeta);
         
         // checking the results
@@ -240,7 +244,7 @@ public class AnsiSqlGeneratorTest
         
         // code under test
         aMeta.getEntityMetaInfo().setSchema(null);
-        sExpectedTableName  = AnsiSqlGenerator.ANSI_QUOTE+sEntityTable+AnsiSqlGenerator.ANSI_QUOTE; 
+        sExpectedTableName  = IDENTIFIER_QUOTE+sEntityTable+IDENTIFIER_QUOTE; 
         sGeneratedTableName = ObjectManipulation.callPrivateMethod(aSqlGenerator, "impl_nameTable", aMeta);
         
         // checking the results
@@ -248,7 +252,7 @@ public class AnsiSqlGeneratorTest
         
         // code under test
         aMeta.getEntityMetaInfo().setSchema("");
-        sExpectedTableName  = AnsiSqlGenerator.ANSI_QUOTE+sEntityTable+AnsiSqlGenerator.ANSI_QUOTE; 
+        sExpectedTableName  = IDENTIFIER_QUOTE+sEntityTable+IDENTIFIER_QUOTE; 
         sGeneratedTableName = ObjectManipulation.callPrivateMethod(aSqlGenerator, "impl_nameTable", aMeta);
         
         // checking the results

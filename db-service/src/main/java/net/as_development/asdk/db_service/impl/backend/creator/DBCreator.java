@@ -31,14 +31,17 @@ import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.apache.commons.lang3.StringUtils;
+
 import net.as_development.asdk.api.db.IDB;
 import net.as_development.asdk.api.db.IDBPool;
 import net.as_development.asdk.api.db.IDBSchema;
+import net.as_development.asdk.api.db.IPersistenceUnit;
+import net.as_development.asdk.api.db.IPersistenceUnitRegistry;
 import net.as_development.asdk.db_service.EntityBase;
 import net.as_development.asdk.db_service.impl.PersistenceUnit;
+import net.as_development.asdk.db_service.impl.PersistenceUnitRegistry;
 import net.as_development.asdk.service.env.ServiceEnv;
-
-import org.apache.commons.lang3.StringUtils;
 
 //==============================================================================
 /** Provides more comfort around creating and updating DB schema.
@@ -63,6 +66,13 @@ public class DBCreator
     public DBCreator ()
     {}
     
+    //-------------------------------------------------------------------------
+	public void setDBPool (final IDBPool iDBPool)
+	    throws Exception
+	{
+		m_iDBPool = iDBPool;
+	}
+	
     //-------------------------------------------------------------------------
     /** set the credentials for an administrative DB account used here
      *  to create all needed resources.
@@ -199,21 +209,21 @@ public class DBCreator
     private void impl_createSchema ()
         throws Exception
     {
-        IDBPool                 iPool     = ServiceEnv.get ().getService(IDBPool.class);
-        List< PersistenceUnit > lUnits    = mem_PersistenceUnits ();
-        List< String >          lEntities = mem_Entities (); 
+    	final IDBPool                  iDBPool     = mem_DBPool               ();
+        final IPersistenceUnitRegistry iPURegistry = mem_PURegistry           ();
+        final List< String >           lUnits      = mem_PersistenceUnitNames ();
+        final List< String >           lEntities   = mem_Entities             (); 
+              int                      nErrors     = 0;
         
-        for (PersistenceUnit aUnit : lUnits)
+        for (final String sUnit : lUnits)
         {
+        	final PersistenceUnit aUnit = (PersistenceUnit) iPURegistry.getPersistenceUnitByName(sUnit);
             aUnit.setUser    (m_sAdminUser    );
             aUnit.setPassword(m_sAdminPassword);
             
-            iPool.registerPersistenceUnit(aUnit);
-            
-            String         sUnit         = aUnit.getName();
-            IDB            iDB           = iPool.getDbForPersistenceUnit(sUnit);
-            IDBSchema     iCreator      = (IDBSchema)iDB;
-            List< String > lUnitEntities = DBCreator.impl_getIntersection(lEntities, aUnit.getEntities());
+            final IDB            iDB           = iDBPool.getDbForPersistenceUnit(sUnit);
+            final IDBSchema      iCreator      = (IDBSchema)iDB;
+            final List< String > lUnitEntities = DBCreator.impl_getIntersection(lEntities, aUnit.getEntities());
             
             for (String sEntity : lUnitEntities)
             {
@@ -225,13 +235,18 @@ public class DBCreator
                 }
                 catch (Throwable ex)
                 {
+                	nErrors++;
+                	
                     StringBuffer sLog = new StringBuffer (256);
-                    sLog.append ("Error on creating table for entity '"+sEntity+"'.\n");
+                    sLog.append ("Error on creating schema for entity '"+sEntity+"'.\n");
                     sLog.append ("Original message was: '"+ex.getMessage ()+"'."       );
                     impl_log (Level.SEVERE, sLog.toString ());
                 }
             }
         }
+        
+        if (nErrors > 0)
+        	throw new Exception ("There was ["+nErrors+"] errors.");
     }
     
     //-------------------------------------------------------------------------
@@ -240,21 +255,21 @@ public class DBCreator
     private void impl_removeSchema ()
         throws Exception
     {
-        IDBPool                 iPool     = ServiceEnv.get ().getService(IDBPool.class);
-        List< PersistenceUnit > lUnits    = mem_PersistenceUnits ();
-        List< String >          lEntities = mem_Entities (); 
+    	final IDBPool                  iDBPool     = mem_DBPool               ();
+        final IPersistenceUnitRegistry iPURegistry = mem_PURegistry           ();
+        final List< String >           lUnits      = mem_PersistenceUnitNames ();
+        final List< String >           lEntities   = mem_Entities             ();
+        	  int                      nErrors     = 0;
         
-        for (PersistenceUnit aUnit : lUnits)
+        for (final String sUnit : lUnits)
         {
+        	final PersistenceUnit aUnit = (PersistenceUnit) iPURegistry.getPersistenceUnitByName(sUnit);
             aUnit.setUser    (m_sAdminUser    );
             aUnit.setPassword(m_sAdminPassword);
             
-            iPool.registerPersistenceUnit(aUnit);
-            
-            String         sUnit         = aUnit.getName();
-            IDB            iDB           = iPool.getDbForPersistenceUnit(sUnit);
-            IDBSchema     iCreator      = (IDBSchema)iDB;
-            List< String > lUnitEntities = DBCreator.impl_getIntersection(lEntities, aUnit.getEntities());
+            final IDB            iDB           = iDBPool.getDbForPersistenceUnit(sUnit);
+            final IDBSchema      iCreator      = (IDBSchema)iDB;
+            final List< String > lUnitEntities = DBCreator.impl_getIntersection(lEntities, aUnit.getEntities());
             
             for (String sEntity : lUnitEntities)
             {
@@ -266,13 +281,18 @@ public class DBCreator
                 }
                 catch (Throwable ex)
                 {
+                	nErrors++;
+                	
                     StringBuffer sLog = new StringBuffer (256);
-                    sLog.append ("Error on removing table for entity '"+sEntity+"'.\n");
-                    sLog.append ("Original message was: '"+ex.getMessage ()+"'."      );
+                    sLog.append ("Error on removing schema for entity '"+sEntity+"'.\n");
+                    sLog.append ("Original message was: '"+ex.getMessage ()+"'."       );
                     impl_log (Level.SEVERE, sLog.toString ());
                 }
             }
         }
+        
+        if (nErrors > 0)
+        	throw new Exception ("There was ["+nErrors+"] errors.");
     }
     
     //-------------------------------------------------------------------------
@@ -311,29 +331,40 @@ public class DBCreator
         if (m_bEnvInitialized)
             return;
         
-        List< String >          lUnitNames   = mem_PersistenceUnitNames ();
-        List< PersistenceUnit > lUnits       = mem_PersistenceUnits (); 
-        List< String >          lEntities    = mem_Entities ();
-        boolean                 bAllUnits    = lUnitNames.isEmpty();
-        boolean                 bAllEntities = lEntities.isEmpty();
+        final IPersistenceUnitRegistry iPURegistry  = mem_PURegistry           ();
+        final List< String >           lUnitNames   = mem_PersistenceUnitNames ();
+        final List< String >           lEntities    = mem_Entities             ();
         
-        if (bAllUnits)
-            lUnitNames = PersistenceUnit.listUnits();
-        
-        for (String sUnit : lUnitNames)
+        for (final String sUnit : lUnitNames)
         {
-            PersistenceUnit aUnit = PersistenceUnit.loadUnit(sUnit);
-            lUnits.add (aUnit);
+        	final IPersistenceUnit iUnit = iPURegistry.getPersistenceUnitByName(sUnit);
+            if (iUnit == null)
+            	throw new RuntimeException ("Could not retrieve nor load persistence unit with name '"+sUnit+"'.");
             
-            // TODO think about me
-            //       filter or reject duplicate entities (is it an error ?)
-            if (bAllEntities)
-                lEntities.addAll(aUnit.getEntities());
+            lEntities.addAll(iUnit.getEntities());
         }
         
         m_bEnvInitialized = true;
     }
     
+    //-------------------------------------------------------------------------
+	private IDBPool mem_DBPool ()
+	    throws Exception
+	{
+		if (m_iDBPool == null)
+			m_iDBPool = ServiceEnv.get ().getService (IDBPool.class);
+		return m_iDBPool;
+	}
+	
+    //-------------------------------------------------------------------------
+    private IPersistenceUnitRegistry mem_PURegistry ()
+        throws Exception
+    {
+    	if (m_iPURegistry == null)
+    		m_iPURegistry = PersistenceUnitRegistry.get ();
+    	return m_iPURegistry;
+    }
+
     //-------------------------------------------------------------------------
     private List< String > mem_PersistenceUnitNames ()
         throws Exception
@@ -341,15 +372,6 @@ public class DBCreator
         if (m_lPersistenceUnitNames == null)
             m_lPersistenceUnitNames = new Vector< String >(10);
         return m_lPersistenceUnitNames;
-    }
-    
-    //-------------------------------------------------------------------------
-    private List< PersistenceUnit > mem_PersistenceUnits ()
-        throws Exception
-    {
-        if (m_lPersistenceUnits == null)
-            m_lPersistenceUnits = new Vector< PersistenceUnit >(10);
-        return m_lPersistenceUnits;
     }
     
     //-------------------------------------------------------------------------
@@ -362,6 +384,9 @@ public class DBCreator
     }
     
     //-------------------------------------------------------------------------
+    private IDBPool m_iDBPool = null;
+    
+    //-------------------------------------------------------------------------
     /// login for the DB admin user used here.
     private String m_sAdminUser = null;
     
@@ -370,10 +395,10 @@ public class DBCreator
     private String m_sAdminPassword = null;
     
     //-------------------------------------------------------------------------
-    private List< String > m_lPersistenceUnitNames = null;
+    private IPersistenceUnitRegistry m_iPURegistry = null;
     
     //-------------------------------------------------------------------------
-    private List< PersistenceUnit > m_lPersistenceUnits = null;
+    private List< String > m_lPersistenceUnitNames = null;
     
     //-------------------------------------------------------------------------
     private List< String > m_lEntities = null;

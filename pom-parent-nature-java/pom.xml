@@ -204,10 +204,16 @@
 			</dependency>
 	        
             <dependency>
-				<groupId>com.outr.javasysmon</groupId>
-				<artifactId>javasysmon_2.10</artifactId>
-                <version>${version.javasysmon}</version>
+                <groupId>org.apache.derby</groupId>
+                <artifactId>derby</artifactId>
+                <version>${version.derby}</version>
             </dependency>
+
+			<dependency>
+				<groupId>mysql</groupId>
+				<artifactId>mysql-connector-java</artifactId>
+				<version>${version.mysql}</version>
+			</dependency>
             
 			<dependency>
 			    <groupId>com.jcraft</groupId>
@@ -232,6 +238,12 @@
 			    <artifactId>quartz-jobs</artifactId>
 			    <version>${version.quartz}</version>
 			</dependency>
+
+	        <dependency>
+	            <groupId>com.outr.javasysmon</groupId>
+	            <artifactId>javasysmon_2.10</artifactId>
+	            <version>${version.javasysmon}</version>
+	        </dependency>
 
             <!-- dependencies : test env -->
 			<dependency>

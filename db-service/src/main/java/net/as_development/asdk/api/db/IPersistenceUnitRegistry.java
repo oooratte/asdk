@@ -26,26 +26,30 @@
  */
 package net.as_development.asdk.api.db;
 
+import java.util.List;
+
 
 //==============================================================================
-/** Obtaining an instance of type IDB can be tricky ... e.g. in case
- *  performance aspects like multiplexing data bases or tables should be used
- *  for performance reasons. Creating such IDB instances normally by calling new()
- *  wont work then. Only a specialized instance can know (if it's configured to
- *  know such things) how and if a new instance must be created.
+/** Used for registration of persistence unit modules in a very ease way.
  */
-public interface IDBPool
+public interface IPersistenceUnitRegistry
 {
-    //--------------------------------------------------------------------------
-    /** return a new created/reseted or reused IDB instance from the pool
-     * which is bound to a persistence unit matching the given name.
-     *
-     *  @param  sPersistenceUnit [IN]
-     *          name of the persistence unit (configuration) where the searched
-     *          DB instance is bound to.
-     *
-     *  @return the right DB instance.
-     */
-    public IDB getDbForPersistenceUnit (String sPersistenceUnit)
-        throws Exception;
+	//--------------------------------------------------------------------------
+	public void addPersistenceUnits (final IPersistenceUnit... lUnits)
+		throws Exception;
+	
+	//--------------------------------------------------------------------------
+	public IPersistenceUnit getPersistenceUnitByName (final String sName)
+		throws Exception;
+	
+	//--------------------------------------------------------------------------
+	/** @return the list of persistence units provided  by this module.
+	 *	        Must not be null - nor empty !
+	 *
+	 *  Its not required persistence unit returned here has to be complete.
+	 *  Global parts as e.g. the DB connection parameter will be added outside !
+	 *  YOU have to define YOUR parameter set here only (e.g. entities, unit names etcpp)
+	 */
+	public List< IPersistenceUnit > listPersistenceUnits ()
+		throws Exception;
 }

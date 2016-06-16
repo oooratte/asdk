@@ -199,7 +199,44 @@ public class PersistenceUnit implements IPersistenceUnit
     {
         return mem_Props ().get(PersistenceUnitConst.DB_PASSWORD);
     }
+
+    //--------------------------------------------------------------------------
+    public void setSchema (final String sSchema)
+        throws Exception
+    {
+    	mem_Props ().put(PersistenceUnitConst.DB_SCHEMA, sSchema);
+    }
     
+    //--------------------------------------------------------------------------
+    public String getSchema ()
+        throws Exception
+    {
+    	return mem_Props ().get(PersistenceUnitConst.DB_SCHEMA);
+    }
+
+    //--------------------------------------------------------------------------
+    public void setAdministrative (final boolean bAdministrative)
+        throws Exception
+    {
+        mem_Props ().put(PersistenceUnitConst.FLAG_IS_ADMINISTRATIVE, Boolean.toString(bAdministrative));
+    }
+
+    //--------------------------------------------------------------------------
+    public boolean isAdministrative ()
+        throws Exception
+    {
+        try
+        {
+            final String  sValue = mem_Props ().get(PersistenceUnitConst.FLAG_IS_ADMINISTRATIVE);
+        	final boolean bIs    = Boolean.parseBoolean(sValue);
+        	return bIs;
+        }
+        catch (Throwable ex)
+        {}
+        
+        return false;
+    }
+
     //--------------------------------------------------------------------------
     /** add class name of an entity to these unit.
      *

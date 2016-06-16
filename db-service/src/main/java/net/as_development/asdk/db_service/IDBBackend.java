@@ -28,6 +28,7 @@ package net.as_development.asdk.db_service;
 
 import java.util.List;
 
+import net.as_development.asdk.api.db.IPersistenceUnit;
 import net.as_development.asdk.db_service.impl.EntityMetaInfoProvider;
 import net.as_development.asdk.db_service.impl.Row;
 
@@ -48,6 +49,15 @@ public interface IDBBackend
 	 *  		the meta information provider.
 	 */
     public void setEntityMetaInfoProvider (EntityMetaInfoProvider aProvider)
+        throws Exception;
+
+    //--------------------------------------------------------------------------
+    /** back end should create a new DB.
+     * 
+     *  @param	aMeta [IN]
+     *  		describe the structure of the DB more in detail.
+     */
+    public void createDB (Row aMeta)
         throws Exception;
 
     //--------------------------------------------------------------------------

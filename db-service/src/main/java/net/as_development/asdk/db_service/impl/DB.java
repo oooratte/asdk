@@ -375,8 +375,10 @@ public class DB implements IDB
     {
         EntityMetaInfo aMeta    = mem_MetaProvider ().getMetaInfoForEntityClass(aType);
         Row            aRowInfo = new Row (aMeta);
+        IDBBackend     iBackend = mem_Backend ();
 
-        mem_Backend ().createTable(aRowInfo);
+        iBackend.createDB   (aRowInfo);
+        iBackend.createTable(aRowInfo);
     }
 
     //--------------------------------------------------------------------------
@@ -386,8 +388,10 @@ public class DB implements IDB
     {
         EntityMetaInfo aMeta    = mem_MetaProvider ().getMetaInfoForEntityClass(aType);
         Row            aRowInfo = new Row (aMeta);
+        IDBBackend     iBackend = mem_Backend ();
 
-        mem_Backend ().removeTable(aRowInfo);
+        iBackend.removeTable(aRowInfo);
+        // do not remove DB as we dont know how many entities are bound to it ;-(
     }
     
     //--------------------------------------------------------------------------
