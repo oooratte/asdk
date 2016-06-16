@@ -41,9 +41,11 @@ import net.as_development.asdk.api.db.IDBPool;
 import net.as_development.asdk.api.db.IDBQuery;
 import net.as_development.asdk.api.db.IEntity;
 import net.as_development.asdk.api.db.IPersistenceUnit;
+import net.as_development.asdk.api.db.IPersistenceUnitRegistry;
 import net.as_development.asdk.db_service.EntityBase;
 import net.as_development.asdk.db_service.impl.DBPool;
 import net.as_development.asdk.db_service.impl.PersistenceUnit;
+import net.as_development.asdk.db_service.impl.PersistenceUnitRegistry;
 
 //=============================================================================
 /** the try to automate backup of the whole product DB .-)
@@ -164,12 +166,15 @@ public class DBBackup
 										   Map< String, IPersistenceUnit > lEntityPUs )
 		throws Exception
 	{
-		DBPool iPool = new DBPool ();
+		final DBPool                   iPool       = new DBPool ();
+		final IPersistenceUnitRegistry iPURegistry = new PersistenceUnitRegistry ();
+		
+		iPool.setPersistenceUnitRegistry(iPURegistry);
 		
 		for (IPersistenceUnit iEntity : lEntityPUs.values ())
 		{
-			IPersistenceUnit iPU = impl_mergePUs (iEntity, iConnection);
-			iPool.registerPersistenceUnit(iPU);
+			final IPersistenceUnit iPU = impl_mergePUs (iEntity, iConnection);
+			iPURegistry.addPersistenceUnits(iPU);
 		}
 		
 		return iPool;

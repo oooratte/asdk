@@ -59,11 +59,11 @@ public interface IDBServer
 	 *  @param	lModules [IN]
 	 *  		the set of modules to be registered.
 	 */
-	public void registerPersistenceRegistryModule (IPersistenceUnitRegistryModule... lModules)
+	public void registerPersistenceRegistryModule (IPersistenceUnitRegistry... lModules)
 		throws Exception;
 	
     //-------------------------------------------------------------------------
-	public void registerPersistenceRegistryModule (List< IPersistenceUnitRegistryModule > lModules)
+	public void registerPersistenceRegistryModule (List< IPersistenceUnitRegistry > lModules)
 		throws Exception;
 	
     //-------------------------------------------------------------------------

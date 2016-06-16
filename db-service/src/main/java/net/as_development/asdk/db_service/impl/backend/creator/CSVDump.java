@@ -239,11 +239,12 @@ public class CSVDump
     {
         if (m_iDB == null)
         {
-            IDBPool         iPool = ServiceEnv.get().getService(IDBPool.class);
-            PersistenceUnit aUnit = PersistenceUnit.loadUnit(m_sPersistenceUnitName);
-            iPool.registerPersistenceUnit(aUnit);
-            IDB             iDB   = iPool.getDbForPersistenceUnit(m_sPersistenceUnitName);
-            m_iDB = iDB;
+    		throw new UnsupportedOperationException ("fix me");
+//            IDBPool         iPool = ServiceEnv.get().getService(IDBPool.class);
+//            PersistenceUnit aUnit = PersistenceUnit.loadUnit(m_sPersistenceUnitName);
+//            iPool.registerPersistenceUnit(aUnit);
+//            IDB             iDB   = iPool.getDbForPersistenceUnit(m_sPersistenceUnitName);
+//            m_iDB = iDB;
         }
         return m_iDB;
     }

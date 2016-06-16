@@ -84,6 +84,14 @@ public class SimpleDbProvider implements IDBBackend
 
     //--------------------------------------------------------------------------
     @Override
+    public void createDB (Row aMeta)
+        throws Exception
+    {
+    	throw new UnsupportedOperationException ("Not implemented yet.");
+    }
+
+    //--------------------------------------------------------------------------
+    @Override
     public void createTable(Row aRow)
         throws Exception
     {

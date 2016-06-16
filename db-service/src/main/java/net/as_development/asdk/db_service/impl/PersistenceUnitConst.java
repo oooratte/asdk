@@ -64,6 +64,9 @@ public class PersistenceUnitConst
     public static final String DB_PASSWORD = "db.password";
 
     //--------------------------------------------------------------------------
+    public static final String FLAG_IS_ADMINISTRATIVE = "flag.is-administrative";
+    
+    //--------------------------------------------------------------------------
     /// define the constraint to check max length for DB identifier
     public static final String CONSTRAINT_MAX_IDENTIFIER_LENGTH = "constraint.max_identifier_length";
     

@@ -30,11 +30,13 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import net.as_development.asdk.api.db.IPersistenceUnit;
@@ -48,6 +50,7 @@ import net.as_development.asdk.sql.server.impl.EmbeddedDerbyServer;
 import test.net.as_development.asdk.db_service.test.entities.TestEntity;
 
 //==============================================================================
+@Ignore
 public class DBBackupTest
 {
     //--------------------------------------------------------------------------
@@ -83,8 +86,8 @@ public class DBBackupTest
 		m_iSourceDBServer   = iSource;
 		m_iTargetDBServer   = iTarget;
 		
-		impl_cleanDB    (m_iSourceConnection);
-		impl_cleanDB    (m_iTargetConnection);
+		impl_cleanDB      (m_iSourceConnection);
+		impl_cleanDB      (m_iTargetConnection);
 		impl_createTestDB (m_iSourceConnection);
 	}
 	
@@ -206,6 +209,8 @@ public class DBBackupTest
 		throws Exception
 	{
 		PersistenceUnit iPU = new PersistenceUnit ();
+		iPU.setName     (UUID.randomUUID().toString());
+		iPU.setSchema   (UUID.randomUUID().toString());
 		iPU.setProperty (PersistenceUnitConst.JDBC_DRIVER       , iServer.getDriverClass  ());
 		iPU.setProperty (PersistenceUnitConst.JDBC_CONNECTIONURL, iServer.getConnectionUrl());
 		iPU.setProperty (PersistenceUnitConst.DB_USER           , iServer.getUser         ());

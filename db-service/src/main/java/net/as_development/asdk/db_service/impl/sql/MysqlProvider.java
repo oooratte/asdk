@@ -24,24 +24,17 @@
  *
  * For more information, please refer to <http://unlicense.org/>
  */
-package net.as_development.asdk.api.db;
+package net.as_development.asdk.db_service.impl.sql;
 
-import java.util.List;
-
+import net.as_development.asdk.db_service.impl.sql.generator.MysqlSqlGenerator;
 
 //==============================================================================
-/** Used for registration of persistence unit modules in a very ease way.
- */
-public interface IPersistenceUnitRegistryModule
+public class MysqlProvider extends SqlProvider
 {
-	//--------------------------------------------------------------------------
-	/** @return the list of persistence units provided  by this module.
-	 *	        Must not be null - nor empty !
-	 *
-	 *  Its not required persistence unit returned here has to be complete.
-	 *  Global parts as e.g. the DB connection parameter will be added outside !
-	 *  YOU have to define YOUR parameter set here only (e.g. entities, unit names etcpp)
-	 */
-	public List< IPersistenceUnit > listPersistenceUnits ()
-		throws Exception;
+    //--------------------------------------------------------------------------
+    public MysqlProvider ()
+    	throws Exception
+    {
+    	super.setSqlGenerator(new MysqlSqlGenerator ());
+    }
 }

@@ -97,6 +97,13 @@ public class Row
     }
 
     //--------------------------------------------------------------------------
+    public String getSchema ()
+        throws Exception
+    {
+        return m_aMetaInfo.getSchema();
+    }
+
+    //--------------------------------------------------------------------------
     public String getTable ()
         throws Exception
     {

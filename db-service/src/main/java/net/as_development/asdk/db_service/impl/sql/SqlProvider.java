@@ -35,6 +35,7 @@ import java.util.List;
 
 import net.as_development.asdk.api.db.BetweenQueryRange;
 import net.as_development.asdk.api.db.EQueryPartOperation;
+import net.as_development.asdk.api.db.IPersistenceUnit;
 import net.as_development.asdk.db_service.IDBBackend;
 import net.as_development.asdk.db_service.IDBBackendQuery;
 import net.as_development.asdk.db_service.ISqlGenerator;
@@ -61,11 +62,27 @@ public class SqlProvider implements IDBBackend
     {}
 
     //--------------------------------------------------------------------------
+    public void setSqlGenerator (final ISqlGenerator iGenerator)
+        throws Exception
+    {
+    	m_iSqlGenerator = iGenerator;
+    }
+    
+    //--------------------------------------------------------------------------
     @Override
     public void setEntityMetaInfoProvider(EntityMetaInfoProvider aProvider)
         throws Exception
     {
         m_aMetaProvider = aProvider;
+    }
+
+    //--------------------------------------------------------------------------
+    @Override
+    public void createDB (Row aMeta)
+        throws Exception
+    {
+        final PreparedStatement aSql = impl_getSql (ISqlGenerator.EStatementType.E_CREATE_SCHEMA, aMeta, null);
+    	aSql.executeUpdate ();
     }
 
     //--------------------------------------------------------------------------
@@ -483,7 +500,10 @@ public class SqlProvider implements IDBBackend
         throws Exception
     {
         if (m_iSqlGenerator == null)
-            m_iSqlGenerator = new AnsiSqlGenerator ();
+        {
+        	final AnsiSqlGenerator aGenerator = new AnsiSqlGenerator ();
+        	m_iSqlGenerator = aGenerator;
+        }
         return m_iSqlGenerator;
     }
     

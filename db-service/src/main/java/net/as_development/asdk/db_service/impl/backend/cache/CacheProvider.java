@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import net.as_development.asdk.api.db.IPersistenceUnit;
 import net.as_development.asdk.db_service.IDBBackend;
 import net.as_development.asdk.db_service.IDBBackendQuery;
 import net.as_development.asdk.db_service.impl.EntityMetaInfoProvider;
@@ -70,6 +71,14 @@ public class CacheProvider implements IDBBackend
     {
         m_aMetaProvider = aProvider;
         mem_Db ().setEntityMetaInfoProvider(aProvider);
+    }
+
+    //--------------------------------------------------------------------------
+    @Override
+    public void createDB (Row aMeta)
+        throws Exception
+    {
+    	throw new UnsupportedOperationException ("Not implemented yet.");
     }
 
     //--------------------------------------------------------------------------

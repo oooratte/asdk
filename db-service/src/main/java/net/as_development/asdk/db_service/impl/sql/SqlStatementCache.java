@@ -72,9 +72,13 @@ public class SqlStatementCache extends HashMap< String, PreparedStatement >
     {
     	
         StringBuffer sCacheId = new StringBuffer (256);
-        
-        sCacheId.append (aMeta.getTable ());
-        sCacheId.append ("_"              );
+
+        if (aMeta != null)
+        {
+        	sCacheId.append (aMeta.getTable ());
+        	sCacheId.append ("_"              );
+        }
+
         sCacheId.append (eStatement.name());
         
         if (iQuery != null)

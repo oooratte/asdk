@@ -37,7 +37,7 @@ import net.as_development.asdk.api.db.IDBSchema;
 import net.as_development.asdk.api.db.IDBServer;
 import net.as_development.asdk.api.db.IEntity;
 import net.as_development.asdk.api.db.IPersistenceUnit;
-import net.as_development.asdk.api.db.IPersistenceUnitRegistryModule;
+import net.as_development.asdk.api.db.IPersistenceUnitRegistry;
 import net.as_development.asdk.db_service.impl.PersistenceUnit;
 import net.as_development.asdk.db_service.impl.PersistenceUnitConst;
 import net.as_development.asdk.service.env.ServiceEnv;
@@ -51,6 +51,13 @@ public class DBServer implements IDBServer
     //-------------------------------------------------------------------------
 	public DBServer ()
 	{}
+	
+    //-------------------------------------------------------------------------
+	public void setDBPool (final IDBPool iDBPool)
+	    throws Exception
+	{
+		m_iDBPool = iDBPool;
+	}
 	
     //-------------------------------------------------------------------------
 	@Override
@@ -82,19 +89,19 @@ public class DBServer implements IDBServer
 	
     //-------------------------------------------------------------------------
 	@Override
-	public void registerPersistenceRegistryModule (IPersistenceUnitRegistryModule... lModules)
+	public void registerPersistenceRegistryModule (IPersistenceUnitRegistry... lModules)
 		throws Exception
 	{
-		for (IPersistenceUnitRegistryModule iModule : lModules)
+		for (IPersistenceUnitRegistry iModule : lModules)
 			registerPersistenceUnit(iModule.listPersistenceUnits());
 	}
 		
     //-------------------------------------------------------------------------
 	@Override
-	public void registerPersistenceRegistryModule (List< IPersistenceUnitRegistryModule > lModules)
+	public void registerPersistenceRegistryModule (List< IPersistenceUnitRegistry > lModules)
 		throws Exception
 	{
-		for (IPersistenceUnitRegistryModule iModule : lModules)
+		for (IPersistenceUnitRegistry iModule : lModules)
 			registerPersistenceUnit(iModule.listPersistenceUnits());
 	}
 
@@ -102,14 +109,15 @@ public class DBServer implements IDBServer
 	public void initRuntime ()
 		throws Exception
 	{
-		IDBPool                      iDBPool = ServiceEnv.get ().getService (IDBPool.class);
-		Iterator< IPersistenceUnit > lPUs    = mem_PUs ().values().iterator();
-		while (lPUs.hasNext())
-		{
-			IPersistenceUnit iPU     = lPUs.next();
-			IPersistenceUnit iFullPU = impl_weaveInServerData (iPU);
-			iDBPool.registerPersistenceUnit(iFullPU);
-		}
+		throw new UnsupportedOperationException ("fix me");
+//		IDBPool                      iDBPool = mem_DBPool ();
+//		Iterator< IPersistenceUnit > lPUs    = mem_PUs ().values().iterator();
+//		while (lPUs.hasNext())
+//		{
+//			IPersistenceUnit iPU     = lPUs.next();
+//			IPersistenceUnit iFullPU = impl_weaveInServerData (iPU);
+//			iDBPool.registerPersistenceUnit(iFullPU);
+//		}
 	}
 	
     //-------------------------------------------------------------------------
@@ -117,7 +125,7 @@ public class DBServer implements IDBServer
 	public void createSchema()
 		throws Exception
 	{
-		IDBPool iPool = ServiceEnv.get ().getService (IDBPool.class);
+		IDBPool iPool = mem_DBPool ();
 		// TODO do we need listing of persistence units within pool ?
 		
 		Iterator< IPersistenceUnit > lPUs = mem_PUs ().values().iterator();
@@ -163,6 +171,18 @@ public class DBServer implements IDBServer
 			m_lPUs = new HashMap< String, IPersistenceUnit > ();
 		return m_lPUs;
 	}
+	
+    //-------------------------------------------------------------------------
+	private IDBPool mem_DBPool ()
+	    throws Exception
+	{
+		if (m_iDBPool == null)
+			m_iDBPool = ServiceEnv.get ().getService (IDBPool.class);
+		return m_iDBPool;
+	}
+	
+    //-------------------------------------------------------------------------
+	private IDBPool m_iDBPool = null;
 	
     //-------------------------------------------------------------------------
 	private IPersistenceUnit m_iConnectionData = null;

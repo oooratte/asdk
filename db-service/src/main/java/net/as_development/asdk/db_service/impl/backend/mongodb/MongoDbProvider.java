@@ -33,6 +33,7 @@ import java.util.List;
 import net.as_development.asdk.api.db.BetweenQueryRange;
 import net.as_development.asdk.api.db.EQueryPartBinding;
 import net.as_development.asdk.api.db.EQueryPartOperation;
+import net.as_development.asdk.api.db.IPersistenceUnit;
 import net.as_development.asdk.db_service.IDBBackend;
 import net.as_development.asdk.db_service.IDBBackendQuery;
 import net.as_development.asdk.db_service.impl.Column;
@@ -96,6 +97,14 @@ public class MongoDbProvider implements IDBBackend
         throws Exception
     {
         m_aMetaProvider = aProvider;
+    }
+
+    //--------------------------------------------------------------------------
+    @Override
+    public void createDB (Row aMeta)
+        throws Exception
+    {
+    	throw new UnsupportedOperationException ("Not implemented yet.");
     }
 
     //--------------------------------------------------------------------------

@@ -32,6 +32,7 @@ import java.util.Map;
 import net.as_development.asdk.api.db.IDB;
 import net.as_development.asdk.api.db.IDBPool;
 import net.as_development.asdk.api.db.IPersistenceUnit;
+import net.as_development.asdk.api.db.IPersistenceUnitRegistry;
 
 //==============================================================================
 public class DBPool implements IDBPool
@@ -39,6 +40,20 @@ public class DBPool implements IDBPool
     //--------------------------------------------------------------------------
     public DBPool ()
     {}
+
+    //--------------------------------------------------------------------------
+    public synchronized void setPersistenceUnitRegistry (final IPersistenceUnitRegistry iRegistry)
+        throws Exception
+    {
+    	m_iPURegistry = iRegistry;
+    }
+    
+    //--------------------------------------------------------------------------
+    public synchronized IPersistenceUnitRegistry getPersistenceUnitRegistry ()
+        throws Exception
+    {
+    	return mem_PURegistry ();
+    }
 
     //--------------------------------------------------------------------------
     @Override
@@ -58,7 +73,7 @@ public class DBPool implements IDBPool
         // create new DB (and pool it)
         if (iDB == null)
         {
-            IPersistenceUnit aPu = mem_Units ().get(sPersistenceUnit);
+            IPersistenceUnit aPu = mem_PURegistry ().getPersistenceUnitByName(sPersistenceUnit);
             iDB = new DB ();
             iDB.setPersistenceUnit(aPu);
 
@@ -69,29 +84,12 @@ public class DBPool implements IDBPool
     }
 
     //--------------------------------------------------------------------------
-	@Override
-	public void registerPersistenceUnit(String sName)
-		throws Exception
-	{
-		IPersistenceUnit iUnit = PersistenceUnit.loadUnit(sName);
-		registerPersistenceUnit (iUnit);
-	}
-	
-    //--------------------------------------------------------------------------
-    @Override
-    public synchronized void registerPersistenceUnit(IPersistenceUnit aUnit)
+    private IPersistenceUnitRegistry mem_PURegistry ()
         throws Exception
     {
-        mem_Units ().put (aUnit.getName(), aUnit);
-    }
-
-    //--------------------------------------------------------------------------
-    private Map< String, IPersistenceUnit > mem_Units ()
-        throws Exception
-    {
-        if (m_lUnits == null)
-            m_lUnits = new HashMap< String, IPersistenceUnit >(10);
-        return m_lUnits;
+        if (m_iPURegistry == null)
+            m_iPURegistry = PersistenceUnitRegistry.get ();
+        return m_iPURegistry;
     }
 
     //--------------------------------------------------------------------------
@@ -104,7 +102,7 @@ public class DBPool implements IDBPool
     }
 
     //--------------------------------------------------------------------------
-    private Map< String, IPersistenceUnit > m_lUnits = null;
+    private IPersistenceUnitRegistry m_iPURegistry = null;
 
     //--------------------------------------------------------------------------
     private Map< String, IDB > m_lDbs = null;
