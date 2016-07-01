@@ -26,18 +26,19 @@
  */
 package test.net.as_development.asdk.distributed_cache;
 
-import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import net.as_development.asdk.distributed_cache.DistributedCache;
 import net.as_development.asdk.distributed_cache.impl.ERunMode;
 
 //=============================================================================
+@Ignore
 public class DistributedCacheTest
 {
 	//-------------------------------------------------------------------------
