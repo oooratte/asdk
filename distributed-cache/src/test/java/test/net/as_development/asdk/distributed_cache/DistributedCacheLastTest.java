@@ -34,7 +34,7 @@ import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DurationFormatUtils;
-import org.junit.Test;
+import org.junit.Ignore;
 
 import net.as_development.asdk.distributed_cache.DistributedCache;
 import net.as_development.asdk.distributed_cache.impl.ERunMode;
@@ -43,7 +43,8 @@ import net.as_development.asdk.distributed_cache.impl.ERunMode;
 public class DistributedCacheLastTest
 {
 	//-------------------------------------------------------------------------
-	@Test
+	//@Test
+	@Ignore
 	public void test()
 		throws Exception
 	{
