@@ -52,6 +52,23 @@ public class PersistenceUnitConst
     public static final String JDBC_CONNECTIONURL = "jdbc.connection.url";
     
     //--------------------------------------------------------------------------
+    /// an outside JDBC connection to be used instead of creating own one
+    public static final String JDBC_EXTERNAL_CONNECTION = "jdbc.connection.external";
+    
+    //--------------------------------------------------------------------------
+    /// enable/disable caching of prepared statements within the SQL provider
+    public static final String JDBC_CACHE_STATEMENTS = "jdbc.cache.statements";
+
+    //--------------------------------------------------------------------------
+    public static final String SQL_IDENTIFIER_QUOTE = "sql.quote.identifier";
+
+    //--------------------------------------------------------------------------
+    public static final String SQL_STRING_QUOTE = "sql.quote.string";
+
+    //--------------------------------------------------------------------------
+    public static final String SQL_DUMP_STATEMENTS = "sql.dump.statements";
+
+    //--------------------------------------------------------------------------
     /// define the DB schema used by all entities bound to one persistence unit
     public static final String DB_SCHEMA = "db.schema";
     

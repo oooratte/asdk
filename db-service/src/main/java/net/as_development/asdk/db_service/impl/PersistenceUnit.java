@@ -73,7 +73,7 @@ public class PersistenceUnit implements IPersistenceUnit
     	
     	for (String sProp : iPU.getPropertNames())
     	{
-    		String sValue = iPU.getProperty(sProp);
+    		String sValue = iPU.getStringProperty(sProp);
     		setProperty(sProp, sValue);
     	}
     }
@@ -190,14 +190,14 @@ public class PersistenceUnit implements IPersistenceUnit
     public String getUser ()
         throws Exception
     {
-        return mem_Props ().get(PersistenceUnitConst.DB_USER);
+        return getStringProperty(PersistenceUnitConst.DB_USER);
     }
     
     //--------------------------------------------------------------------------
     public String getPassword ()
         throws Exception
     {
-        return mem_Props ().get(PersistenceUnitConst.DB_PASSWORD);
+        return getStringProperty(PersistenceUnitConst.DB_PASSWORD);
     }
 
     //--------------------------------------------------------------------------
@@ -211,7 +211,7 @@ public class PersistenceUnit implements IPersistenceUnit
     public String getSchema ()
         throws Exception
     {
-    	return mem_Props ().get(PersistenceUnitConst.DB_SCHEMA);
+    	return getStringProperty(PersistenceUnitConst.DB_SCHEMA);
     }
 
     //--------------------------------------------------------------------------
@@ -227,7 +227,7 @@ public class PersistenceUnit implements IPersistenceUnit
     {
         try
         {
-            final String  sValue = mem_Props ().get(PersistenceUnitConst.FLAG_IS_ADMINISTRATIVE);
+            final String  sValue = getStringProperty(PersistenceUnitConst.FLAG_IS_ADMINISTRATIVE);
         	final boolean bIs    = Boolean.parseBoolean(sValue);
         	return bIs;
         }
@@ -283,8 +283,20 @@ public class PersistenceUnit implements IPersistenceUnit
         if (StringUtils.isEmpty(sProperty))
             return;
 
-        HashMap< String, String > lProps = mem_Props ();
+        HashMap< String, Object > lProps = mem_Props ();
         lProps.put(sProperty, sValue);
+    }
+
+    //--------------------------------------------------------------------------
+    public < T > void setProperty (String sProperty,
+                                   T      aValue   )
+        throws Exception
+    {
+        if (StringUtils.isEmpty(sProperty))
+            return;
+
+        HashMap< String, Object > lProps = mem_Props ();
+        lProps.put(sProperty, aValue);
     }
 
     //--------------------------------------------------------------------------
@@ -292,20 +304,20 @@ public class PersistenceUnit implements IPersistenceUnit
      *
      *  Note   if property is unknown an empty string will be returned.
      */
-    public String getProperty (String sProperty)
+    public String getStringProperty (String sProperty)
         throws Exception
     {
         if (StringUtils.isEmpty(sProperty))
             return "";
 
-        return mem_Props ().get(sProperty);
+        return (String) mem_Props ().get(sProperty);
     }
 
     //--------------------------------------------------------------------------
     public boolean getBooleanProperty (String sProperty)
     	throws Exception
     {
-        String sValue = getProperty (sProperty);
+        String sValue = getStringProperty (sProperty);
         return Boolean.parseBoolean(sValue);
     }
 
@@ -316,7 +328,7 @@ public class PersistenceUnit implements IPersistenceUnit
     {
         try
         {
-            String sValue = getProperty (sProperty);
+            String sValue = getStringProperty (sProperty);
         	return Boolean.parseBoolean(sValue);
         }
         catch (Throwable exIgnore)
@@ -325,6 +337,24 @@ public class PersistenceUnit implements IPersistenceUnit
         return bDefault;
     }
     
+    //--------------------------------------------------------------------------
+    @SuppressWarnings("unchecked")
+	@Override
+    public < T > T getObjectProperty (String sProperty)
+    	throws Exception
+    {
+    	Object aValue = mem_Props ().get(sProperty);
+    	return (T) aValue;
+    }
+
+    //--------------------------------------------------------------------------
+	@Override
+    public boolean hasProperty (String sProperty)
+    	throws Exception
+    {
+    	return mem_Props().containsKey(sProperty);
+    }
+
     //--------------------------------------------------------------------------
     /** @return set of all property names.
      *
@@ -369,11 +399,11 @@ public class PersistenceUnit implements IPersistenceUnit
     }
 
     //--------------------------------------------------------------------------
-    private HashMap< String, String > m_lProps = null;
-    private HashMap< String, String > mem_Props ()
+    private HashMap< String, Object > m_lProps = null;
+    private HashMap< String, Object > mem_Props ()
     {
         if (m_lProps == null)
-            m_lProps = new HashMap< String, String >(10);
+            m_lProps = new HashMap< String, Object >(10);
         return m_lProps;
     }
 }

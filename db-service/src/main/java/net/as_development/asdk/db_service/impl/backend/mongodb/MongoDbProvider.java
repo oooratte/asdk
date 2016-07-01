@@ -357,6 +357,14 @@ public class MongoDbProvider implements IDBBackend
     }
     
     //--------------------------------------------------------------------------
+    @Override
+    public String dumpStatement4Create (Row aMeta)
+    	throws Exception
+    {
+    	throw new UnsupportedOperationException ("Can we implement that real ?! ;-)");
+    }
+
+    //--------------------------------------------------------------------------
     private BasicDBObject impl_toMongoFieldRef (Row aSource)
         throws Exception
     {
@@ -444,8 +452,8 @@ public class MongoDbProvider implements IDBBackend
         if (m_aConnection == null)
         {
             PersistenceUnit aConfig = m_aMetaProvider.getPersistenceUnit();
-            String          sServer = aConfig.getProperty(MongoDbProvider.PUPROP_DB_SERVER);
-            String          sPort   = aConfig.getProperty(MongoDbProvider.PUPROP_DB_PORT  );
+            String          sServer = aConfig.getStringProperty(MongoDbProvider.PUPROP_DB_SERVER);
+            String          sPort   = aConfig.getStringProperty(MongoDbProvider.PUPROP_DB_PORT  );
 
             if (StringUtils.isEmpty (sServer))
                 throw new RuntimeException ("Miss MongoDB server name. Please configure one inside peristence.xml.");
@@ -467,7 +475,7 @@ public class MongoDbProvider implements IDBBackend
         if (m_aDB == null)
         {
             PersistenceUnit aConfig     = m_aMetaProvider.getPersistenceUnit();
-            String          sSchema     = aConfig.getProperty(PersistenceUnitConst.DB_SCHEMA);
+            String          sSchema     = aConfig.getStringProperty(PersistenceUnitConst.DB_SCHEMA);
             Mongo           aConnection = mem_Connection ();
             DB              aDB         = aConnection.getDB(sSchema);
             

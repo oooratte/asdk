@@ -61,6 +61,13 @@ package net.as_development.asdk.api.db;
 public interface IDBQuery< TEntity extends IEntity >
 {
     //-------------------------------------------------------------------------
+	/** @return true if this query is already defined and functional;
+	 *          false if it's created new and not fully defined.
+	 */
+	public boolean isDefined ()
+		throws Exception;
+	
+    //-------------------------------------------------------------------------
 	/** @return the internal ID of this query.
 	 * 
 	 *  Those ID was define by YOU ...
@@ -95,10 +102,15 @@ public interface IDBQuery< TEntity extends IEntity >
 	 *  		a) if eOperation=like it must be from type String.
 	 *  		b) if eOperation=between it must be from type BetweenQueryRange.
 	 */
-	public void setQueryPart (int                 nPosition ,
-							  EQueryPartBinding   eBinding  ,
-							  EQueryPartOperation eOperation,
-							  String              sAttribute,
-							  Object              aValue    )
+	public void defineQueryPart (int                 nPosition ,
+							     EQueryPartBinding   eBinding  ,
+							     EQueryPartOperation eOperation,
+							     String              sAttribute,
+							     Object              aValue    )
+		throws Exception;
+
+    //-------------------------------------------------------------------------
+	public void setQueryPartValue (int    nPosition,
+			  					   Object aValue   )
 		throws Exception;
 }

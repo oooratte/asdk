@@ -125,7 +125,7 @@ public class EntityMetaInfoProvider
             EntityMetaInfo aEntity = pEntities.next();
 
             // bind generic properties to entity
-            aEntity.setSchema(aPersistenceUnit.getProperty(PersistenceUnitConst.DB_SCHEMA));
+            aEntity.setSchema(aPersistenceUnit.getStringProperty(PersistenceUnitConst.DB_SCHEMA));
             
             // bind special properties to entity
             if (bParseSimple)
@@ -177,7 +177,7 @@ public class EntityMetaInfoProvider
     {
         String sValue = null;
         
-        sValue = aUnit.getProperty(PersistenceUnitConst.CONSTRAINT_MAX_IDENTIFIER_LENGTH);
+        sValue = aUnit.getStringProperty(PersistenceUnitConst.CONSTRAINT_MAX_IDENTIFIER_LENGTH);
         if ( ! StringUtils.isEmpty(sValue))
         {
             // we can expected it's a valid integer (if it's configured)
@@ -185,7 +185,7 @@ public class EntityMetaInfoProvider
             impl_checkMaxIdentiferLengthConstraint (aMeta, nMaxLength);
         }
         
-        sValue = aUnit.getProperty(PersistenceUnitConst.CONSTRAINT_MAX_STRING_LENGTH);
+        sValue = aUnit.getStringProperty(PersistenceUnitConst.CONSTRAINT_MAX_STRING_LENGTH);
         if ( ! StringUtils.isEmpty(sValue))
         {
             // we can expected it's a valid integer (if it's configured)

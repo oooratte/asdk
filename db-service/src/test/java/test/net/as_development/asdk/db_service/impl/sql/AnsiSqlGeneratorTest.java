@@ -184,28 +184,28 @@ public class AnsiSqlGeneratorTest
 		String           sSql          = null;
 		
 		// code under test (with checks)
-		sSql = aSqlGenerator.createSql(ISqlGenerator.EStatementType.E_CREATE_TABLE, aMeta, null);
+		sSql = aSqlGenerator.createSql(ISqlGenerator.EStatementType.E_CREATE_TABLE, aMeta, null).get(0);
         AssertEx.assertTrue("testSqlStatementCreation [01]", sSql.startsWith("create table "));
 		AssertEx.assertTrue("testSqlStatementCreation [02]", AnsiSqlGeneratorTest.impl_containTableName(sSql));
         AssertEx.assertTrue("testSqlStatementCreation [03]", AnsiSqlGeneratorTest.impl_containSqlStringAllTestEntityColumnsAndTypes(sSql));
 
-        sSql = aSqlGenerator.createSql(ISqlGenerator.EStatementType.E_DELETE, aMeta, null);
+        sSql = aSqlGenerator.createSql(ISqlGenerator.EStatementType.E_DELETE, aMeta, null).get(0);
         AssertEx.assertTrue("testSqlStatementCreation [04]", sSql.startsWith("delete from "));
         AssertEx.assertTrue("testSqlStatementCreation [05]", AnsiSqlGeneratorTest.impl_containTableName(sSql));
         
-        sSql = aSqlGenerator.createSql(ISqlGenerator.EStatementType.E_DELETE_ALL, aMeta, null);
+        sSql = aSqlGenerator.createSql(ISqlGenerator.EStatementType.E_DELETE_ALL, aMeta, null).get(0);
         AssertEx.assertTrue("testSqlStatementCreation [06]", sSql.startsWith("delete from "));
         AssertEx.assertTrue("testSqlStatementCreation [07]", AnsiSqlGeneratorTest.impl_containTableName(sSql));
         
-        sSql = aSqlGenerator.createSql(ISqlGenerator.EStatementType.E_INSERT, aMeta, null);
+        sSql = aSqlGenerator.createSql(ISqlGenerator.EStatementType.E_INSERT, aMeta, null).get(0);
         AssertEx.assertTrue("testSqlStatementCreation [08]", sSql.startsWith("insert into "));
         AssertEx.assertTrue("testSqlStatementCreation [09]", AnsiSqlGeneratorTest.impl_containTableName(sSql));
         
-        sSql = aSqlGenerator.createSql(ISqlGenerator.EStatementType.E_QUERY_BY_ID, aMeta, null);
+        sSql = aSqlGenerator.createSql(ISqlGenerator.EStatementType.E_QUERY_BY_ID, aMeta, null).get(0);
         AssertEx.assertTrue("testSqlStatementCreation [10]", sSql.startsWith("select * from "));
         AssertEx.assertTrue("testSqlStatementCreation [11]", AnsiSqlGeneratorTest.impl_containTableName(sSql));
 
-        sSql = aSqlGenerator.createSql(ISqlGenerator.EStatementType.E_UPDATE, aMeta, null);
+        sSql = aSqlGenerator.createSql(ISqlGenerator.EStatementType.E_UPDATE, aMeta, null).get(0);
         AssertEx.assertTrue("testSqlStatementCreation [12]", sSql.startsWith("update "));
         AssertEx.assertTrue("testSqlStatementCreation [13]", AnsiSqlGeneratorTest.impl_containTableName(sSql));
         AssertEx.assertTrue("testSqlStatementCreation [14]", AnsiSqlGeneratorTest.impl_containSqlStringAllTestEntityColumns(sSql));

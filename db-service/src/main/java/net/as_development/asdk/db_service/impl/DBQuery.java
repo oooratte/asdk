@@ -106,6 +106,15 @@ public class DBQuery< TEntity extends IEntity > implements IDBQuery< TEntity >
 	
     //--------------------------------------------------------------------------
 	@Override
+	public boolean isDefined ()
+		throws Exception
+	{
+		boolean bIsCompiled = m_aTemplate.isCompiled();
+		return bIsCompiled;
+	}
+
+    //--------------------------------------------------------------------------
+	@Override
     public String getId()
         throws Exception
     {
@@ -114,36 +123,35 @@ public class DBQuery< TEntity extends IEntity > implements IDBQuery< TEntity >
     
     //--------------------------------------------------------------------------
 	@Override
-	public synchronized void setQueryPart (int                 nPosition ,
-	                                       EQueryPartBinding   eBinding  ,
-	                                       EQueryPartOperation eOperation,
-	                                       String              sAttribute,
-	                                       Object              aValue    )
+	public synchronized void defineQueryPart (int                 nPosition ,
+	                                          EQueryPartBinding   eBinding  ,
+	                                          EQueryPartOperation eOperation,
+	                                          String              sAttribute,
+	                                          Object              aValue    )
 		throws Exception
 	{
 	    boolean bIsCompiled = m_aTemplate.isCompiled();
-	    
 		if (bIsCompiled)
-		{
-		    // template was still compiled and is in 'final' mode.
-		    // We should check if the user of the query use same query
-		    // parameter for nPosition as he used before compile.
-		    
-		    //  TODO enable this check for debug builds only .-)
-		    
-		    String                        sId    = m_aTemplate.getId();
-		    DynamicArrayList< QueryPart > lParts = m_aTemplate.getQueryParts();
-			if (nPosition >= lParts.size())
-				throw new RuntimeException ("Wrong index ["+nPosition+"] for compiled query '"+sId+"'.");
+			throw new Exception ("Query part nr. ["+nPosition+"] already defined. Cant be changed later on.");
+		
+//		{
+//		    // template was still compiled and is in 'final' mode.
+//		    // We should check if the user of the query use same query
+//		    // parameter for nPosition as he used before compile.
+//		    
+//		    //  TODO enable this check for debug builds only .-)
+//		    
+//		    String                        sId    = m_aTemplate.getId();
+//		    DynamicArrayList< QueryPart > lParts = m_aTemplate.getQueryParts();
+//			if (nPosition >= lParts.size())
+//				throw new RuntimeException ("Wrong index ["+nPosition+"] for compiled query '"+sId+"'.");
+//
+//			QueryPart aPart = lParts.get(nPosition);
+//			if ( ! aPart.hasSettings(eBinding, eOperation, sAttribute))
+//				throw new RuntimeException ("Different attribute bindings for attribute ["+nPosition+", '"+sAttribute+"'] for compiled query '"+sId+"'.");
+//		}
 
-			QueryPart aPart = lParts.get(nPosition);
-			if ( ! aPart.hasSettings(eBinding, eOperation, sAttribute))
-				throw new RuntimeException ("Different attribute bindings for attribute ["+nPosition+", '"+sAttribute+"'] for compiled query '"+sId+"'.");
-		}
-		else
-		{
-            m_aTemplate.setQueryPart(nPosition, eBinding, eOperation, sAttribute);
-		}
+		m_aTemplate.setQueryPart(nPosition, eBinding, eOperation, sAttribute);
 		
 		// TODO ifdef DEBUG ?
         if (aValue != null)
@@ -161,6 +169,19 @@ public class DBQuery< TEntity extends IEntity > implements IDBQuery< TEntity >
                 throw new IllegalArgumentException ("IDBQuery.setQueryPart () : between operation needs specialized value object of type BetweenQueryRange.");
         }
 		
+		// cache new value for this query independent from the set of meta
+		// data which are hold within the template
+		// Note order of values must match order of attributes within template !
+		DynamicArrayList< Object > lValues = mem_Values ();
+		lValues.set (nPosition, aValue);
+	}
+
+	//--------------------------------------------------------------------------
+	@Override
+	public synchronized void setQueryPartValue (int    nPosition,
+	                                            Object aValue   )
+		throws Exception
+	{
 		// cache new value for this query independent from the set of meta
 		// data which are hold within the template
 		// Note order of values must match order of attributes within template !

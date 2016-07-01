@@ -130,7 +130,7 @@ public class DBBackup
 		Class< TEntity >    aType      = (Class< TEntity >)Class.forName(sEntity);
 		IDBQuery< TEntity > iQuery     = iSourceDB.prepareQuery(aType, "query_new_modified_entities_"+nNr);
 		
-		iQuery.setQueryPart(0, EQueryPartBinding.E_AND, EQueryPartOperation.E_GREATER_THAN, EntityBase.ATTRIBUTE_NAME_MODIFY_STAMP, m_aLastBackupDate);
+		iQuery.defineQueryPart(0, EQueryPartBinding.E_AND, EQueryPartOperation.E_GREATER_THAN, EntityBase.ATTRIBUTE_NAME_MODIFY_STAMP, m_aLastBackupDate);
 
 		do
 		{

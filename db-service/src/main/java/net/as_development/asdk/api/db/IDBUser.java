@@ -24,44 +24,46 @@
  *
  * For more information, please refer to <http://unlicense.org/>
  */
-package net.as_development.asdk.db_service.impl;
+package net.as_development.asdk.api.db;
 
 //==============================================================================
-/**
- * TODO document me
+/** provides functionality around user management
  */
-public class Column
+public interface IDBUser
 {
-    //--------------------------------------------------------------------------
-    public Column ()
-    {}
+    //-------------------------------------------------------------------------
+    /** create new user.
+     *
+     *  @param  sName [IN]
+     *          name of the user.
+     *
+     *  @param  sPassword [IN]
+     *          password of the user.
+     *
+     *  @param  bAdministrativeRights [IN]
+     *          enable/disable administrative rights.
+     *
+     *  @param  lSchemas [IN]
+     *          register user for the list of given DB schemas/entitiues.
+     *
+     *  @throws Exception is creating the user was not successfully
+     *  		or user with same credentials already exists.
+     */
+    public void createUser (final String    sName                ,
+				    		final String    sPassword            ,
+				    		final boolean   bAdministrativeRights,
+				    		final String... lSchemas             )
+            throws Exception;
 
-    //--------------------------------------------------------------------------
-	public Column (String     sName     ,
-                   Class< ? > aType     ,
-                   Object     aValue    ,
-                   boolean    bCanBeNull,
-                   int        nLength   )
-    {
-        Name      = sName     ;
-        Type      = aType     ;
-        Value     = aValue    ;
-        CanBeNull = bCanBeNull;
-        Length    = nLength   ;
-    }
-
-    //--------------------------------------------------------------------------
-    public String Name = null;
-
-    //--------------------------------------------------------------------------
-	public Class< ? > Type = null;
-
-    //--------------------------------------------------------------------------
-    public Object Value = null;
-
-    //--------------------------------------------------------------------------
-    public boolean CanBeNull = false;
-    
-    //--------------------------------------------------------------------------
-    public int Length = 0;
- }
+    //-------------------------------------------------------------------------
+    /** remove an existing user.
+     *  Does nothing if such user do not exists ! 
+     *
+     *  @param  sName [IN]
+     *          name of the user.
+     *
+     *  @throws Exception is removing the user was not successfully.
+     */
+    public void removeUser (final String sName)
+    	throws Exception;
+}
