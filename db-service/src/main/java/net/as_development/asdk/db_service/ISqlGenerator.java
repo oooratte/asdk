@@ -29,6 +29,8 @@ package net.as_development.asdk.db_service;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
+import java.util.Map;
 
 import net.as_development.asdk.db_service.impl.Column;
 import net.as_development.asdk.db_service.impl.Row;
@@ -50,6 +52,7 @@ public interface ISqlGenerator
     //--------------------------------------------------------------------------
     public enum EStatementType
     {
+    	E_CREATE_USER,
         E_CREATE_SCHEMA,
         E_CREATE_TABLE,
         E_REMOVE_TABLE,
@@ -62,6 +65,18 @@ public interface ISqlGenerator
         E_QUERY_BY_PROPS
     }
     
+    //--------------------------------------------------------------------------
+    public void setIdentifierQuote (final String sQuote)
+    	throws Exception;
+    
+    //--------------------------------------------------------------------------
+    public void setStringQuote (final String sQuote)
+    	throws Exception;
+
+    //--------------------------------------------------------------------------
+    public void enableSqlDumps (final boolean bEnabled)
+    	throws Exception;
+
     //--------------------------------------------------------------------------
     /** map the given SQL exception to an suitable error code.
      * 
@@ -95,11 +110,16 @@ public interface ISqlGenerator
      *          
      *  @return the generated SQL statement containing place holder.
      */
-    public String createSql (ISqlGenerator.EStatementType eStatement,
-                             Row                          aMeta     ,
-                             IDBBackendQuery              iQuery    )
+    public List< String > createSql (final ISqlGenerator.EStatementType eStatement,
+    							     final Row                          aMeta     ,
+    							     final IDBBackendQuery              iQuery    )
         throws Exception;
     
+    //--------------------------------------------------------------------------
+    public List< String > createSql (final ISqlGenerator.EStatementType eStatement,
+    					     	     final Map< String, Object >        lArgs     )
+	    throws Exception;
+
     //--------------------------------------------------------------------------
     /** map the given Java type of an entity member to the corresponding SQL type
      *  to be used within SQL statements.

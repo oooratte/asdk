@@ -212,7 +212,7 @@ public class PersistenceXml
         while (pProps.hasNext())
         {
             String sProp  = pProps.next();
-            String sValue = aUnit.getProperty(sProp);
+            String sValue = aUnit.getStringProperty(sProp);
 
             sXml.append ("\t\t<"                              );
             sXml.append (PersistenceXml.XML_TAG_PROPERTY   );

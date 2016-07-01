@@ -257,6 +257,14 @@ public class CacheProvider implements IDBBackend
     }
 
     //--------------------------------------------------------------------------
+    @Override
+    public String dumpStatement4Create (Row aMeta)
+    	throws Exception
+    {
+    	throw new UnsupportedOperationException ("Can we implement that real ?! ;-)");
+    }
+
+    //--------------------------------------------------------------------------
     private String impl_generateQueryCacheId (Row             aMeta     ,
                                               String          sNextToken,
                                               IDBBackendQuery iQuery    )
@@ -326,7 +334,7 @@ public class CacheProvider implements IDBBackend
         if (m_iDb == null)
         {
             PersistenceUnit aPU   = m_aMetaProvider.getPersistenceUnit();
-            String          sImpl = aPU.getProperty(CacheProviderConfigConst.PROP_DB_IMPLEMENTATION);
+            String          sImpl = aPU.getStringProperty(CacheProviderConfigConst.PROP_DB_IMPLEMENTATION);
             IDBBackend      iDb   = ServiceEnv.get ().getService(sImpl);
             
             m_iDb = iDb; 
@@ -341,7 +349,7 @@ public class CacheProvider implements IDBBackend
         if (m_iCache == null)
         {
             PersistenceUnit aPU    = m_aMetaProvider.getPersistenceUnit();
-            String          sImpl  = aPU.getProperty(CacheProviderConfigConst.PROP_CACHE_IMPLEMENTATION);
+            String          sImpl  = aPU.getStringProperty(CacheProviderConfigConst.PROP_CACHE_IMPLEMENTATION);
             ICache          iCache = ServiceEnv.get ().getService(sImpl);
             
             m_iCache = iCache;

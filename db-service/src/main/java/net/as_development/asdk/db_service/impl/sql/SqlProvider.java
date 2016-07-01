@@ -30,12 +30,17 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import net.as_development.asdk.api.db.BetweenQueryRange;
 import net.as_development.asdk.api.db.EQueryPartOperation;
-import net.as_development.asdk.api.db.IPersistenceUnit;
+import net.as_development.asdk.api.db.IDBUser;
 import net.as_development.asdk.db_service.IDBBackend;
 import net.as_development.asdk.db_service.IDBBackendQuery;
 import net.as_development.asdk.db_service.ISqlGenerator;
@@ -48,12 +53,11 @@ import net.as_development.asdk.db_service.impl.QueryPartValue;
 import net.as_development.asdk.db_service.impl.Row;
 import net.as_development.asdk.db_service.impl.sql.generator.AnsiSqlGenerator;
 
-import org.apache.commons.lang3.StringUtils;
-
 //==============================================================================
 /**
  */
 public class SqlProvider implements IDBBackend
+								  , IDBUser
 {
     //--------------------------------------------------------------------------
     /** create new instance.
@@ -62,10 +66,10 @@ public class SqlProvider implements IDBBackend
     {}
 
     //--------------------------------------------------------------------------
-    public void setSqlGenerator (final ISqlGenerator iGenerator)
+    public void setSqlGenerator (final Class< ? extends ISqlGenerator > aImplClass)
         throws Exception
     {
-    	m_iSqlGenerator = iGenerator;
+    	m_aSqlGeneratorImpl = aImplClass;
     }
     
     //--------------------------------------------------------------------------
@@ -76,13 +80,65 @@ public class SqlProvider implements IDBBackend
         m_aMetaProvider = aProvider;
     }
 
+    //-------------------------------------------------------------------------
+    @Override
+    public synchronized void createUser (final String    sName                ,
+							    		 final String    sPassword            ,
+							    		 final boolean   bAdministrativeRights,
+							    		 final String... lSchemas             )
+		throws Exception
+	{
+    	final Map< String, Object > lArgs = new HashMap< String, Object > ();
+    	lArgs.put(AnsiSqlGenerator.ARG_CREATE_USER_NAME                 , sName                );
+    	lArgs.put(AnsiSqlGenerator.ARG_CREATE_USER_PASSWORD             , sPassword            );
+    	lArgs.put(AnsiSqlGenerator.ARG_CREATE_USER_ADMINISTRATIVE_RIGHTS, bAdministrativeRights);
+    	lArgs.put(AnsiSqlGenerator.ARG_CREATE_USER_DB_SCHEMAS           , lSchemas             );
+    	
+    	final List< String >    lSqls    = mem_SqlGenerator ().createSql (ISqlGenerator.EStatementType.E_CREATE_USER, lArgs);
+    	      PreparedStatement aSql     = null;
+    	      
+    	for (final String sSql : lSqls)
+    	{
+    		if (aSql == null)
+    			aSql = mem_Connection ().prepareStatement(sSql, ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
+    		else
+    			aSql.addBatch(sSql);
+    	}
+
+    	final int[] nResults = aSql.executeBatch();
+    	
+    	if (ArrayUtils.isEmpty(nResults))
+    		throw new Exception ("Creating user '"+sName+"' failed.");
+
+    	for (final int nResult : nResults)
+    	{
+    		if (nResult == PreparedStatement.EXECUTE_FAILED)
+        		throw new Exception ("Creating user '"+sName+"' failed.");
+    	}
+	}
+
+	//-------------------------------------------------------------------------
+    @Override
+	public synchronized void removeUser (final String sName)
+		throws Exception
+	{
+    	throw new UnsupportedOperationException ("not implemented yet");
+	}
+
     //--------------------------------------------------------------------------
     @Override
     public void createDB (Row aMeta)
         throws Exception
     {
         final PreparedStatement aSql = impl_getSql (ISqlGenerator.EStatementType.E_CREATE_SCHEMA, aMeta, null);
-    	aSql.executeUpdate ();
+        try
+        {
+        	aSql.executeUpdate ();
+        }
+        finally
+        {
+        	impl_closeStatementIfNotCached (aSql);
+        }
     }
 
     //--------------------------------------------------------------------------
@@ -91,7 +147,14 @@ public class SqlProvider implements IDBBackend
         throws Exception
     {
         PreparedStatement aSql = impl_getSql (ISqlGenerator.EStatementType.E_CREATE_TABLE, aMeta, null);
-        aSql.execute ();
+        try
+        {
+        	aSql.execute ();
+        }
+        finally
+        {
+        	impl_closeStatementIfNotCached (aSql);
+        }
     }
 
     //--------------------------------------------------------------------------
@@ -99,9 +162,9 @@ public class SqlProvider implements IDBBackend
     public void removeTable(Row aMeta)
         throws Exception
     {
+        PreparedStatement aSql = impl_getSql (ISqlGenerator.EStatementType.E_REMOVE_TABLE, aMeta, null);
         try
         {
-            PreparedStatement aSql = impl_getSql (ISqlGenerator.EStatementType.E_REMOVE_TABLE, aMeta, null);
             aSql.execute ();
         }
         catch (SQLException exSql)
@@ -110,6 +173,10 @@ public class SqlProvider implements IDBBackend
             if (eError != ISqlGenerator.ESqlError.E_RESOURCE_DO_NOT_EXISTS)
                 throw new SQLException (exSql);
         }
+	    finally
+	    {
+	    	impl_closeStatementIfNotCached (aSql);
+	    }
     }
     
     //--------------------------------------------------------------------------
@@ -133,8 +200,15 @@ public class SqlProvider implements IDBBackend
                 ++nColumn;
             }
 
-            aSql.executeUpdate();
-            aRow.getPersistentStateHandler().setPersistent();
+            try
+            {
+	            aSql.executeUpdate();
+	            aRow.getPersistentStateHandler().setPersistent();
+            }
+    	    finally
+    	    {
+    	    	impl_closeStatementIfNotCached (aSql);
+    	    }
         }
     }
 
@@ -166,6 +240,7 @@ public class SqlProvider implements IDBBackend
         {
             if (aResult != null)
                 aResult.close();
+	    	impl_closeStatementIfNotCached (aSql);
         }
     }
 	
@@ -211,8 +286,15 @@ public class SqlProvider implements IDBBackend
             Object     aValue  = aRow.getIdValue();
             mem_SqlGenerator ().setValueOnPreparedStatement (aSql, nColumn, aType, aValue);
 
-            aSql.executeUpdate();
-            aRow.getPersistentStateHandler().setPersistent();
+            try
+            {
+	            aSql.executeUpdate();
+	            aRow.getPersistentStateHandler().setPersistent();
+	        }
+		    finally
+		    {
+		    	impl_closeStatementIfNotCached (aSql);
+		    }
         }
     }
 
@@ -229,8 +311,15 @@ public class SqlProvider implements IDBBackend
 
             mem_SqlGenerator ().setValueOnPreparedStatement (aSql, 1, aIdType, aIdValue);
 
-            aSql.executeUpdate();
-            aRow.getPersistentStateHandler().setTransient();
+            try
+            {
+	            aSql.executeUpdate();
+	            aRow.getPersistentStateHandler().setTransient();
+            }
+    	    finally
+    	    {
+    	    	impl_closeStatementIfNotCached (aSql);
+    	    }
         }
     }
 
@@ -240,7 +329,14 @@ public class SqlProvider implements IDBBackend
         throws Exception
     {
         PreparedStatement aSql = impl_getSql (ISqlGenerator.EStatementType.E_DELETE_ALL, aRowInfo, null);
-        aSql.executeUpdate();
+        try
+        {
+        	aSql.executeUpdate();
+        }
+	    finally
+	    {
+	    	impl_closeStatementIfNotCached (aSql);
+	    }
     }
 
     //--------------------------------------------------------------------------
@@ -300,6 +396,23 @@ public class SqlProvider implements IDBBackend
         }
 
         return impl_executeQuery (aSql, aMetaRow, sNextToken, lResults);
+    }
+
+    //--------------------------------------------------------------------------
+    @Override
+    public String dumpStatement4Create (Row aMeta)
+    	throws Exception
+    {
+    	final List< String > lSqls = mem_SqlGenerator ().createSql(ISqlGenerator.EStatementType.E_CREATE_TABLE, aMeta, null);
+    	final StringBuffer   sSql  = new StringBuffer (256);
+
+    	for (final String sNextSql : lSqls)
+    	{
+    		sSql.append(sNextSql);
+    		sSql.append("\n"    );
+    	}
+
+    	return sSql.toString();
     }
 
     //--------------------------------------------------------------------------
@@ -377,30 +490,63 @@ public class SqlProvider implements IDBBackend
                                            IDBBackendQuery              iQuery    )
         throws Exception
     {
-    	SqlStatementCache aSqlCache = mem_SqlCache ();
-        PreparedStatement aSql      = null;
-        String 			  sCacheId  = aSqlCache.buildCacheId(eStatement, aMetaRow, iQuery);
+    	boolean           bCacheStatements = impl_hasStatementsToBeCached ();
+    	SqlStatementCache aSqlCache        = mem_SqlCache ();
+    	Connection        aConnection      = mem_Connection ();
+        PreparedStatement aSql             = null;
+        String 			  sCacheId         = null;
 
-        if (aSqlCache.containsKey (sCacheId))
+        if (
+        	(bCacheStatements                ) &&
+        	(aSqlCache.containsKey (sCacheId))
+           )
         {
-        	aSql = aSqlCache.get (sCacheId);
-            if (aSql.isClosed ())
+        	sCacheId = aSqlCache.buildCacheId(eStatement, aMetaRow, iQuery);
+        	aSql     = aSqlCache.get (sCacheId);
+
+        	if (aSql.isClosed ())
                 aSql = null;
         }
         
         if (aSql == null)
         {
-            String sSql = mem_SqlGenerator ().createSql(eStatement, aMetaRow, iQuery);
-                   aSql = mem_Connection   ().prepareStatement(sSql, ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
-            aSql.setPoolable(true);
-            aSqlCache.put(sCacheId, aSql);
+            final List< String > lSqls = mem_SqlGenerator ().createSql(eStatement, aMetaRow, iQuery);
+            for (final String sSql : lSqls)
+            {
+            	if (aSql == null)
+            		aSql = aConnection.prepareStatement(sSql, ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
+            	else
+            		aSql.addBatch(sSql);
+            }
+            
+            if (bCacheStatements)
+            {
+            	aSql.setPoolable(true);
+	            aSqlCache.put(sCacheId, aSql);
+            }
+            else
+            {
+            	aSql.setPoolable      (false);
+            	aSql.closeOnCompletion(     );
+            }
         }
 
         aSql.clearParameters();
         return aSql;
     }
 
-
+    //--------------------------------------------------------------------------
+	private void impl_closeStatementIfNotCached (final PreparedStatement aSql)
+		throws Exception
+	{
+		if (aSql == null)
+			return;
+		
+    	final boolean bCacheStatements = impl_hasStatementsToBeCached ();
+		if ( ! bCacheStatements)
+			aSql.close();
+	}
+	
     //--------------------------------------------------------------------------
 	private void impl_mapResultSetToRow (ResultSet aResultSet,
                                          Row       aRow      )
@@ -463,16 +609,22 @@ public class SqlProvider implements IDBBackend
     private Connection mem_Connection ()
         throws Exception
     {
-    	// will reset member m_aConnection to null ... might be .-)
+    	// external connections are not checked if they are closed or broken or ...
+    	// It's used as it is !
+        PersistenceUnit aPu                 = m_aMetaProvider.getPersistenceUnit();
+        Connection      aExternalConnection = aPu.getObjectProperty(PersistenceUnitConst.JDBC_EXTERNAL_CONNECTION);
+        if (aExternalConnection != null)
+        	return aExternalConnection;
+
+        // will reset member m_aConnection to null ... might be .-)
     	impl_resetConnectionIfBroken ();
 
         if (m_aConnection == null)
         {
-            PersistenceUnit aPu       = m_aMetaProvider.getPersistenceUnit();
-            String          sDriver   = aPu.getProperty(PersistenceUnitConst.JDBC_DRIVER       );
-            String          sUrl      = aPu.getProperty(PersistenceUnitConst.JDBC_CONNECTIONURL);
-            String          sUser     = aPu.getProperty(PersistenceUnitConst.DB_USER         );
-            String          sPassword = aPu.getProperty(PersistenceUnitConst.DB_PASSWORD     );
+            String          sDriver   = aPu.getStringProperty(PersistenceUnitConst.JDBC_DRIVER       );
+            String          sUrl      = aPu.getStringProperty(PersistenceUnitConst.JDBC_CONNECTIONURL);
+            String          sUser     = aPu.getStringProperty(PersistenceUnitConst.DB_USER         );
+            String          sPassword = aPu.getStringProperty(PersistenceUnitConst.DB_PASSWORD     );
 
             // load the driver
             // Can be called as often as you want.
@@ -501,10 +653,43 @@ public class SqlProvider implements IDBBackend
     {
         if (m_iSqlGenerator == null)
         {
-        	final AnsiSqlGenerator aGenerator = new AnsiSqlGenerator ();
-        	m_iSqlGenerator = aGenerator;
+        	final ISqlGenerator   iGenerator = m_aSqlGeneratorImpl.newInstance();
+            final PersistenceUnit aPU        = m_aMetaProvider.getPersistenceUnit();
+
+            if (aPU.hasProperty(PersistenceUnitConst.SQL_IDENTIFIER_QUOTE))
+            {
+	            final String sIdentifierQuote = aPU.getStringProperty(PersistenceUnitConst.SQL_IDENTIFIER_QUOTE);
+	        	iGenerator.setIdentifierQuote(sIdentifierQuote);
+            }
+
+            if (aPU.hasProperty(PersistenceUnitConst.SQL_STRING_QUOTE))
+            {
+            	final String sStringQuote = aPU.getStringProperty(PersistenceUnitConst.SQL_STRING_QUOTE);
+            	iGenerator.setStringQuote(sStringQuote);
+            }
+            
+            if (aPU.hasProperty(PersistenceUnitConst.SQL_DUMP_STATEMENTS))
+            {
+            	final boolean bEnableDumps = aPU.getBooleanProperty(PersistenceUnitConst.SQL_DUMP_STATEMENTS, false);
+            	iGenerator.enableSqlDumps(bEnableDumps);
+            }
+
+            m_iSqlGenerator = iGenerator;
         }
         return m_iSqlGenerator;
+    }
+    
+    //--------------------------------------------------------------------------
+    private boolean impl_hasStatementsToBeCached ()
+    	throws Exception
+    {
+    	if (m_bCacheStatements == null)
+    	{
+            PersistenceUnit aPu          = m_aMetaProvider.getPersistenceUnit();
+            boolean         bEnableCache = aPu.getBooleanProperty(PersistenceUnitConst.JDBC_CACHE_STATEMENTS, true);
+            m_bCacheStatements = bEnableCache;
+    	}
+    	return m_bCacheStatements;
     }
     
     //--------------------------------------------------------------------------
@@ -517,5 +702,11 @@ public class SqlProvider implements IDBBackend
     private SqlStatementCache m_aSqlCache = null;
     
     //--------------------------------------------------------------------------
+    private Class< ? extends ISqlGenerator > m_aSqlGeneratorImpl = AnsiSqlGenerator.class;
+    
+    //--------------------------------------------------------------------------
     private ISqlGenerator m_iSqlGenerator = null;
+
+    //--------------------------------------------------------------------------
+    private Boolean m_bCacheStatements = null;
 }

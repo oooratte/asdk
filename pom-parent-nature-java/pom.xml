@@ -203,12 +203,6 @@
 			    <version>${version.h2db}</version>
 			</dependency>
 	        
-            <dependency>
-                <groupId>org.apache.derby</groupId>
-                <artifactId>derby</artifactId>
-                <version>${version.derby}</version>
-            </dependency>
-
 			<dependency>
 				<groupId>mysql</groupId>
 				<artifactId>mysql-connector-java</artifactId>

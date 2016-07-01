@@ -33,18 +33,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
+import org.apache.commons.lang3.StringUtils;
+
 import net.as_development.asdk.api.db.EQueryPartBinding;
 import net.as_development.asdk.api.db.EQueryPartOperation;
 import net.as_development.asdk.api.db.IDB;
 import net.as_development.asdk.api.db.IDBQuery;
 import net.as_development.asdk.api.db.IDBSchema;
+import net.as_development.asdk.api.db.IDBUser;
 import net.as_development.asdk.api.db.IEntity;
 import net.as_development.asdk.api.db.IPersistenceUnit;
 import net.as_development.asdk.db_service.EntityBase;
 import net.as_development.asdk.db_service.IDBBackend;
 import net.as_development.asdk.db_service.IDBBackendQuery;
-
-import org.apache.commons.lang3.StringUtils;
 
 //==============================================================================
 /** Base for all implementations of the interface IDB.
@@ -53,6 +54,7 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class DB implements IDB
 						 , IDBSchema
+						 , IDBUser
 {
     //--------------------------------------------------------------------------
     /** create new instance.
@@ -90,19 +92,32 @@ public class DB implements IDB
     }
 
     //--------------------------------------------------------------------------
+    public synchronized void reset ()
+        throws Exception
+    {
+    	// forget all open connections ... so next time they will be created new
+    	m_iBackend = null;
+    	
+    	// TODO think about me : do we need to clear our query caches ?
+    	// We want to enable reconnects at runtime ... query results do not depend on
+    	// changed connection - right ?!
+    }
+    
+    //--------------------------------------------------------------------------
     @Override
     public synchronized <TEntity extends IEntity> void storeEntities(TEntity... lEntities)
         throws Exception
     {
-        List< Row > lInsertRows = new ArrayList< Row >(10);
-        List< Row > lUpdateRows = new ArrayList< Row >(10);
+        final List< Row > lInsertRows = new ArrayList< Row >(10);
+        final List< Row > lUpdateRows = new ArrayList< Row >(10);
 
-        for (TEntity aNextEntity : lEntities)
+        for (final TEntity aNextEntity : lEntities)
         {
-        	EntityBase aEntity = (EntityBase)aNextEntity;
-        	
+        	final EntityBase     aEntity = (EntityBase)aNextEntity;
+        	final EntityMetaInfo aMeta   = mem_MetaProvider ().getMetaInforForEntity(aEntity);
+
         	// Check if entity is already in sync with DB back end (means if it is persistent already)
-            boolean bInSync = aEntity.isPersistent();
+        	final boolean bInSync = aEntity.isPersistent();
 
             // if it is not persistent already ... generate a new ID ...
             // But be tricky. Generate a special PreId. If all values from aEntity
@@ -124,12 +139,19 @@ public class DB implements IDB
             
             // make sure removed ... but now added again ... entities will be handled right .-)
             aEntity.setRemoved(false);
-            
-            EntityMetaInfo         aMeta    = mem_MetaProvider ().getMetaInforForEntity(aEntity);
-            Row                    aRow     = EntityHelper.createRowFromEntity(aMeta, aEntity);
-            PersistentStateHandler aHandler = new PersistentStateHandler (aEntity);
-            aRow.setPersistentStateHandler(aHandler);
 
+            // Row knows both : Meta + Values ... create it after ID generation ;-)
+            final Row aRow = EntityHelper.createRowFromEntity(aMeta, aEntity);
+
+            // do check for constraint violations after ID and ModifyStamp was calculated
+            // Otherwise this check will fail always ;-)
+            final StringBuffer sViolationReport = new StringBuffer (256);
+            if (impl_violatesEntityConstraints (aRow, sViolationReport))
+            	throw new Exception ("Entity ["+aRow+"] violates constraints."+sViolationReport.toString ());
+            
+            final PersistentStateHandler aHandler = new PersistentStateHandler (aEntity);
+            aRow.setPersistentStateHandler(aHandler);
+            
             if (bInSync)
                 lUpdateRows.add(aRow);
             else
@@ -179,7 +201,7 @@ public class DB implements IDB
     //--------------------------------------------------------------------------
     @Override
 	public synchronized < TEntity extends IEntity > void removeEntitiesById (Class< TEntity > aType,
-	                                                                            String...        lIds )
+	                                                                         String...        lIds )
     	throws Exception
     {
         throw new UnsupportedOperationException("Not yet implemented.");
@@ -233,9 +255,9 @@ public class DB implements IDB
     //--------------------------------------------------------------------------
     @Override
 	public synchronized < TEntity extends IEntity > String getEntitiesById (Class< TEntity > aType     ,
-	                                                                           String           sNextToken,
-	                                                                           List< TEntity >  lResults  ,
-	                                                                           String...        lIds      )
+	                                                                        String           sNextToken,
+	                                                                        List< TEntity >  lResults  ,
+	                                                                        String...        lIds      )
     	throws Exception
     {
         throw new UnsupportedOperationException("Not supported yet.");
@@ -243,8 +265,8 @@ public class DB implements IDB
 
     //--------------------------------------------------------------------------
     public synchronized < TEntity extends IEntity > String getAllEntitiesOfType (Class< TEntity > aType     ,
-                                                                                    String           sNextToken,
-                                                                                    List< TEntity >  lResults  )
+                                                                                 String           sNextToken,
+                                                                                 List< TEntity >  lResults  )
         throws Exception
     {
         EntityMetaInfo         aMeta    = mem_MetaProvider ().getMetaInfoForEntityClass(aType);
@@ -290,7 +312,7 @@ public class DB implements IDB
     		int nEndPos = (aQuery.getPartCount()-1);
     		if (nEndPos < 1)
     			throw new Exception ("Query without any parameter ?");
-    		aQuery.setQueryPart(nEndPos, EQueryPartBinding.E_AND, EQueryPartOperation.E_MATCH, EntityBase.ATTRIBUTE_NAME_REMOVED, false);
+    		aQuery.defineQueryPart(nEndPos, EQueryPartBinding.E_AND, EQueryPartOperation.E_MATCH, EntityBase.ATTRIBUTE_NAME_REMOVED, false);
     	}
 
     	// Compile query ... can be used as often as you want ...
@@ -331,7 +353,7 @@ public class DB implements IDB
     //--------------------------------------------------------------------------
     @Override
     public synchronized < TEntity extends IEntity > TEntity queryOne (Class< TEntity >    aType ,
-                                                                         IDBQuery< TEntity > iQuery)
+                                                                      IDBQuery< TEntity > iQuery)
         throws Exception
     {
         List< TEntity > lResults = new ArrayList< TEntity >(10);
@@ -347,7 +369,7 @@ public class DB implements IDB
 	@SuppressWarnings("unchecked")
 	@Override
 	public synchronized < TEntity extends IEntity > IDBQuery< TEntity > prepareQuery(Class< TEntity > aType   ,
-	                                                                                    String           sQueryId)
+	                                                                                 String           sQueryId)
         throws Exception
     {
 	    Map< String, DBQueryTemplate< ? > > aPool     = mem_QueryPool ();
@@ -394,6 +416,48 @@ public class DB implements IDB
         // do not remove DB as we dont know how many entities are bound to it ;-(
     }
     
+    //-------------------------------------------------------------------------
+    @Override
+    public synchronized void createUser (final String    sName                ,
+							    		 final String    sPassword            ,
+							    		 final boolean   bAdministrativeRights,
+							    		 final String... lSchemas             )
+		throws Exception
+	{
+        final IDBBackend iBackend = mem_Backend ();
+        
+        if ( ! IDBUser.class.isAssignableFrom(iBackend.getClass ()))
+        	throw new Exception ("Backend ["+iBackend.getClass()+"] do not suport IDBUser interface.");
+        	
+        final IDBUser iUser = (IDBUser) iBackend;
+        iUser.createUser(sName, sPassword, bAdministrativeRights, lSchemas);
+	}
+
+	//-------------------------------------------------------------------------
+    @Override
+	public synchronized void removeUser (final String sName)
+		throws Exception
+	{
+        final IDBBackend iBackend = mem_Backend ();
+        
+        if ( ! IDBUser.class.isAssignableFrom(iBackend.getClass ()))
+        	throw new Exception ("Backend ["+iBackend.getClass()+"] do not suport IDBUser interface.");
+        	
+        final IDBUser iUser = (IDBUser) iBackend;
+        iUser.removeUser(sName);
+	}
+
+    //--------------------------------------------------------------------------
+    public synchronized < TEntity extends IEntity > String dumpStatement4Create (Class< TEntity > aType)
+        throws Exception
+    {
+        EntityMetaInfo aMeta      = mem_MetaProvider ().getMetaInfoForEntityClass(aType);
+        Row            aRowInfo   = new Row (aMeta);
+        IDBBackend     iBackend   = mem_Backend ();
+        String         sStatement = iBackend.dumpStatement4Create(aRowInfo);
+        return sStatement;
+    }
+
     //--------------------------------------------------------------------------
     private String impl_generateId (IEntity aEntity)
         throws Exception
@@ -427,6 +491,48 @@ public class DB implements IDB
     	return ((Boolean) aRow.getColumnValue(EntityBase.ATTRIBUTE_NAME_REMOVED)).booleanValue();
     }
 
+    //--------------------------------------------------------------------------
+    private <TEntity extends IEntity> boolean impl_violatesEntityConstraints (final Row          aMeta  ,
+    																		  final StringBuffer sReport)
+        throws Exception
+    {
+    	      boolean            bViolatesSomething = false;
+    	final Iterator< String > lColumns           = aMeta.listColumns();
+    	while (lColumns.hasNext())
+    	{
+    		final String sColumn = lColumns.next();
+    		final Column aColumn = aMeta.getColumn(sColumn);
+			final Object aValue  = aMeta.getColumnValue(sColumn);
+    		
+    		if ( ! aColumn.CanBeNull)
+    		{
+    			if (aValue == null)
+    			{
+    				if (sReport != null)
+    					sReport.append("\n- column["+sColumn+"] violates NOT NULL constraint");
+    				bViolatesSomething = true;
+    				continue; // check for one violation of same column only ... other violations will be detected later on ;-)
+    			}
+    		}
+
+    		if (aColumn.Type.isAssignableFrom(String.class))
+    		{
+    			final String sValue  = (String) aValue;
+    			final int    nLength = StringUtils.length(sValue);
+    			
+    			if (nLength > aColumn.Length)
+    			{
+    				if (sReport != null)
+    					sReport.append("\n- column["+sColumn+"] violates STRING-LEN constraint : "+nLength+" exceeds max "+aColumn.Length);
+    				bViolatesSomething = true;
+    				continue; // check for one violation of same column only ... other violations will be detected later on ;-)
+    			}
+    		}
+    	}
+
+    	return bViolatesSomething;
+    }
+    
     //--------------------------------------------------------------------------
     /** provides access to member m_aEntityProvider.
      *

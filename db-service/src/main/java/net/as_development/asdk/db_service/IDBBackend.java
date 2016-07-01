@@ -199,4 +199,8 @@ public interface IDBBackend
                              List< Row >     lResults  ,
                              IDBBackendQuery iQuery    )
         throws Exception;
+
+    //--------------------------------------------------------------------------
+    public String dumpStatement4Create (Row aMeta)
+    	throws Exception;
 }

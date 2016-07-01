@@ -28,9 +28,15 @@ package net.as_development.asdk.db_service.impl.sql.generator;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.lang3.StringUtils;
 
 import net.as_development.asdk.api.db.EQueryPartBinding;
 import net.as_development.asdk.api.db.EQueryPartOperation;
@@ -41,8 +47,6 @@ import net.as_development.asdk.db_service.impl.EntityMetaInfo;
 import net.as_development.asdk.db_service.impl.QueryPart;
 import net.as_development.asdk.db_service.impl.QueryPartValue;
 import net.as_development.asdk.db_service.impl.Row;
-
-import org.apache.commons.lang3.StringUtils;
 
 //==============================================================================
 /**
@@ -77,10 +81,17 @@ public class AnsiSqlGenerator implements ISqlGenerator
     public static final String SQLTYPE_DATE    = AnsiSqlGenerator.SQLTYPE_LONG;
     
     //--------------------------------------------------------------------------
+	public static final String ARG_CREATE_USER_NAME                  = "create.user.name"                 ;
+	public static final String ARG_CREATE_USER_PASSWORD              = "create.user.password"             ;
+	public static final String ARG_CREATE_USER_ADMINISTRATIVE_RIGHTS = "create.user.administrative.rights";
+	public static final String ARG_CREATE_USER_DB_SCHEMAS            = "create.user.db.schemas"           ;
+	
+    //--------------------------------------------------------------------------
     public AnsiSqlGenerator ()
     {}
 
     //--------------------------------------------------------------------------
+    @Override
     public void setIdentifierQuote (final String sQuote)
     	throws Exception
     {
@@ -88,10 +99,19 @@ public class AnsiSqlGenerator implements ISqlGenerator
     }
 
     //--------------------------------------------------------------------------
+    @Override
     public void setStringQuote (final String sQuote)
     	throws Exception
     {
     	m_sStringQuote = sQuote;
+    }
+
+    //--------------------------------------------------------------------------
+    @Override
+    public void enableSqlDumps (final boolean bEnabled)
+    	throws Exception
+    {
+    	m_bDumpSqlStatements = bEnabled;
     }
 
     //--------------------------------------------------------------------------
@@ -110,49 +130,65 @@ public class AnsiSqlGenerator implements ISqlGenerator
     
     //--------------------------------------------------------------------------
     @Override
-    public String createSql (ISqlGenerator.EStatementType eStatement,
-                             Row                          aMeta     ,
-                             IDBBackendQuery              iQuery    )
+    public List< String > createSql (final ISqlGenerator.EStatementType eStatement,
+    								 final Row                          aMeta     ,
+    								 final IDBBackendQuery              iQuery    )
         throws Exception
     {
-        String sSql = null;
+    	final List< String > lSqls = new ArrayList< String > ();
 
         if (eStatement == ISqlGenerator.EStatementType.E_CREATE_SCHEMA)
-            sSql = impl_createSqlCreateSchema4Entity(aMeta);
+            impl_createSqlCreateSchema4Entity(aMeta, lSqls);
         else
         if (eStatement == ISqlGenerator.EStatementType.E_CREATE_TABLE)
-            sSql = impl_createSqlCreateTable4Entity(aMeta);
+            impl_createSqlCreateTable4Entity(aMeta, lSqls);
         else
         if (eStatement == ISqlGenerator.EStatementType.E_REMOVE_TABLE)
-            sSql = impl_createSqlRemoveTable4Entity(aMeta);
+            impl_createSqlRemoveTable4Entity(aMeta, lSqls);
         else
         if (eStatement == ISqlGenerator.EStatementType.E_INSERT)
-            sSql = impl_createSqlInsert4Entity(aMeta);
+            impl_createSqlInsert4Entity(aMeta, lSqls);
         else
         if (eStatement == ISqlGenerator.EStatementType.E_DELETE)
-            sSql = impl_createSqlDelete4Entity(aMeta);
+            impl_createSqlDelete4Entity(aMeta, lSqls);
         else
         if (eStatement == ISqlGenerator.EStatementType.E_DELETE_ALL)
-            sSql = impl_createSqlDeleteAll4Entity(aMeta);
+            impl_createSqlDeleteAll4Entity(aMeta, lSqls);
         else
         if (eStatement == ISqlGenerator.EStatementType.E_GET_ALL)
-            sSql = impl_createSqlGetAll4Entity(aMeta);
+            impl_createSqlGetAll4Entity(aMeta, lSqls);
         else
         if (eStatement == ISqlGenerator.EStatementType.E_QUERY_BY_ID)
-            sSql = impl_createSqlQueryById4Entity(aMeta);
+            impl_createSqlQueryById4Entity(aMeta, lSqls);
         else
         if (eStatement == ISqlGenerator.EStatementType.E_QUERY_BY_PROPS)
-            sSql = impl_createSqlPropQueryAll4Entity(aMeta, iQuery);
+            impl_createSqlPropQueryAll4Entity(aMeta, iQuery, lSqls);
         else
         if (eStatement == ISqlGenerator.EStatementType.E_UPDATE)
-            sSql = impl_createSqlUpdate4Entity(aMeta);
+            impl_createSqlUpdate4Entity(aMeta, lSqls);
         else
             throw new UnsupportedOperationException ("Not implemented yet. (createSql for '"+eStatement+"')");
 
-//        System.out.println ("#### SQL DUMP : '"+sSql+"'");
-        
-        return sSql;
+		impl_dumpSqlStatementsIfConfigured (lSqls);
+        return lSqls;
     }
+    
+    //--------------------------------------------------------------------------
+    @Override
+    public List< String > createSql (final ISqlGenerator.EStatementType eStatement,
+    					             final Map< String, Object >        lArgs     )
+	    throws Exception
+	{
+    	final List< String > lSqls = new ArrayList< String > ();
+
+        if (eStatement == ISqlGenerator.EStatementType.E_CREATE_USER)
+            impl_createSqlCreateUser(lArgs, lSqls);
+        else
+        	throw new UnsupportedOperationException ("Not implemented yet. (createSql for '"+eStatement+"')");
+
+		impl_dumpSqlStatementsIfConfigured (lSqls);
+        return lSqls;
+	}
 
     //--------------------------------------------------------------------------
     @Override
@@ -357,6 +393,23 @@ public class AnsiSqlGenerator implements ISqlGenerator
     }
     
     //--------------------------------------------------------------------------
+    private static boolean impl_hasResultSetColumn(final ResultSet aResult,
+    											   final String    sColumn)
+    	throws Exception
+    {
+        final ResultSetMetaData aMeta    = aResult.getMetaData ();
+        final int               nColumns = aMeta.getColumnCount();
+
+        for (int nColumn=1; nColumn<=nColumns; nColumn++)
+        {
+        	final String sColumnCheck = aMeta.getColumnName(nColumn);
+        	if (StringUtils.equals(sColumn, sColumnCheck))
+                return true;
+        }
+        return false;
+    }
+    
+    //--------------------------------------------------------------------------
     @Override
     public Object getValueFromResultSet (ResultSet  aResult,
                                          String     sColumn,
@@ -368,6 +421,12 @@ public class AnsiSqlGenerator implements ISqlGenerator
         // But outside code (using meta info) uses 'pure column' names instead.
         // So we have to adapt given meta info to our own needs .-)
         String sRealColumn = EntityMetaInfo.PREFIX_COLUMNS + sColumn;
+
+        // If DB schema was changed at runtime (e.g. on updating code within cluster)
+        // we must handle missing columns "gracefully".
+        final boolean bColumnExists = impl_hasResultSetColumn (aResult, sRealColumn);
+        if ( ! bColumnExists)
+        	return null;
         
         // handle NULL values generic
         // so the following lines of code must not handle that again and again ...
@@ -475,6 +534,14 @@ public class AnsiSqlGenerator implements ISqlGenerator
     }
     
     //--------------------------------------------------------------------------
+    protected void impl_createSqlCreateUser (final Map< String, Object > lArgs,
+    										 final List< String >        lSqls)
+        throws Exception
+    {
+    	throw new UnsupportedOperationException ("Has to be implemented in derived class !");
+    }
+    
+    //--------------------------------------------------------------------------
     /** create a suitable sql statement which can be used to create
      *  a new DB schema for the specified entity.
      *
@@ -484,9 +551,11 @@ public class AnsiSqlGenerator implements ISqlGenerator
      *          contains meta information about an entity class as e.g.
      *          bound DB schema.
      *
-     *  @return the new generated sql statement.
+     *  @param  lSqls [OUT]
+	 *          the new generated sql statement.
      */
-    protected String impl_createSqlCreateSchema4Entity (Row aMeta)
+    protected void impl_createSqlCreateSchema4Entity (final Row            aMeta,
+			 										  final List< String > lSqls)
         throws Exception
     {
         StringBuffer sSql = new StringBuffer (256);
@@ -494,7 +563,7 @@ public class AnsiSqlGenerator implements ISqlGenerator
         sSql.append ("create schema "      );
         sSql.append (impl_nameSchema(aMeta));
 
-        return sSql.toString ();
+        lSqls.add(sSql.toString ());
     }
     
     //--------------------------------------------------------------------------
@@ -507,9 +576,11 @@ public class AnsiSqlGenerator implements ISqlGenerator
      *          contains meta information about an entity class as e.g.
      *          configured column and table names.
      *
-     *  @return the new generated sql statement.
+     *  @param  lSqls [OUT]
+	 *          the new generated sql statement.
      */
-    protected String impl_createSqlCreateTable4Entity (Row aMeta)
+    protected void impl_createSqlCreateTable4Entity (final Row            aMeta,
+			  										 final List< String > lSqls)
         throws Exception
     {
         StringBuffer sSql = new StringBuffer (256);
@@ -535,6 +606,9 @@ public class AnsiSqlGenerator implements ISqlGenerator
             sSql.append (impl_nameColumn(sColumn)     );
             sSql.append (" "                          );
             sSql.append (mapJavaTypeToSqlType(aColumn));
+            
+            if ( ! aColumn.CanBeNull)
+            	sSql.append(" not null");
 
             ++nColumns;
         }
@@ -545,11 +619,12 @@ public class AnsiSqlGenerator implements ISqlGenerator
         sSql.append (impl_nameColumn(aMeta.getIdColumn()) );
         sSql.append ("))"                                 );
         
-        return sSql.toString ();
+        lSqls.add(sSql.toString ());
     }
 
     //--------------------------------------------------------------------------
-    protected String impl_createSqlRemoveTable4Entity (Row aMeta)
+    protected void impl_createSqlRemoveTable4Entity (final Row            aMeta,
+			 										 final List< String > lSqls)
         throws Exception
     {
         StringBuffer sSql = new StringBuffer (256);
@@ -557,7 +632,7 @@ public class AnsiSqlGenerator implements ISqlGenerator
         sSql.append ("drop table "        );
         sSql.append (impl_nameTable(aMeta));
         
-        return sSql.toString ();
+        lSqls.add(sSql.toString ());
     }
     
     //--------------------------------------------------------------------------
@@ -570,9 +645,11 @@ public class AnsiSqlGenerator implements ISqlGenerator
      *          contains meta information about an entity class as e.g.
      *          configured column and table names.
      *
-     *  @return the new generated sql-insert statement.
+     *  @param  lSqls [OUT]
+	 *          the new generated sql-insert statement.
      */
-    protected String impl_createSqlInsert4Entity (Row aMeta)
+    protected void impl_createSqlInsert4Entity (final Row            aMeta,
+			 									final List< String > lSqls)
         throws Exception
     {
         StringBuffer sSql = new StringBuffer (256);
@@ -612,7 +689,7 @@ public class AnsiSqlGenerator implements ISqlGenerator
         }
 
         sSql.append (")");
-        return sSql.toString ();
+        lSqls.add(sSql.toString ());
     }
 
     //--------------------------------------------------------------------------
@@ -625,9 +702,11 @@ public class AnsiSqlGenerator implements ISqlGenerator
      *          contains meta information about an entity class as e.g.
      *          configured column and table names.
      *
-     *  @return the new generated sql-update statement.
+     *  @param  lSqls [OUT]
+	 *          the new generated sql-update statement.
      */
-    protected String impl_createSqlUpdate4Entity (Row aMeta)
+    protected void impl_createSqlUpdate4Entity (final Row            aMeta,
+			 									final List< String > lSqls)
         throws Exception
     {
         StringBuffer sSql = new StringBuffer (256);
@@ -663,7 +742,7 @@ public class AnsiSqlGenerator implements ISqlGenerator
         sSql.append (impl_nameColumn(sIdColumn));
         sSql.append (" = ?"                    );
 
-        return sSql.toString ();
+        lSqls.add(sSql.toString ());
     }
 
     //--------------------------------------------------------------------------
@@ -676,9 +755,11 @@ public class AnsiSqlGenerator implements ISqlGenerator
      *          contains meta information about an entity class as e.g.
      *          configured column and table names.
      *
-     *  @return the new generated sql-delete statement.
+     *  @param  lSqls [OUT]
+	 *          the new generated sql-delete statement.
      */
-    protected String impl_createSqlDelete4Entity (Row aMeta)
+    protected void impl_createSqlDelete4Entity (final Row            aMeta,
+			 									final List< String > lSqls)
         throws Exception
     {
         StringBuffer sSql = new StringBuffer (256);
@@ -688,33 +769,36 @@ public class AnsiSqlGenerator implements ISqlGenerator
         sSql.append (impl_nameColumn(aMeta.getIdColumn()));
         sSql.append (" = ?"                              );
 
-        return sSql.toString ();
+        lSqls.add(sSql.toString ());
     }
 
     //--------------------------------------------------------------------------
-    protected String impl_createSqlDeleteAll4Entity (Row aMeta)
+    protected void impl_createSqlDeleteAll4Entity (final Row            aMeta,
+			 									   final List< String > lSqls)
         throws Exception
     {
         StringBuffer sSql = new StringBuffer (256);
         sSql.append ("delete from "       );
         sSql.append (impl_nameTable(aMeta));
 
-        return sSql.toString ();
+        lSqls.add(sSql.toString ());
     }
 
     //--------------------------------------------------------------------------
-    protected String impl_createSqlGetAll4Entity (Row aMeta)
+    protected void impl_createSqlGetAll4Entity (final Row            aMeta,
+			 									final List< String > lSqls)
         throws Exception
     {
         StringBuffer sSql = new StringBuffer (256);
         sSql.append ("select * from "     );
         sSql.append (impl_nameTable(aMeta));
 
-        return sSql.toString ();
+        lSqls.add(sSql.toString ());
     }
     
     //--------------------------------------------------------------------------
-    protected String impl_createSqlQueryById4Entity (Row aMeta)
+    protected void impl_createSqlQueryById4Entity (final Row            aMeta,
+			 									   final List< String > lSqls)
         throws Exception
     {
         StringBuffer sSql = new StringBuffer (256);
@@ -725,12 +809,13 @@ public class AnsiSqlGenerator implements ISqlGenerator
         sSql.append (impl_nameColumn(aMeta.getIdColumn()));
         sSql.append (" = ?"                              );
 
-        return sSql.toString ();
+        lSqls.add(sSql.toString ());
     }
 
     //--------------------------------------------------------------------------
-    protected String impl_createSqlPropQueryAll4Entity (Row             aMeta ,
-                                                        IDBBackendQuery iQuery)
+    protected void impl_createSqlPropQueryAll4Entity (final Row             aMeta ,
+                                                      final IDBBackendQuery iQuery,
+                                                      final List< String >  lSqls )
         throws Exception
     {
         StringBuffer sSql = new StringBuffer (256);
@@ -786,7 +871,7 @@ public class AnsiSqlGenerator implements ISqlGenerator
     			throw new IllegalArgumentException ("Unknown operation. Did you changed enum IDBQuery.EOperation and forgot to change this line of code here ?");
         }
 
-        return sSql.toString ();
+        lSqls.add(sSql.toString ());
     }
     
     //--------------------------------------------------------------------------
@@ -893,8 +978,29 @@ public class AnsiSqlGenerator implements ISqlGenerator
     }
 
     //--------------------------------------------------------------------------
-    private String m_sIdentifierQuote = "\"";
+    private void impl_dumpSqlStatementsIfConfigured (final List< String > lSqls)
+        throws Exception
+    {
+    	if ( ! m_bDumpSqlStatements)
+    		return;
+    
+    	final StringBuffer sDump = new StringBuffer (256);
+
+		for (final String sSql : lSqls)
+		{
+			sDump.append(sSql);
+			sDump.append("\n");
+		}
+
+    	System.out.println(sDump.toString ());
+    }
+    
+    //--------------------------------------------------------------------------
+    protected String m_sIdentifierQuote = "\"";
 
     //--------------------------------------------------------------------------
-    private String m_sStringQuote = "\'";
+    protected String m_sStringQuote = "\'";
+
+    //--------------------------------------------------------------------------
+    protected boolean m_bDumpSqlStatements = false;
 }

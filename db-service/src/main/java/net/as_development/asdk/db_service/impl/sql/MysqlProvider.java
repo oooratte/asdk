@@ -35,6 +35,6 @@ public class MysqlProvider extends SqlProvider
     public MysqlProvider ()
     	throws Exception
     {
-    	super.setSqlGenerator(new MysqlSqlGenerator ());
+    	super.setSqlGenerator(MysqlSqlGenerator.class);
     }
 }

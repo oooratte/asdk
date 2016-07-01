@@ -60,8 +60,8 @@ public class DBPool implements IDBPool
     public synchronized IDB getDbForPersistenceUnit(String sPersistenceUnit)
         throws Exception
     {
-        Map< String, IDB > lPool = mem_Dbs ();
-        IDB                iDB   = null;
+        final Map< String, IDB > lPool = mem_Dbs ();
+              IDB                iDB   = null;
 
         // get existing DB
         if (lPool.containsKey(sPersistenceUnit))
@@ -73,7 +73,7 @@ public class DBPool implements IDBPool
         // create new DB (and pool it)
         if (iDB == null)
         {
-            IPersistenceUnit aPu = mem_PURegistry ().getPersistenceUnitByName(sPersistenceUnit);
+        	final IPersistenceUnit aPu = mem_PURegistry ().getPersistenceUnitByName(sPersistenceUnit);
             iDB = new DB ();
             iDB.setPersistenceUnit(aPu);
 
@@ -83,6 +83,17 @@ public class DBPool implements IDBPool
         return iDB;
     }
 
+    //--------------------------------------------------------------------------
+    public synchronized void resetDbForPersistenceUnit (final String sPersistenceUnit)
+    	throws Exception
+    {
+        final Map< String, IDB > lPool = mem_Dbs ();
+        final DB                 iDB   = (DB) lPool.get(sPersistenceUnit);
+        
+        if (iDB != null)
+        	iDB.reset();
+    }
+    
     //--------------------------------------------------------------------------
     private IPersistenceUnitRegistry mem_PURegistry ()
         throws Exception

@@ -461,7 +461,7 @@ public class GenericDbTest
             String                 sNextToken = null;
             List< TestEntity >     lResults   = new ArrayList< TestEntity  >(10);
             IDBQuery< TestEntity > iQuery     = iDb.prepareQuery(TestEntity.class, "query_for_modify_stamp");
-            iQuery.setQueryPart(0, EQueryPartBinding.E_AND, EQueryPartOperation.E_GREATER_THAN, EntityBase.ATTRIBUTE_NAME_MODIFY_STAMP, aLastModifyStamp);
+            iQuery.defineQueryPart(0, EQueryPartBinding.E_AND, EQueryPartOperation.E_GREATER_THAN, EntityBase.ATTRIBUTE_NAME_MODIFY_STAMP, aLastModifyStamp);
             iDb.query(TestEntity.class, sNextToken, lResults, iQuery);
             
             Assert.assertTrue   ("testModifyStamp [03] unexpected size for result set"   , lResults.size() == 1                );
@@ -686,7 +686,7 @@ public class GenericDbTest
             //    20 items ... but 10 boolean-true items only
 
             iQuery = iDb.prepareQuery(TestEntity.class, "match_a");
-            iQuery.setQueryPart(0, EQueryPartBinding.E_AND, EQueryPartOperation.E_MATCH, TestEntity.ATTRIBUTE_NAME_BOOLEANVALUE, true);
+            iQuery.defineQueryPart(0, EQueryPartBinding.E_AND, EQueryPartOperation.E_MATCH, TestEntity.ATTRIBUTE_NAME_BOOLEANVALUE, true);
             iDb.query(TestEntity.class, sFirstNextToken, lResults, iQuery);
 
             AssertEx.assertEquals("testMatchQueries [a_01] expect 10 results", 10, lResults.size());
@@ -697,10 +697,10 @@ public class GenericDbTest
             //	  ask for items with number: 1, 5, 7, 18
 
             iQuery = iDb.prepareQuery(TestEntity.class, "match_b");
-            iQuery.setQueryPart(0, EQueryPartBinding.E_OR, EQueryPartOperation.E_MATCH, TestEntity.ATTRIBUTE_NAME_INTVALUE,  1);
-            iQuery.setQueryPart(1, EQueryPartBinding.E_OR, EQueryPartOperation.E_MATCH, TestEntity.ATTRIBUTE_NAME_INTVALUE,  5);
-            iQuery.setQueryPart(2, EQueryPartBinding.E_OR, EQueryPartOperation.E_MATCH, TestEntity.ATTRIBUTE_NAME_INTVALUE,  7);
-            iQuery.setQueryPart(3, EQueryPartBinding.E_OR, EQueryPartOperation.E_MATCH, TestEntity.ATTRIBUTE_NAME_INTVALUE, 18);
+            iQuery.defineQueryPart(0, EQueryPartBinding.E_OR, EQueryPartOperation.E_MATCH, TestEntity.ATTRIBUTE_NAME_INTVALUE,  1);
+            iQuery.defineQueryPart(1, EQueryPartBinding.E_OR, EQueryPartOperation.E_MATCH, TestEntity.ATTRIBUTE_NAME_INTVALUE,  5);
+            iQuery.defineQueryPart(2, EQueryPartBinding.E_OR, EQueryPartOperation.E_MATCH, TestEntity.ATTRIBUTE_NAME_INTVALUE,  7);
+            iQuery.defineQueryPart(3, EQueryPartBinding.E_OR, EQueryPartOperation.E_MATCH, TestEntity.ATTRIBUTE_NAME_INTVALUE, 18);
             iDb.query(TestEntity.class, sFirstNextToken, lResults, iQuery);
 
             AssertEx.assertEquals("testMatchQueries [b_01] expect 4 results", 4, lResults.size());
@@ -734,7 +734,7 @@ public class GenericDbTest
         	//    Ask for all test entries with "_b_" within it's string value.
 
             iQuery = iDb.prepareQuery(TestEntity.class, "like_a");
-            iQuery.setQueryPart(0, EQueryPartBinding.E_AND, EQueryPartOperation.E_LIKE, TestEntity.ATTRIBUTE_NAME_STRINGVALUE, "*_b_*");
+            iQuery.defineQueryPart(0, EQueryPartBinding.E_AND, EQueryPartOperation.E_LIKE, TestEntity.ATTRIBUTE_NAME_STRINGVALUE, "*_b_*");
             iDb.query(TestEntity.class, sFirstNextToken, lResults, iQuery);
 
             AssertEx.assertEquals("testLikeQueries [a_01] expect 10 results", 10, lResults.size());
@@ -745,7 +745,7 @@ public class GenericDbTest
         	//    Ask for all test entries with "test_entity_a_1?" within it's string value.
 
             iQuery = iDb.prepareQuery(TestEntity.class, "like_b");
-            iQuery.setQueryPart(0, EQueryPartBinding.E_AND, EQueryPartOperation.E_LIKE, TestEntity.ATTRIBUTE_NAME_STRINGVALUE, GenericDbTest.STRINGVALUE_TEST_ENTITY_B1+"?");
+            iQuery.defineQueryPart(0, EQueryPartBinding.E_AND, EQueryPartOperation.E_LIKE, TestEntity.ATTRIBUTE_NAME_STRINGVALUE, GenericDbTest.STRINGVALUE_TEST_ENTITY_B1+"?");
             iDb.query(TestEntity.class, sFirstNextToken, lResults, iQuery);
 
             AssertEx.assertEquals("testLikeQueries [b_01] expect 10 results", 10, lResults.size());
@@ -778,7 +778,7 @@ public class GenericDbTest
             int nMax = 11;
 
             iQuery = iDb.prepareQuery(TestEntity.class, "between_8_and_11");
-            iQuery.setQueryPart(0, EQueryPartBinding.E_AND, EQueryPartOperation.E_BETWEEN, TestEntity.ATTRIBUTE_NAME_INTVALUE, new BetweenQueryRange (nMin, nMax));
+            iQuery.defineQueryPart(0, EQueryPartBinding.E_AND, EQueryPartOperation.E_BETWEEN, TestEntity.ATTRIBUTE_NAME_INTVALUE, new BetweenQueryRange (nMin, nMax));
             iDb.query(TestEntity.class, sFirstNextToken, lResults, iQuery);
 
             AssertEx.assertEquals("testBetweenQueries [a_01] expect 4 results", 4, lResults.size());
@@ -810,7 +810,7 @@ public class GenericDbTest
             Date aMax           = new Date (nMax);
 
             iQuery = iDb.prepareQuery(TestEntity.class, "between_date_8_and_date_11");
-            iQuery.setQueryPart(0, EQueryPartBinding.E_AND, EQueryPartOperation.E_BETWEEN, TestEntity.ATTRIBUTE_NAME_DATEVALUE, new BetweenQueryRange (aMin, aMax));
+            iQuery.defineQueryPart(0, EQueryPartBinding.E_AND, EQueryPartOperation.E_BETWEEN, TestEntity.ATTRIBUTE_NAME_DATEVALUE, new BetweenQueryRange (aMin, aMax));
             iDb.query(TestEntity.class, sFirstNextToken, lResults, iQuery);
 
             AssertEx.assertEquals("testBetweenDates [01] expect 4 results", 4, lResults.size());

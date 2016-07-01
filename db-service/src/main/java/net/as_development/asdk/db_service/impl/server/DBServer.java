@@ -156,7 +156,7 @@ public class DBServer implements IDBServer
         
 		for (String sProperty : m_iConnectionData.getPropertNames())
 		{
-			String sValue = m_iConnectionData.getProperty(sProperty);
+			String sValue = m_iConnectionData.getStringProperty(sProperty);
 	        aPU.setProperty(sProperty, sValue);
 		}
 

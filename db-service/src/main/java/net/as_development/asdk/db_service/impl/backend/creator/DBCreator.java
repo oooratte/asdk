@@ -39,6 +39,7 @@ import net.as_development.asdk.api.db.IDBSchema;
 import net.as_development.asdk.api.db.IPersistenceUnit;
 import net.as_development.asdk.api.db.IPersistenceUnitRegistry;
 import net.as_development.asdk.db_service.EntityBase;
+import net.as_development.asdk.db_service.impl.DB;
 import net.as_development.asdk.db_service.impl.PersistenceUnit;
 import net.as_development.asdk.db_service.impl.PersistenceUnitRegistry;
 import net.as_development.asdk.service.env.ServiceEnv;
@@ -56,10 +57,11 @@ public class DBCreator
     //-------------------------------------------------------------------------
     public enum EOperation
     {
-        E_CREATE,
-        E_REMOVE,
-        E_UPDATE,
-        E_MIGRATE
+        E_CREATE ,
+        E_REMOVE ,
+        E_UPDATE ,
+        E_MIGRATE,
+        E_DUMP_CREATE
     }
     
     //-------------------------------------------------------------------------
@@ -195,6 +197,9 @@ public class DBCreator
         if (eOperation == DBCreator.EOperation.E_REMOVE)
             impl_removeSchema ();
         else
+        if (eOperation == DBCreator.EOperation.E_DUMP_CREATE)
+            impl_dumpCreate ();
+        else
             throw new UnsupportedOperationException ("Operation '"+eOperation+"' not implemented yet.");
     }
     
@@ -285,6 +290,51 @@ public class DBCreator
                 	
                     StringBuffer sLog = new StringBuffer (256);
                     sLog.append ("Error on removing schema for entity '"+sEntity+"'.\n");
+                    sLog.append ("Original message was: '"+ex.getMessage ()+"'."       );
+                    impl_log (Level.SEVERE, sLog.toString ());
+                }
+            }
+        }
+        
+        if (nErrors > 0)
+        	throw new Exception ("There was ["+nErrors+"] errors.");
+    }
+    
+    //-------------------------------------------------------------------------
+    private void impl_dumpCreate ()
+        throws Exception
+    {
+    	final IDBPool                  iDBPool     = mem_DBPool               ();
+        final IPersistenceUnitRegistry iPURegistry = mem_PURegistry           ();
+        final List< String >           lUnits      = mem_PersistenceUnitNames ();
+        final List< String >           lEntities   = mem_Entities             (); 
+              int                      nErrors     = 0;
+        
+        for (final String sUnit : lUnits)
+        {
+        	final PersistenceUnit aUnit = (PersistenceUnit) iPURegistry.getPersistenceUnitByName(sUnit);
+            aUnit.setUser    (m_sAdminUser    );
+            aUnit.setPassword(m_sAdminPassword);
+            
+            final IDB            iDB           = iDBPool.getDbForPersistenceUnit(sUnit);
+            final DB             iCreator      = (DB)iDB;
+            final List< String > lUnitEntities = DBCreator.impl_getIntersection(lEntities, aUnit.getEntities());
+            
+            for (String sEntity : lUnitEntities)
+            {
+                try
+                {
+                    @SuppressWarnings("unchecked")
+                    Class< ? extends EntityBase > aEntity = (Class< ? extends EntityBase >) Class.forName(sEntity);
+                    String                        sCreate = iCreator.dumpStatement4Create(aEntity);
+                    System.out.println ("CREATE :\n"+sCreate);
+                }
+                catch (Throwable ex)
+                {
+                	nErrors++;
+                	
+                    StringBuffer sLog = new StringBuffer (256);
+                    sLog.append ("Error on creating schema for entity '"+sEntity+"'.\n");
                     sLog.append ("Original message was: '"+ex.getMessage ()+"'."       );
                     impl_log (Level.SEVERE, sLog.toString ());
                 }

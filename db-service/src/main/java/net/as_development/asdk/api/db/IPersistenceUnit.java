@@ -65,15 +65,7 @@ public interface IPersistenceUnit
         throws Exception;
 
     //--------------------------------------------------------------------------
-    /** @return value of requested property.
-     *
-     *  Note   if property is unknown an empty string will be returned.
-     */
-    public String getProperty (String sProperty)
-        throws Exception;
-
-    //--------------------------------------------------------------------------
-    public boolean getBooleanProperty (String sProperty)
+    public boolean hasProperty (String sProperty)
     	throws Exception;
 
     //--------------------------------------------------------------------------
@@ -83,4 +75,16 @@ public interface IPersistenceUnit
      */
     public Set< String > getPropertNames ()
         throws Exception;
+
+    //--------------------------------------------------------------------------
+    /** @return value of requested property.
+     *
+     *  Note   if property is unknown an empty string will be returned.
+     */
+    public String getStringProperty (String sProperty)
+        throws Exception;
+
+    //--------------------------------------------------------------------------
+    public < T > T getObjectProperty (String sProperty)
+    	throws Exception;
 }

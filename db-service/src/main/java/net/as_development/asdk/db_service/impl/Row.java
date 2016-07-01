@@ -30,6 +30,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.apache.commons.codec.binary.StringUtils;
+
 //==============================================================================
 /**
  * TODO document me
@@ -181,6 +183,20 @@ public class Row
         throws Exception
     {
         Column aColumn = mem_Columns ().get(sColumn);
+
+// TODO search better place ... this method will be called during constructing an entity also ...
+// 		and then some important values are null ... will be set later ... but check is already done and throw an exception (hen and egg problem)
+
+//        if (aValue == null && ! aColumn.CanBeNull)
+//        {
+//        	// ID attribute is special. It's not set at the beginning. It's created during store process.
+//        	// So it can happen setColumnValue() is called with NULL for the ID attribute also ...
+//        	// Ignore that !
+//
+//        	if ( ! StringUtils.equals(sColumn, m_aMetaInfo.getIdAttribute()))
+//        		throw new Exception ("Value NULL violates 'NOT NULL' constraint at column '"+sColumn+"' of entity '"+m_aMetaInfo.getName()+"'.");
+//        }
+
         aColumn.Value = aValue;
     }
 
@@ -196,12 +212,13 @@ public class Row
 
         for (AttributeMetaInfo aAttribute : lAttributes)
         {
-            String sAttribute = aAttribute.getApiName();
-            String sColumn    = aAttribute.getColumnName();
-            Class< ? >  aType      = aAttribute.getType();
-            int    nLength    = aAttribute.getLength();
+            String     sAttribute = aAttribute.getApiName   ();
+            String     sColumn    = aAttribute.getColumnName();
+            Class< ? > aType      = aAttribute.getType      ();
+            boolean    bCanBeNull = aAttribute.isNullAllowed();
+            int        nLength    = aAttribute.getLength    ();
 
-            Column aColumn = new Column (sColumn, aType, null, nLength);
+            Column aColumn = new Column (sColumn, aType, null, bCanBeNull, nLength);
             lColumns.put (sColumn, aColumn);
 
             if (sAttribute.equals(sIdAttribute))

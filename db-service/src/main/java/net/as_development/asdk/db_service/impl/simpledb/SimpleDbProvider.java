@@ -268,6 +268,14 @@ public class SimpleDbProvider implements IDBBackend
     }
 
     //--------------------------------------------------------------------------
+    @Override
+    public String dumpStatement4Create (Row aMeta)
+    	throws Exception
+    {
+    	throw new UnsupportedOperationException ("Can we implement that real ?! ;-)");
+    }
+
+    //--------------------------------------------------------------------------
     private String impl_getSelectStatement (Row             aMetaRow,
     									    IDBBackendQuery iQuery  )
     	throws Exception
@@ -368,9 +376,9 @@ public class SimpleDbProvider implements IDBBackend
     	if (m_aDB == null)
     	{
     		IPersistenceUnit      iPU          = m_aMetaProvider.getPersistenceUnit();
-    		String                sAccessKey   = iPU.getProperty(PersistenceUnitConst.SIMPLEDB_ACCESSKEY);
-    		String                sSecretKey   = iPU.getProperty(PersistenceUnitConst.SIMPLEDB_SECRETKEY);
-    		String                sRegion      = iPU.getProperty(PersistenceUnitConst.SIMPLEDB_REGION   );
+    		String                sAccessKey   = iPU.getStringProperty(PersistenceUnitConst.SIMPLEDB_ACCESSKEY);
+    		String                sSecretKey   = iPU.getStringProperty(PersistenceUnitConst.SIMPLEDB_SECRETKEY);
+    		String                sRegion      = iPU.getStringProperty(PersistenceUnitConst.SIMPLEDB_REGION   );
     		AWSCredentials        aCredentials = new BasicAWSCredentials (sAccessKey, sSecretKey); 
     		AmazonSimpleDB        aDB          = new AmazonSimpleDBClient(aCredentials);
     		aDB.setEndpoint(AwsEndPointDefinitions.getEndPoint(sRegion, AwsEndPointDefinitions.EService.E_DB));
