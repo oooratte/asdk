@@ -421,6 +421,7 @@ public class DB implements IDB
     public synchronized void createUser (final String    sName                ,
 							    		 final String    sPassword            ,
 							    		 final boolean   bAdministrativeRights,
+							    		 final boolean   bAllowRemote         ,
 							    		 final String... lSchemas             )
 		throws Exception
 	{
@@ -430,7 +431,7 @@ public class DB implements IDB
         	throw new Exception ("Backend ["+iBackend.getClass()+"] do not suport IDBUser interface.");
         	
         final IDBUser iUser = (IDBUser) iBackend;
-        iUser.createUser(sName, sPassword, bAdministrativeRights, lSchemas);
+        iUser.createUser(sName, sPassword, bAdministrativeRights, bAllowRemote, lSchemas);
 	}
 
 	//-------------------------------------------------------------------------

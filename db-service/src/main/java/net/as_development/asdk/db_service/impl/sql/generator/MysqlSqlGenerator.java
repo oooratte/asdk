@@ -55,6 +55,7 @@ public class MysqlSqlGenerator extends AnsiSqlGenerator
     	final String       sPassword        = (String   ) lArgs.get(AnsiSqlGenerator.ARG_CREATE_USER_PASSWORD             );
     	      Boolean      bAdministrative  = (Boolean  ) lArgs.get(AnsiSqlGenerator.ARG_CREATE_USER_ADMINISTRATIVE_RIGHTS);
     	      String[]     lDBSchemas       = (String []) lArgs.get(AnsiSqlGenerator.ARG_CREATE_USER_DB_SCHEMAS           );
+    	final Boolean      bAllowRemote     = (Boolean  ) lArgs.get(AnsiSqlGenerator.ARG_CREATE_USER_ALLOW_REMOTE         );
 
     	if (bAdministrative == null)
     		bAdministrative = false;
@@ -64,37 +65,42 @@ public class MysqlSqlGenerator extends AnsiSqlGenerator
     	
     	final StringBuffer sSql = new StringBuffer (256);
     	
-    	sSql.append("create user if not exists ");
-    	sSql.append(m_sStringQuote              );
-    	sSql.append(sName                       );
-    	sSql.append(m_sStringQuote              );
-    	sSql.append("@"                         );
-    	sSql.append(m_sStringQuote              );
-    	sSql.append("localhost"                 );
-    	sSql.append(m_sStringQuote              );
-    	sSql.append(" identified by "           );
-    	sSql.append(m_sStringQuote              );
-    	sSql.append(sPassword                   );
-    	sSql.append(m_sStringQuote              );
+    	sSql.append("create user "   );
+    	sSql.append(m_sStringQuote   );
+    	sSql.append(sName            );
+    	sSql.append(m_sStringQuote   );
+    	sSql.append("@"              );
+    	sSql.append(m_sStringQuote   );
+    	sSql.append("localhost"      );
+    	sSql.append(m_sStringQuote   );
+    	sSql.append(" identified by ");
+    	sSql.append(m_sStringQuote   );
+    	sSql.append(sPassword        );
+    	sSql.append(m_sStringQuote   );
+    	sSql.append(";"              );
     	
     	lSqls.add(sSql.toString ());
     	sSql.setLength(0);
 
-    	sSql.append("create user if not exists ");
-    	sSql.append(m_sStringQuote              );
-    	sSql.append(sName                       );
-    	sSql.append(m_sStringQuote              );
-    	sSql.append("@"                         );
-    	sSql.append(m_sStringQuote              );
-    	sSql.append("%"                         );
-    	sSql.append(m_sStringQuote              );
-    	sSql.append(" identified by "           );
-    	sSql.append(m_sStringQuote              );
-    	sSql.append(sPassword                   );
-    	sSql.append(m_sStringQuote              );
-    	
-    	lSqls.add(sSql.toString ());
-    	sSql.setLength(0);
+    	if (bAllowRemote)
+    	{
+	    	sSql.append("create user "   );
+	    	sSql.append(m_sStringQuote   );
+	    	sSql.append(sName            );
+	    	sSql.append(m_sStringQuote   );
+	    	sSql.append("@"              );
+	    	sSql.append(m_sStringQuote   );
+	    	sSql.append("%"              );
+	    	sSql.append(m_sStringQuote   );
+	    	sSql.append(" identified by ");
+	    	sSql.append(m_sStringQuote   );
+	    	sSql.append(sPassword        );
+	    	sSql.append(m_sStringQuote   );
+	    	sSql.append(";"              );
+	    	
+	    	lSqls.add(sSql.toString ());
+	    	sSql.setLength(0);
+    	}
     	
     	for (final String sDBSchema : lDBSchemas)
     	{
@@ -104,7 +110,7 @@ public class MysqlSqlGenerator extends AnsiSqlGenerator
     		}
     		else
     		{
-    			sSql.append("grant all on ");
+    			sSql.append("grant select, insert, update, delete on ");
 //    			throw new UnsupportedOperationException ("not implemented yet");
     		}
     		
@@ -117,32 +123,92 @@ public class MysqlSqlGenerator extends AnsiSqlGenerator
 	    	sSql.append(m_sStringQuote);
 	    	sSql.append("localhost"   );
 	    	sSql.append(m_sStringQuote);
+	    	sSql.append(";"           );
     	
 	    	lSqls.add(sSql.toString ());
 	    	sSql.setLength(0);
 
-    		if (bAdministrative)
-    		{
-    			sSql.append("grant all on ");
-    		}
-    		else
-    		{
-    			sSql.append("grant all on ");
-//    			throw new UnsupportedOperationException ("not implemented yet");
-    		}
+	    	if (bAllowRemote)
+	    	{
+	    		if (bAdministrative)
+	    		{
+	    			sSql.append("grant all on ");
+	    		}
+	    		else
+	    		{
+	    			sSql.append("grant select, insert, update, delete on ");
+	//    			throw new UnsupportedOperationException ("not implemented yet");
+	    		}
+	
+	    		sSql.append(sDBSchema     );
+	    		sSql.append(".* to "      );
+		    	sSql.append(m_sStringQuote);
+		    	sSql.append(sName         );
+		    	sSql.append(m_sStringQuote);
+		    	sSql.append("@"           );
+		    	sSql.append(m_sStringQuote);
+		    	sSql.append("%"           );
+		    	sSql.append(m_sStringQuote);
+		    	sSql.append(";"           );
+	    	
+		    	lSqls.add(sSql.toString ());
+		    	sSql.setLength(0);
+	    	}
+    	}
 
-    		sSql.append(sDBSchema     );
-    		sSql.append(".* to "      );
-	    	sSql.append(m_sStringQuote);
-	    	sSql.append(sName         );
-	    	sSql.append(m_sStringQuote);
-	    	sSql.append("@"           );
-	    	sSql.append(m_sStringQuote);
-	    	sSql.append("%"           );
-	    	sSql.append(m_sStringQuote);
+		sSql.append("flush privileges;");
+	
+    	lSqls.add(sSql.toString ());
+    	sSql.setLength(0);
+    }
+
+    //--------------------------------------------------------------------------
+    protected void impl_createSqlQueryUser (final Map< String, Object > lArgs,
+    										final List< String >        lSqls)
+        throws Exception
+    {
+    	final String  sName        = (String ) lArgs.get(AnsiSqlGenerator.ARG_CREATE_USER_NAME        );
+    	final Boolean bAllowRemote = (Boolean) lArgs.get(AnsiSqlGenerator.ARG_CREATE_USER_ALLOW_REMOTE);
+
+    	final StringBuffer sSql = new StringBuffer (256);
+
+    	sSql.append("select exists"    );
+    	sSql.append("("                );
+    	sSql.append(" select 1"        );
+    	sSql.append(" from mysql.user" );
+    	sSql.append(" where"           );
+    	sSql.append(" ("               );
+    	sSql.append(" user='"          );
+    	sSql.append(sName              );
+    	sSql.append("'"                );
+    	sSql.append(" and"             );
+    	sSql.append(" host='localhost'");
+    	sSql.append(" )"               );
+    	sSql.append(")"                );
+    	sSql.append(";"                );
     	
-	    	lSqls.add(sSql.toString ());
-	    	sSql.setLength(0);
+    	lSqls.add(sSql.toString ());
+    	sSql.setLength(0);
+
+    	if (bAllowRemote)
+    	{
+        	sSql.append("select exists"    );
+        	sSql.append("("                );
+        	sSql.append(" select 1"        );
+        	sSql.append(" from mysql.user" );
+        	sSql.append(" where"           );
+        	sSql.append(" ("               );
+        	sSql.append(" user='"          );
+        	sSql.append(sName              );
+        	sSql.append("'"                );
+        	sSql.append(" and"             );
+        	sSql.append(" host='%'"        );
+        	sSql.append(" )"               );
+        	sSql.append(")"                );
+        	sSql.append(";"                );
+
+        	lSqls.add(sSql.toString ());
+        	sSql.setLength(0);
     	}
     }
 

@@ -85,6 +85,7 @@ public class AnsiSqlGenerator implements ISqlGenerator
 	public static final String ARG_CREATE_USER_PASSWORD              = "create.user.password"             ;
 	public static final String ARG_CREATE_USER_ADMINISTRATIVE_RIGHTS = "create.user.administrative.rights";
 	public static final String ARG_CREATE_USER_DB_SCHEMAS            = "create.user.db.schemas"           ;
+	public static final String ARG_CREATE_USER_ALLOW_REMOTE          = "create.user.allow.remote"         ;
 	
     //--------------------------------------------------------------------------
     public AnsiSqlGenerator ()
@@ -183,6 +184,9 @@ public class AnsiSqlGenerator implements ISqlGenerator
 
         if (eStatement == ISqlGenerator.EStatementType.E_CREATE_USER)
             impl_createSqlCreateUser(lArgs, lSqls);
+        else
+        if (eStatement == ISqlGenerator.EStatementType.E_QUERY_USER)
+            impl_createSqlQueryUser(lArgs, lSqls);
         else
         	throw new UnsupportedOperationException ("Not implemented yet. (createSql for '"+eStatement+"')");
 
@@ -541,6 +545,14 @@ public class AnsiSqlGenerator implements ISqlGenerator
     	throw new UnsupportedOperationException ("Has to be implemented in derived class !");
     }
     
+    //--------------------------------------------------------------------------
+    protected void impl_createSqlQueryUser (final Map< String, Object > lArgs,
+    										final List< String >        lSqls)
+        throws Exception
+    {
+    	throw new UnsupportedOperationException ("Has to be implemented in derived class !");
+    }
+
     //--------------------------------------------------------------------------
     /** create a suitable sql statement which can be used to create
      *  a new DB schema for the specified entity.

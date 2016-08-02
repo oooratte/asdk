@@ -43,6 +43,9 @@ public interface IDBUser
      *  @param  bAdministrativeRights [IN]
      *          enable/disable administrative rights.
      *
+     *  @param  bAllowRemote [IN]
+     *          enable/disable remote access.
+     *
      *  @param  lSchemas [IN]
      *          register user for the list of given DB schemas/entitiues.
      *
@@ -52,6 +55,7 @@ public interface IDBUser
     public void createUser (final String    sName                ,
 				    		final String    sPassword            ,
 				    		final boolean   bAdministrativeRights,
+				    		final boolean   bAllowRemote         ,
 				    		final String... lSchemas             )
             throws Exception;
 
