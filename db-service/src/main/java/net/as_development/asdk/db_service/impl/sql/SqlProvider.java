@@ -85,38 +85,76 @@ public class SqlProvider implements IDBBackend
     public synchronized void createUser (final String    sName                ,
 							    		 final String    sPassword            ,
 							    		 final boolean   bAdministrativeRights,
+							    		 final boolean   bAllowRemote         ,
 							    		 final String... lSchemas             )
 		throws Exception
 	{
+    	final boolean bUserExists = impl_isUser (sName, bAllowRemote);
+    	if (bUserExists)
+    		return;
+    	
     	final Map< String, Object > lArgs = new HashMap< String, Object > ();
     	lArgs.put(AnsiSqlGenerator.ARG_CREATE_USER_NAME                 , sName                );
     	lArgs.put(AnsiSqlGenerator.ARG_CREATE_USER_PASSWORD             , sPassword            );
     	lArgs.put(AnsiSqlGenerator.ARG_CREATE_USER_ADMINISTRATIVE_RIGHTS, bAdministrativeRights);
     	lArgs.put(AnsiSqlGenerator.ARG_CREATE_USER_DB_SCHEMAS           , lSchemas             );
+    	lArgs.put(AnsiSqlGenerator.ARG_CREATE_USER_ALLOW_REMOTE         , bAllowRemote         );
     	
-    	final List< String >    lSqls    = mem_SqlGenerator ().createSql (ISqlGenerator.EStatementType.E_CREATE_USER, lArgs);
-    	      PreparedStatement aSql     = null;
-    	      
+    	final List< String > lSqls = mem_SqlGenerator ().createSql (ISqlGenerator.EStatementType.E_CREATE_USER, lArgs);
     	for (final String sSql : lSqls)
     	{
-    		if (aSql == null)
-    			aSql = mem_Connection ().prepareStatement(sSql, ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
-    		else
-    			aSql.addBatch(sSql);
-    	}
-
-    	final int[] nResults = aSql.executeBatch();
-    	
-    	if (ArrayUtils.isEmpty(nResults))
-    		throw new Exception ("Creating user '"+sName+"' failed.");
-
-    	for (final int nResult : nResults)
-    	{
-    		if (nResult == PreparedStatement.EXECUTE_FAILED)
-        		throw new Exception ("Creating user '"+sName+"' failed.");
+    		PreparedStatement aSql = null;
+            try
+            {
+            	aSql = mem_Connection ().prepareStatement(sSql, ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
+            	aSql.execute();
+            }
+            finally
+            {
+            	impl_closeStatementIfNotCached (aSql);
+            }
     	}
 	}
 
+	//-------------------------------------------------------------------------
+    private boolean impl_isUser (final String  sName       ,
+   		 						 final boolean bAllowRemote)
+    	throws Exception
+    {
+    	final Map< String, Object > lArgs = new HashMap< String, Object > ();
+    	lArgs.put(AnsiSqlGenerator.ARG_CREATE_USER_NAME        , sName       );
+    	lArgs.put(AnsiSqlGenerator.ARG_CREATE_USER_ALLOW_REMOTE, bAllowRemote);
+    	
+    	final List< String > lSqls = mem_SqlGenerator ().createSql (ISqlGenerator.EStatementType.E_QUERY_USER, lArgs);
+    	for (final String sSql : lSqls)
+    	{
+    		PreparedStatement aSql    = null;
+    		ResultSet         aResult = null;
+            try
+            {
+            	aSql    = mem_Connection ().prepareStatement(sSql, ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
+            	aResult = aSql.executeQuery();
+            	
+    	        if (
+		            (aResult != null) &&
+		            (aResult.next() )
+		           )
+		        {
+    	        	if ( ! aResult.getBoolean(1))
+    	        		return false;
+		        }
+            }
+            finally
+            {
+            	if (aResult != null)
+                    aResult.close();
+            	impl_closeStatementIfNotCached (aSql);
+            }
+    	}
+    	
+    	return true;
+    }
+    
 	//-------------------------------------------------------------------------
     @Override
 	public synchronized void removeUser (final String sName)
@@ -614,7 +652,10 @@ public class SqlProvider implements IDBBackend
         PersistenceUnit aPu                 = m_aMetaProvider.getPersistenceUnit();
         Connection      aExternalConnection = aPu.getObjectProperty(PersistenceUnitConst.JDBC_EXTERNAL_CONNECTION);
         if (aExternalConnection != null)
+        {
+        	aExternalConnection.setAutoCommit(true);
         	return aExternalConnection;
+        }
 
         // will reset member m_aConnection to null ... might be .-)
     	impl_resetConnectionIfBroken ();

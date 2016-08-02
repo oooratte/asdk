@@ -53,6 +53,7 @@ public interface ISqlGenerator
     public enum EStatementType
     {
     	E_CREATE_USER,
+    	E_QUERY_USER,
         E_CREATE_SCHEMA,
         E_CREATE_TABLE,
         E_REMOVE_TABLE,
