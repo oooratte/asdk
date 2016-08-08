@@ -29,8 +29,11 @@ package net.as_development.asdk.sql.server.impl;
 
 import java.io.File;
 import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.Validate;
 import org.h2.tools.Server;
 
 import net.as_development.asdk.api.sql.ISqlServer;
@@ -63,10 +66,16 @@ public class StandaloneH2Server implements ISqlServer
     private static final int    DEFAULT_NETWORK_PORT = 9092;
     
     //--------------------------------------------------------------------------
-    private static final String DEFAULT_USER = "sa";
+    private static final String DEFAULT_USER = "user";
 
     //--------------------------------------------------------------------------
     private static final String DEFAULT_PASSWORD = "";
+
+    //--------------------------------------------------------------------------
+    private static final String ADMIN_USER = ""; // default (admin) user can't be set at H2 server instance ... "" is used always by H2 !
+
+    //--------------------------------------------------------------------------
+    private static final String ADMIN_PASSWORD = "xxx";
 
     //--------------------------------------------------------------------------
     private static final String DEFAULT_DB = "db";
@@ -219,29 +228,35 @@ public class StandaloneH2Server implements ISqlServer
         if (m_aServer != null)
             return;
 
-        final String[] lArgs = new String[10];
+        final String[] lArgs = new String[12];
 
-        lArgs[0] = "-tcp"           ;
-        lArgs[1] = "-tcpAllowOthers";
-        lArgs[2] = "-tcpDaemon"     ;
+        lArgs[ 0] = "-tcp"           ;
+        lArgs[ 1] = "-tcpAllowOthers";
+        lArgs[ 2] = "-tcpDaemon"     ;
 
         // define port for remote connections
         
-        lArgs[3] = "-tcpPort"                      ;
-        lArgs[4] = Integer.toString(m_nNetworkPort);
+        lArgs[ 3] = "-tcpPort"                      ;
+        lArgs[ 4] = Integer.toString(m_nNetworkPort);
 
         // define root working dir (Note : Data path needs to ne child of that working dir !)
         
-        lArgs[5] = "-baseDir"                      ;
-        lArgs[6] = mem_WorkDir ().getAbsolutePath();
+        lArgs[ 5] = "-baseDir"                      ;
+        lArgs[ 6] = mem_WorkDir ().getAbsolutePath();
         
         // define alias "DB-Name" -> "DB-Path"
-        lArgs[7] = "-key"                           ;
-        lArgs[8] = m_sDBName                        ;
-        lArgs[9] = mem_DbDataDir().getAbsolutePath();
+        lArgs[ 7] = "-key"                           ;
+        lArgs[ 8] = m_sDBName                        ;
+        lArgs[ 9] = mem_DbDataDir().getAbsolutePath();
         
+        lArgs[10] = "-tcpPassword";
+        lArgs[11] = ADMIN_PASSWORD;
+
         final Server aServer = Server.createTcpServer(lArgs);
         aServer.start();
+        
+        impl_createUserIfNotExists ();
+
         m_aServer = aServer;
     }
 
@@ -264,6 +279,19 @@ public class StandaloneH2Server implements ISqlServer
     }
 
     //--------------------------------------------------------------------------
+    private void impl_createUserIfNotExists ()
+    	throws Exception
+    {
+    	Validate.notEmpty(m_sUser    , "Miss 'user'."    );
+    	Validate.notEmpty(m_sPassword, "Miss 'password'.");
+    	
+        final String            sConnectionUrl = getConnectionUrl();
+        final Connection        aConnection    = DriverManager.getConnection(sConnectionUrl, ADMIN_USER, ADMIN_PASSWORD);
+        final PreparedStatement aCreateUserSQL = aConnection.prepareStatement("create user if not exists "+m_sUser+" password '"+m_sPassword+"' admin;");
+        aCreateUserSQL.execute();
+    }
+    
+    //--------------------------------------------------------------------------
     private synchronized File mem_WorkDir ()
             throws Exception
     {
@@ -271,7 +299,7 @@ public class StandaloneH2Server implements ISqlServer
         {
             final File aTempDir  = FileUtils.getTempDirectory();
             final File aRootDir  = new File (aTempDir, StandaloneH2Server.DIRNAME_DB_ROOT);
-            final File aWorkDir  = new File (aRootDir, m_sDBName                       );
+            final File aWorkDir  = new File (aRootDir, m_sDBName                         );
             FileUtils.forceMkdir(aWorkDir);
             m_aWorkDir = aWorkDir;
         }
@@ -353,6 +381,9 @@ public class StandaloneH2Server implements ISqlServer
     
     //--------------------------------------------------------------------------
     private String m_sDBName = StandaloneH2Server.DEFAULT_DB;
+    
+    //--------------------------------------------------------------------------
+    private String m_sAdminPassword = StandaloneH2Server.ADMIN_PASSWORD;
     
     //--------------------------------------------------------------------------
     private String m_sUser = StandaloneH2Server.DEFAULT_USER;

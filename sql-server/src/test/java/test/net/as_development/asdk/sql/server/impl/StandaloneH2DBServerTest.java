@@ -173,11 +173,20 @@ public class StandaloneH2DBServerTest
     public synchronized void testConnection ()
         throws Exception
     {
+    	final String USER   = "fuckel"  ;
+    	final String PASSWD = "lsmf4711";
+    	
     	final StandaloneH2Server aServer = new StandaloneH2Server ();
-        aServer.start ();
+    	aServer.setDBName           ("testdb");
+    	aServer.setUser             (USER    );
+    	aServer.setPassword         (PASSWD  );
+    	aServer.setPort             (3308    );
+    	aServer.enablePersistentData(false   );
+
+    	aServer.start ();
 
         final String            sConnectionURL = aServer.getConnectionUrl();
-        final Connection        aConnection    = DriverManager.getConnection (sConnectionURL);
+        final Connection        aConnection    = DriverManager.getConnection (sConnectionURL, USER, PASSWD);
         final PreparedStatement aSQL           = aConnection.prepareStatement("SHOW TABLES");
         final ResultSet         aResult        = aSQL.executeQuery();
 
