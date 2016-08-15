@@ -37,6 +37,8 @@ import org.powermock.api.mockito.PowerMockito;
 import net.as_development.asdk.db_service.IDBBackendQuery;
 import net.as_development.asdk.db_service.ISqlGenerator;
 import net.as_development.asdk.db_service.impl.EntityMetaInfo;
+import net.as_development.asdk.db_service.impl.EntityMetaInfoProvider;
+import net.as_development.asdk.db_service.impl.PersistenceUnit;
 import net.as_development.asdk.db_service.impl.Row;
 import net.as_development.asdk.db_service.impl.sql.SqlProvider;
 import net.as_development.asdk.db_service.impl.sql.SqlStatementCache;
@@ -90,19 +92,22 @@ public class SqlProviderTest
     public void testResetOfClosedPreparedStatements ()
         throws Exception
     {
-        SqlStatementCache            aSqlCache         = new SqlStatementCache ();
-        SqlProvider                  aSqlProvider      = new SqlProvider ();
-        String                       sConnectionMember = "m_aConnection";
-        String                       sCacheMember      = "m_aSqlCache";
-        String                       sTestMethod       = "impl_getSql";
-        Connection                   aConnection       = PowerMockito.mock(Connection.class);
-        EntityMetaInfo               aMetaInfo         = PowerMockito.mock(EntityMetaInfo.class);
-        Row                          aMeta             = PowerMockito.mock(Row.class);
-        IDBBackendQuery              iQuery            = PowerMockito.mock(IDBBackendQuery.class);
-        ISqlGenerator.EStatementType eSqlFunc          = ISqlGenerator.EStatementType.E_CREATE_TABLE;
-        PreparedStatement            aStatement1       = PowerMockito.mock(PreparedStatement.class);
-        PreparedStatement            aStatement2       = PowerMockito.mock(PreparedStatement.class);
-        String                       sStatementId      = aSqlCache.buildCacheId(eSqlFunc, aMeta, iQuery);
+        SqlStatementCache            aSqlCache          = new SqlStatementCache ();
+        SqlProvider                  aSqlProvider       = new SqlProvider ();
+        String                       sConnectionMember  = "m_aConnection";
+        String                       sCacheMember       = "m_aSqlCache";
+        String                       sEnableCacheMember = "m_bCacheStatements";
+        String                       sTestMethod        = "impl_getSql";
+        PersistenceUnit              aPU                = PowerMockito.mock(PersistenceUnit.class);
+        Connection                   aConnection        = PowerMockito.mock(Connection.class);
+        EntityMetaInfoProvider       aMetaInfoProvider  = PowerMockito.mock(EntityMetaInfoProvider.class);
+        EntityMetaInfo               aMetaInfo          = PowerMockito.mock(EntityMetaInfo.class);
+        Row                          aMeta              = PowerMockito.mock(Row.class);
+        IDBBackendQuery              iQuery             = PowerMockito.mock(IDBBackendQuery.class);
+        ISqlGenerator.EStatementType eSqlFunc           = ISqlGenerator.EStatementType.E_CREATE_TABLE;
+        PreparedStatement            aStatement1        = PowerMockito.mock(PreparedStatement.class);
+        PreparedStatement            aStatement2        = PowerMockito.mock(PreparedStatement.class);
+        String                       sStatementId       = aSqlCache.buildCacheId(eSqlFunc, aMeta, iQuery);
 
         // simulate ...
         // - a valid working connection
@@ -120,11 +125,16 @@ public class SqlProviderTest
         PowerMockito.when(aMeta.listColumns()      ).thenReturn(new Vector< String >().iterator());
         
         PowerMockito.when(aMetaInfo.getSchema()).thenReturn("test_schema");
+
+        PowerMockito.when(aMetaInfoProvider.getPersistenceUnit()).thenReturn(aPU);
         
         aSqlCache.put(sStatementId, aStatement1);
         
-        ObjectManipulation.setFieldValue (aSqlProvider, sConnectionMember, aConnection);
-        ObjectManipulation.setFieldValue (aSqlProvider, sCacheMember     , aSqlCache  );
+        ObjectManipulation.setFieldValue (aSqlProvider, sConnectionMember , aConnection );
+        ObjectManipulation.setFieldValue (aSqlProvider, sCacheMember      , aSqlCache   );
+        ObjectManipulation.setFieldValue (aSqlProvider, sEnableCacheMember, Boolean.TRUE);
+        
+        aSqlProvider.setEntityMetaInfoProvider(aMetaInfoProvider);
         
         // Method under test
         // Normal such method has to return our prepared statement 1 ...
