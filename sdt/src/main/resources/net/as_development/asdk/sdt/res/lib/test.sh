@@ -40,4 +40,4 @@ lib_exec_set_simulate true
 
 v_args="-o Dpkg::Options::=\"--force-confdef\""
 
-lib_apt_update_packages_by_name "open-xchange-documentconverter-api" "${v_args}"
+lib_apt_update_packages_by_name "foo" "${v_args}"

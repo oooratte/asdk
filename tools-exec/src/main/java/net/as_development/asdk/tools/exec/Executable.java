@@ -42,10 +42,6 @@ import org.apache.commons.lang3.Validate;
 import org.apache.commons.lang3.mutable.Mutable;
 import org.apache.commons.lang3.mutable.MutableObject;
 
-import com.jezhumble.javasysmon.JavaSysMon;
-import com.jezhumble.javasysmon.OsProcess;
-import com.jezhumble.javasysmon.ProcessInfo;
-
 import net.as_development.asdk.tools.exec.impl.ExecutableStreamReader;
 import net.as_development.asdk.tools.exec.impl.ExecutableWatch;
 import net.as_development.asdk.tools.exec.impl.GlobalPidProcessHandler;
@@ -100,6 +96,23 @@ public class Executable implements Runnable
     {
     	m_aStdErrForward = new PrintStream(aForward);
     }
+
+    //--------------------------------------------------------------------------
+    public StdIn getStdIn ()
+    	throws Exception
+	{
+    	if (m_aStdIn == null)
+    		m_aStdIn = new StdIn ();
+    	
+    	if (m_aStdIn.isBound())
+    		return m_aStdIn;
+    	
+    	if (m_aProcess == null)
+    		return m_aStdIn;
+
+    	m_aStdIn.bind(m_aProcess.getOutputStream());
+    	return m_aStdIn;
+	}
 
     //--------------------------------------------------------------------------
     /** clear list of all currently set command line arguments.
@@ -415,6 +428,9 @@ public class Executable implements Runnable
     
     //--------------------------------------------------------------------------
     private int m_nProcessPid = GlobalPidProcessHandler.INVALID_PID;
+    
+    //--------------------------------------------------------------------------
+    private StdIn m_aStdIn = null;
     
     //--------------------------------------------------------------------------
     private ExecutableStreamReader m_aStdOut = null;

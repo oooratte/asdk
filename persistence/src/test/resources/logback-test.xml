@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    This is free and unencumbered software released into the public domain.
+
+    Anyone is free to copy, modify, publish, use, compile, sell, or
+    distribute this software, either in source code form or as a compiled
+    binary, for any purpose, commercial or non-commercial, and by any
+    means.
+
+    In jurisdictions that recognize copyright laws, the author or authors
+    of this software dedicate any and all copyright interest in the
+    software to the public domain. We make this dedication for the benefit
+    of the public at large and to the detriment of our heirs and
+    successors. We intend this dedication to be an overt act of
+    relinquishment in perpetuity of all present and future rights to this
+    software under copyright law.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+    EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+    MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+    IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR
+    OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+    ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+    OTHER DEALINGS IN THE SOFTWARE.
+
+    For more information, please refer to <http://unlicense.org/>
+
+-->
+<configuration>
+
+<!-- load optional logback.xml from disc
+
+     An admin can override our logging configuration by placing a suitable logback.xml in $HOME.
+     
+     But for activating those new configuration he has to define a property CUSTOM_LOGGING
+     within that file.
+  -->
+
+    <property name ="CUSTOM_LOGGING"
+              value="false"
+    />
+    
+<!-- If no custom logging was defined ...
+     look for an user define logging configuration too (optional).
+     This can be used within a development environment ...
+  -->
+
+    <if condition='property("CUSTOM_LOGGING").equalsIgnoreCase("false")'>
+        <then>
+            <include file    ="${user.home}/logback-test.xml"
+                     optional="true"
+            />
+        </then>
+   </if>
+
+<!-- If no custom logging was defined at all ...
+     use default logging instead.
+  -->
+
+    <if condition='property("CUSTOM_LOGGING").equalsIgnoreCase("false")'>
+        <then>
+            <appender name ="STDOUT"
+                      class="ch.qos.logback.core.ConsoleAppender">
+                <encoder>
+                    <pattern>%X{PID} %date{"HH:mm:ss"} %.-1level [%5.5thread] %40.-40(%logger{0}.%method):%5.5line - %replace(%message){'\n', ' '}%n %exception{full}</pattern>
+                </encoder>
+            </appender>
+         
+            <root level="INFO">         
+                <appender-ref ref="STDOUT" />
+            </root> 
+        </then>
+   </if>
+
+</configuration>
