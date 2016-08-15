@@ -21,11 +21,14 @@
         <module>../pom-parent-nature-all</module>
 		<module>../pom-parent-nature-java</module>
 
+        <module>../bom-nature-java</module>
+
         <module>../tools-common</module>
         <module>../tools-test</module>
         <module>../tools-reflection</module>
         <module>../tools-commandline</module>
         <module>../tools-exec</module>
+        <module>../tools-usb-serial</module>
 
         <module>../service-env</module>
         <module>../distributed-cache</module>
@@ -33,6 +36,8 @@
         <module>../ssh</module>
         <module>../sdt</module>
         <module>../db-service</module>
+        <module>../persistence</module>
+        <module>../single-webapp-server</module>
 	</modules>
 
     <build>

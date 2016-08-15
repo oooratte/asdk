@@ -1,0 +1,49 @@
+<!-- ===============================================================
+     eval java nature
+  -->
+<project
+    xmlns             ="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi         ="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+                        http://maven.apache.org/maven-v4_0_0.xsd"
+>
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>net.as-development.asdk</groupId>
+        <artifactId>pom-parent-nature-java</artifactId>
+        <version>3.0.0-SNAPSHOT</version>
+        <relativePath>../pom-parent-nature-java</relativePath>
+    </parent>
+
+    <artifactId>${artifact-prefix}tools-jmx</artifactId>
+
+    <dependencies>
+    
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <scope>compile</scope>
+        </dependency>
+    
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-collections</groupId>
+            <artifactId>commons-collections</artifactId>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+            <scope>compile</scope>
+        </dependency>
+
+    </dependencies>
+
+</project>
