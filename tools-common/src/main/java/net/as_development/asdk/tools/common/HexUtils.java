@@ -160,4 +160,18 @@ public class HexUtils
 		}
 		return sString.toString ();
 	}
+
+	//-------------------------------------------------------------------------
+	public static int getHighByte(final int nByte)
+		throws Exception
+	{
+		return (nByte >> 8);
+	}
+
+	//-------------------------------------------------------------------------
+	public static int getLowByte(final int nByte)
+		throws Exception
+	{
+		return (nByte & 0xFF);
+	}
 }
