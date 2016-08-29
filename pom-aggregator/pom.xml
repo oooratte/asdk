@@ -37,6 +37,7 @@
         <module>../sdt</module>
         <module>../db-service</module>
         <module>../persistence</module>
+        <module>../jms-core</module>
         <module>../single-webapp-server</module>
 	</modules>
 
