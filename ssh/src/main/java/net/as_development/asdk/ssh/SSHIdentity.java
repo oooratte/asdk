@@ -96,7 +96,7 @@ public class SSHIdentity implements UserInfo
         {
             m_aKeyFile = new File (sFile);
             if ( ! m_aKeyFile.isFile())
-                throw new IllegalArgumentException ("Key file seems not to be a valid file.");
+                throw new IllegalArgumentException ("Key file '"+sFile+"' seems not to be a valid file.");
         }
     }
 

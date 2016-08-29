@@ -108,6 +108,9 @@
 	    <dependencies>
 	    
             <!-- dependencies : runtime -->
+            
+            <!-- apache commons -->
+            
 			<dependency>
 			    <groupId>org.apache.commons</groupId>
 			    <artifactId>commons-lang3</artifactId>
@@ -165,6 +168,8 @@
 			    <version>${version.commons.compress}</version>
 			</dependency>
 
+			<!-- hazelcast -->
+
 		    <dependency>
 			    <groupId>com.hazelcast</groupId>
 			    <artifactId>hazelcast</artifactId>
@@ -177,6 +182,8 @@
 			    <version>${version.hazelcast}</version>
 		    </dependency>
 
+            <!-- aspectj -->
+
             <dependency>
 	            <groupId>org.aspectj</groupId>
 	            <artifactId>aspectjrt</artifactId>
@@ -188,6 +195,8 @@
 	            <artifactId>aspectjweaver</artifactId>
                 <version>${version.aspectj}</version>
             </dependency>
+
+            <!-- slf4j -->
 
 			<dependency>
 			    <groupId>org.slf4j</groupId>
@@ -207,11 +216,15 @@
                 <version>${version.slf4j}</version>
             </dependency>
 
+            <!-- logback -->
+
 			<dependency>
 			    <groupId>ch.qos.logback</groupId>
 			    <artifactId>logback-classic</artifactId>
                 <version>${version.logback}</version>
 			</dependency>
+
+            <!-- aws -->
 
 	        <dependency>
 	            <groupId>com.amazonaws</groupId>
@@ -219,11 +232,15 @@
 	            <version>${version.aws.sdk}</version>
 	        </dependency>
 	
+	       <!-- mongodb -->
+	
 	        <dependency>
 	            <groupId>org.mongodb</groupId>
 	            <artifactId>mongo-java-driver</artifactId>
 	            <version>${version.mongodb}</version>
 	        </dependency>
+	        
+	        <!-- opencsv -->
 	        
 	        <dependency>
 	            <groupId>net.sf.opencsv</groupId>
@@ -231,11 +248,15 @@
 	            <version>${version.opencsv}</version>
 	        </dependency>
 	        
+	        <!-- derby db -->
+	        
 	        <dependency>
 	            <groupId>org.apache.derby</groupId>
 	            <artifactId>derby</artifactId>
 	            <version>${version.derby}</version>
 	        </dependency>
+
+            <!-- hsql db -->
 
 	        <dependency>
 	            <groupId>org.hsqldb</groupId>
@@ -243,11 +264,15 @@
 	            <version>${version.hsqldb}</version>
 	        </dependency>
 
+            <!-- h2 db -->
+
 			<dependency>
 			    <groupId>com.h2database</groupId>
 			    <artifactId>h2</artifactId>
 			    <version>${version.h2db}</version>
 			</dependency>
+	        
+	        <!-- mysql -->
 	        
 			<dependency>
 				<groupId>mysql</groupId>
@@ -255,17 +280,23 @@
 				<version>${version.mysql}</version>
 			</dependency>
             
+            <!-- jsch -->
+            
 			<dependency>
 			    <groupId>com.jcraft</groupId>
 			    <artifactId>jsch</artifactId>
 			    <version>${version.jsch}</version>
 			</dependency>
 			
+			<!-- reflections -->
+			
 			<dependency>
 			    <groupId>org.reflections</groupId>
 			    <artifactId>reflections</artifactId>
 			    <version>${version.reflections}</version>
 			</dependency>
+			
+			<!-- quartz -->
 			
 			<dependency>
 			    <groupId>org.quartz-scheduler</groupId>
@@ -278,6 +309,8 @@
 			    <artifactId>quartz-jobs</artifactId>
 			    <version>${version.quartz}</version>
 			</dependency>
+			
+			<!-- jetty -->
 			
 			<dependency>
 				<groupId>org.eclipse.jetty</groupId>
@@ -303,11 +336,58 @@
                 <version>${version.jetty}</version>
             </dependency>           
 
+            <!-- javasysmon -->
+
 	        <dependency>
 	            <groupId>com.outr.javasysmon</groupId>
 	            <artifactId>javasysmon_2.10</artifactId>
 	            <version>${version.javasysmon}</version>
 	        </dependency>
+	        
+	        <!-- activemq -->
+	        
+            <dependency>
+	            <groupId>org.apache.activemq</groupId>
+	            <artifactId>activemq-broker</artifactId>
+	            <version>${version.amq}</version>
+	            
+	            <exclusions>
+	                <exclusion>
+	                    <groupId>org.apache.activemq</groupId>
+	                    <artifactId>activemq-client</artifactId>
+	                </exclusion>
+	            </exclusions>
+	        </dependency>
+	
+	        <dependency>
+	            <groupId>org.apache.activemq</groupId>
+	            <artifactId>activemq-amqp</artifactId>
+	            <version>${version.amq}</version>
+	        </dependency>
+	
+	        <dependency>
+	            <groupId>org.apache.activemq</groupId>
+	            <artifactId>activemq-leveldb-store</artifactId>
+	            <version>${version.amq}</version>
+	        </dependency>
+	
+	        <dependency>
+	            <groupId>org.apache.activemq</groupId>
+	            <artifactId>activemq-kahadb-store</artifactId>
+	            <version>${version.amq}</version>
+	        </dependency>
+	
+	        <dependency>
+	            <groupId>org.apache.activemq</groupId>
+	            <artifactId>activemq-client</artifactId>
+	            <version>${version.amq}</version>
+	        </dependency>
+
+            <dependency>
+                <groupId>org.apache.activemq</groupId>
+                <artifactId>activemq-spring</artifactId>
+                <version>${version.amq}</version>
+            </dependency>
 
             <!-- dependencies : test env -->
 			<dependency>
