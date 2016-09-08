@@ -82,7 +82,7 @@
         <version.maven.plugin.shade>2.3</version.maven.plugin.shade>
         <version.maven.plugin.buildhelper>1.9</version.maven.plugin.buildhelper>
         <version.maven.plugin.eclipse>2.9</version.maven.plugin.eclipse>
-        <version.maven.plugin.license>2.11</version.maven.plugin.license>
+        <version.maven.plugin.license>3.0</version.maven.plugin.license>
         <version.maven.plugin.source>2.3</version.maven.plugin.source>
         <version.maven.plugin.javadoc>2.9.1</version.maven.plugin.javadoc>
         <version.maven.plugin.aspectj>1.6</version.maven.plugin.aspectj>
@@ -284,6 +284,9 @@
                    <header>../pom-parent-nature-all/src/license/license-header.txt</header>
                    <strictCheck>true</strictCheck>
                    <encoding>${generic.encoding}</encoding>
+                   <keywords>
+                       <keyword>unlicense.org</keyword>
+                   </keywords>
                    <excludes>
                         <exclude>**/src/license/license-header.txt</exclude>
                     </excludes>
