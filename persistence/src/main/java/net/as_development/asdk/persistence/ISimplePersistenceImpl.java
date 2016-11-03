@@ -24,66 +24,31 @@
  *
  * For more information, please refer to <http://unlicense.org/>
  */
-package test.net.as_development.asdk.persistence.impl;
+package net.as_development.asdk.persistence;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-
-import net.as_development.asdk.persistence.SimplePersistenceConfig;
-import net.as_development.asdk.persistence.impl.DiscPersistence;
-
 //=============================================================================
-public class DiscPersistenceTest
+public interface ISimplePersistenceImpl
 {
 	//-------------------------------------------------------------------------
-	@Before
-	public void setUp()
-		throws Exception
-	{
-	}
+	public void configure (final String... lConfig)
+		throws Exception;
+	
+	//-------------------------------------------------------------------------
+	public List< String > listKeys ()
+		throws Exception;
 
 	//-------------------------------------------------------------------------
-	@After
-	public void tearDown()
-		throws Exception
-	{
-	}
+	public void set (final Map< String, Object > lChanges)
+	    throws Exception;
 
 	//-------------------------------------------------------------------------
-	@Test
-	public void testInitialEmpty()
-		throws Exception
-	{
-		final DiscPersistence aDisc = new DiscPersistence ();
-		aDisc.configure(SimplePersistenceConfig.CFG_PERSISTENCE_SCOPE, "test-disc-persistence-initial-empty");
-
-		final List< String >  lKeys = aDisc.listKeys();
-		
-		Assert.assertNotNull ("testInitialEmpty [01] has not to be null", lKeys          );
-		Assert.assertTrue    ("testInitialEmpty [02] is not empty"      , lKeys.isEmpty());
-	}
+	public Object get (final String sKey)
+	    throws Exception;
 
 	//-------------------------------------------------------------------------
-	@Test
-	public void testSetGet()
-		throws Exception
-	{
-		final DiscPersistence aDisc = new DiscPersistence ();
-		aDisc.configure(SimplePersistenceConfig.CFG_PERSISTENCE_SCOPE, "test-disc-persistence-set-get");
-
-		final Map< String, Object > lChanges = new HashMap< String, Object > ();
-		lChanges.put ("1", "value-01");
-		lChanges.put ("2", "value-02");
-		
-		aDisc.set(lChanges);
-		
-		Assert.assertEquals ("testSetGetCommit [01] wrong value", "value-01", aDisc.get("1"));
-		Assert.assertEquals ("testSetGetCommit [02] wrong value", "value-02", aDisc.get("2"));
-	}
+	public void clear ()
+		throws Exception;
 }

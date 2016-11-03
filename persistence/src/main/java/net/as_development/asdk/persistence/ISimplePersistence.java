@@ -26,15 +26,11 @@
  */
 package net.as_development.asdk.persistence;
 
-import java.io.Serializable;
 import java.util.List;
 
 //=============================================================================
 public interface ISimplePersistence
 {
-	//-------------------------------------------------------------------------
-	public static final String CFG_PERSISTENCE_SCOPE = "persistence.scope";
-	
 	//-------------------------------------------------------------------------
 	public void configure (final String... lConfig)
 		throws Exception;
@@ -44,15 +40,19 @@ public interface ISimplePersistence
 		throws Exception;
 
 	//-------------------------------------------------------------------------
-	public < T extends Serializable > void set (final String sKey  ,
-			               					    final T      aValue)
+	public < T > void set (final String sKey  ,
+			               final T      aValue)
 	    throws Exception;
 
 	//-------------------------------------------------------------------------
-	public < T extends Serializable > T get (final String sKey)
+	public < T > T get (final String sKey)
 	    throws Exception;
 
 	//-------------------------------------------------------------------------
 	public void clear ()
+		throws Exception;
+
+	//-------------------------------------------------------------------------
+	public ISimplePersistence getSubset (final String sSubset)
 		throws Exception;
 }

@@ -26,64 +26,54 @@
  */
 package test.net.as_development.asdk.persistence.impl;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 
+import net.as_development.asdk.persistence.ISimplePersistence;
 import net.as_development.asdk.persistence.SimplePersistenceConfig;
-import net.as_development.asdk.persistence.impl.DiscPersistence;
+import net.as_development.asdk.persistence.impl.MemoryPersistence;
+import net.as_development.asdk.persistence.impl.SimplePersistenceImpl;
 
 //=============================================================================
-public class DiscPersistenceTest
+public class SimplePersistenceImplTest
 {
 	//-------------------------------------------------------------------------
-	@Before
-	public void setUp()
+	@Test
+	public void test()
 		throws Exception
 	{
-	}
+		final SimplePersistenceImpl aImpl = new SimplePersistenceImpl ();
+		aImpl.configure(SimplePersistenceConfig.CFG_PERSISTENCE_IMPL       , MemoryPersistence.class.getName(),
+						SimplePersistenceConfig.CFG_PERSISTENCE_AUTO_COMMIT, "true"                          );
 
-	//-------------------------------------------------------------------------
-	@After
-	public void tearDown()
-		throws Exception
-	{
+		aImpl.set("scope-01.key-1a", "value-01-a");
+		aImpl.set("scope-02.key-2a", "value-02-a");
+
+		System.err.println(aImpl.listKeys());
+		System.err.println(aImpl.get("scope-01.key-1a"));
+		System.err.println(aImpl.get("scope-02.key-2a"));
+		System.err.println(aImpl.get("key-1a"));
+		System.err.println(aImpl.get("key-2a"));
+
+		final ISimplePersistence aScope01 = aImpl.getSubset("scope-01");
+		System.err.println(aScope01.listKeys()   );
+		System.err.println(aScope01.get("key-1a"));
+		System.err.println(aScope01.get("key-2a"));
+
+		final ISimplePersistence aScope02 = aImpl.getSubset("scope-02");
+		System.err.println(aScope02.listKeys()   );
+		System.err.println(aScope02.get("key-1a"));
+		System.err.println(aScope02.get("key-2a"));
 	}
 
 	//-------------------------------------------------------------------------
 	@Test
-	public void testInitialEmpty()
+	public void testSimpleDefaults()
 		throws Exception
 	{
-		final DiscPersistence aDisc = new DiscPersistence ();
-		aDisc.configure(SimplePersistenceConfig.CFG_PERSISTENCE_SCOPE, "test-disc-persistence-initial-empty");
-
-		final List< String >  lKeys = aDisc.listKeys();
+		final SimplePersistenceImpl aImpl = new SimplePersistenceImpl ();
+		aImpl.configure(SimplePersistenceConfig.CFG_PERSISTENCE_IMPL       , MemoryPersistence.class.getName(),
+						SimplePersistenceConfig.CFG_PERSISTENCE_AUTO_COMMIT, "true"                          );
 		
-		Assert.assertNotNull ("testInitialEmpty [01] has not to be null", lKeys          );
-		Assert.assertTrue    ("testInitialEmpty [02] is not empty"      , lKeys.isEmpty());
-	}
-
-	//-------------------------------------------------------------------------
-	@Test
-	public void testSetGet()
-		throws Exception
-	{
-		final DiscPersistence aDisc = new DiscPersistence ();
-		aDisc.configure(SimplePersistenceConfig.CFG_PERSISTENCE_SCOPE, "test-disc-persistence-set-get");
-
-		final Map< String, Object > lChanges = new HashMap< String, Object > ();
-		lChanges.put ("1", "value-01");
-		lChanges.put ("2", "value-02");
-		
-		aDisc.set(lChanges);
-		
-		Assert.assertEquals ("testSetGetCommit [01] wrong value", "value-01", aDisc.get("1"));
-		Assert.assertEquals ("testSetGetCommit [02] wrong value", "value-02", aDisc.get("2"));
+		System.err.println(aImpl.setIf("foo", 0, 1));
 	}
 }

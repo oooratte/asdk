@@ -29,24 +29,21 @@ package net.as_development.asdk.persistence.impl;
 import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.apache.commons.collections.ListUtils;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 
-import net.as_development.asdk.persistence.ISimplePersistence;
-import net.as_development.asdk.persistence.ISimplePersistenceTransacted;
+import net.as_development.asdk.persistence.ISimplePersistenceImpl;
+import net.as_development.asdk.persistence.SimplePersistenceConfig;
 import net.as_development.asdk.tools.common.CollectionUtils;
+import net.as_development.asdk.tools.reflection.SerializationUtils;
 
 //=============================================================================
-public class DiscPersistence implements ISimplePersistenceTransacted
+public class DiscPersistence implements ISimplePersistenceImpl
 {
 	//-------------------------------------------------------------------------
 	public static final String ENCODING = "utf-8";
@@ -66,12 +63,12 @@ public class DiscPersistence implements ISimplePersistenceTransacted
 	{
 		final Map< String, String > aConfig = CollectionUtils.flat2MappedArguments(lConfig);
 
-		m_sScope = aConfig.get(ISimplePersistence.CFG_PERSISTENCE_SCOPE);
+		m_sScope = aConfig.get(SimplePersistenceConfig.CFG_PERSISTENCE_SCOPE);
 		
 		if (aConfig.containsKey(CFG_DATA_PATH))
 			m_sDataPath = aConfig.get(CFG_DATA_PATH);
 		
-		Validate.notEmpty (m_sScope, "Miss config item '"+ISimplePersistence.CFG_PERSISTENCE_SCOPE+"'.");
+		Validate.notEmpty (m_sScope, "Miss config item '"+SimplePersistenceConfig.CFG_PERSISTENCE_SCOPE+"'.");
 	}
 
 	//-------------------------------------------------------------------------
@@ -79,8 +76,7 @@ public class DiscPersistence implements ISimplePersistenceTransacted
 	public synchronized void clear ()
 		throws Exception
 	{
-		mem_Changes ().clear();
-		FileUtils.deleteQuietly(mem_KeyFile ());
+		FileUtils.deleteQuietly(mem_KeyFile  ());
 		FileUtils.deleteQuietly(mem_DataPath ());
 	}
 
@@ -101,60 +97,21 @@ public class DiscPersistence implements ISimplePersistenceTransacted
 	}
 
 	//-------------------------------------------------------------------------
-	@Override
-	public synchronized < T extends Serializable > void set(final String sKey  ,
-											   				final T      aValue)
-		throws Exception
-	{
-		mem_Changes ().put(sKey, aValue);
-	}
-
-	//-------------------------------------------------------------------------
 	@SuppressWarnings("unchecked")
 	@Override
-	public synchronized < T extends Serializable > T get(final String sKey)
+	public synchronized void set(final Map< String, Object > lChanges)
 		throws Exception
 	{
-		T aValue = (T) mem_Changes ().get(sKey);
-		if (aValue != null)
-			return aValue;
-		
-		final File aDataFile = impl_getFileForKey (sKey);
-		if (! aDataFile.isFile())
-			return null;
-		
-		final byte[] aDataBlob = FileUtils.readFileToByteArray(aDataFile);
-		aValue = (T) SerializationUtils.deserialize(aDataBlob);
-		
-		return aValue;
-	}
+		final File           aKeyFile        = mem_KeyFile ();
+		final List< String > lPersistentKeys = listKeys    ();
+		final List< String > lChangedKeys    = new ArrayList< String >(lChanges.keySet());
+		final List< String > lAllKeys        = ListUtils.sum(lPersistentKeys, lChangedKeys);
 
-	//-------------------------------------------------------------------------
-	@Override
-	public synchronized void begin()
-		throws Exception
-	{
-	}
-
-	//-------------------------------------------------------------------------
-	@SuppressWarnings("unchecked")
-	@Override
-	public synchronized void commit()
-		throws Exception
-	{
-		final File                                      aKeyFile        = mem_KeyFile ();
-		final Map< String, Serializable >               lChanges        = mem_Changes ();
-		final Iterator< Entry< String, Serializable > > rChanges        = lChanges.entrySet().iterator();
-		final List< String >                            lPersistentKeys = listKeys    ();
-		final List< String >                            lChangedKeys    = new ArrayList< String > (lChanges.keySet());
-		final List< String > 							lAllKeys        = ListUtils.sum(lPersistentKeys, lChangedKeys);
-		
-		while (rChanges.hasNext())
+		for (final String sChangedKey : lChangedKeys)
 		{
-			final Entry< String, Serializable > aChange = rChanges.next    ();
-			final String                        sKey    = aChange .getKey  ();
-			final Serializable                  aValue  = aChange .getValue();
-			final File                          aFile   = impl_getFileForKey (sKey);
+			final String sKey   = sChangedKey;
+			final Object aValue = lChanges.get(sKey);
+			final File   aFile  = impl_getFileForKey (sKey);
 		
 			if (aValue == null)
 			{
@@ -163,22 +120,27 @@ public class DiscPersistence implements ISimplePersistenceTransacted
 			}
 			else
 			{
-				final byte[] aDataBlob = SerializationUtils.serialize(aValue);
-				FileUtils.writeByteArrayToFile(aFile, aDataBlob);
+				final String sDataBlob = SerializationUtils.mapObject2String((Serializable)aValue);
+				FileUtils.writeStringToFile(aFile, sDataBlob);
 			}
 		}
 
 		FileUtils.writeLines(aKeyFile, ENCODING, lAllKeys, false);
-		
-		m_lChanges = null;
 	}
 
 	//-------------------------------------------------------------------------
 	@Override
-	public synchronized void rollback()
+	public synchronized Object get(final String sKey)
 		throws Exception
 	{
-		m_lChanges = null;
+		final File aDataFile = impl_getFileForKey (sKey);
+		if (! aDataFile.isFile())
+			return null;
+		
+		final String sDataBlob = FileUtils.readFileToString (aDataFile);
+		final Object aValue    = SerializationUtils.mapString2Object(sDataBlob);
+		
+		return aValue;
 	}
 
 	//-------------------------------------------------------------------------
@@ -249,15 +211,6 @@ public class DiscPersistence implements ISimplePersistenceTransacted
 	}
 
 	//-------------------------------------------------------------------------
-	private Map< String, Serializable > mem_Changes ()
-		throws Exception
-	{
-		if (m_lChanges == null)
-			m_lChanges = new HashMap< String, Serializable > ();
-		return m_lChanges;
-	}
-
-	//-------------------------------------------------------------------------
 	private String m_sDataPath = null;
 	
 	//-------------------------------------------------------------------------
@@ -268,7 +221,4 @@ public class DiscPersistence implements ISimplePersistenceTransacted
 	
 	//-------------------------------------------------------------------------
 	private File m_aKeyFile = null;
-
-	//-------------------------------------------------------------------------
-	private Map< String, Serializable > m_lChanges = null;
 }

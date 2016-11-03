@@ -29,6 +29,7 @@ package test.net.as_development.asdk.persistence.real;
 import org.junit.Ignore;
 
 import net.as_development.asdk.persistence.ISimplePersistence;
+import net.as_development.asdk.persistence.SimplePersistenceConfig;
 import net.as_development.asdk.persistence.SimplePersistenceFactory;
 import net.as_development.asdk.persistence.impl.HZClient;
 
@@ -50,7 +51,7 @@ public class RealHZClient01
 	    throws Exception
 	{
 		final ISimplePersistence iClient = SimplePersistenceFactory.get(HZClient.class.getName (),
-				ISimplePersistence.CFG_PERSISTENCE_SCOPE,                  RealHZServer.PERSIST_SCOPE   ,
+				SimplePersistenceConfig.CFG_PERSISTENCE_SCOPE,                  RealHZServer.PERSIST_SCOPE   ,
 				HZClient.CFG_SERVER_HOST                ,                  RealHZServer.SERVER_HOST     ,
 				HZClient.CFG_SERVER_PORT                , Integer.toString(RealHZServer.SERVER_PORT    ),
 				HZClient.CFG_SERVER_ID                  ,                  RealHZServer.SERVER_ID       ,

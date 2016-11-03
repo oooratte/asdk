@@ -24,39 +24,19 @@
  *
  * For more information, please refer to <http://unlicense.org/>
  */
-package test.net.as_development.asdk.persistence.real;
-
-import org.junit.Ignore;
-
-import net.as_development.asdk.persistence.ISimplePersistence;
-import net.as_development.asdk.persistence.SimplePersistenceConfig;
-import net.as_development.asdk.persistence.SimplePersistenceFactory;
-import net.as_development.asdk.persistence.impl.HZClient;
+package net.as_development.asdk.persistence;
 
 //=============================================================================
-@Ignore
-public class RealHZClient02
+public interface ISimplePersistenceAtomic
 {
 	//-------------------------------------------------------------------------
-	public static void main (final String[] args)
-		throws Exception
-	{
-		final ISimplePersistence iClient02 = impl_newClient ();
-		//System.out.println ("[02] k.a = " + iClient02.get("k.a"));
-		
-		System.out.println (iClient02.listKeys());
-	}
+	public < T > boolean setIf (final String sKey          ,
+						        final T      aExpectedValue,
+			                    final T      aNewValue     )
+	    throws Exception;
 
 	//-------------------------------------------------------------------------
-	private static ISimplePersistence impl_newClient ()
-	    throws Exception
-	{
-		final ISimplePersistence iClient = SimplePersistenceFactory.get(HZClient.class.getName (),
-				SimplePersistenceConfig.CFG_PERSISTENCE_SCOPE,                  RealHZServer.PERSIST_SCOPE   ,
-				HZClient.CFG_SERVER_HOST                ,                  RealHZServer.SERVER_HOST     ,
-				HZClient.CFG_SERVER_PORT                , Integer.toString(RealHZServer.SERVER_PORT    ),
-				HZClient.CFG_SERVER_ID                  ,                  RealHZServer.SERVER_ID       ,
-				HZClient.CFG_SERVER_PASSWORD            ,                  RealHZServer.SERVER_PASSWORD);
-		return iClient;
-	}
+	public < T > T setAndGet (final String sKey  ,
+						      final T      aValue)
+	    throws Exception;
 }
