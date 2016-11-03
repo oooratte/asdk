@@ -24,10 +24,8 @@
  *
  * For more information, please refer to <http://unlicense.org/>
  */
-package net.as_development.asdk.persistence;
+package net.as_development.asdk.persistence.impl;
 
-import java.io.IOException;
-import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -37,49 +35,64 @@ import java.util.Vector;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
+import org.apache.commons.lang3.math.NumberUtils;
+
+import net.as_development.asdk.persistence.ISimplePersistence;
+import net.as_development.asdk.persistence.ISimplePersistenceAtomic;
+import net.as_development.asdk.persistence.ISimplePersistenceImpl;
+import net.as_development.asdk.persistence.ISimplePersistenceTransacted;
+import net.as_development.asdk.persistence.SimplePersistenceConfig;
+import net.as_development.asdk.tools.common.CollectionUtils;
+import net.as_development.asdk.tools.common.type.TypeConverter;
 
 //=============================================================================
-public class SimplePersistenceBeanBase
+public class SimplePersistenceImpl implements ISimplePersistenceTransacted
+											, ISimplePersistenceAtomic
 {
 	//-------------------------------------------------------------------------
 	public static final String SEPARATOR = ".";
 	
 	//-------------------------------------------------------------------------
-	public SimplePersistenceBeanBase ()
+	public SimplePersistenceImpl ()
 		throws Exception
 	{}
 
 	//-------------------------------------------------------------------------
-	public synchronized void defineSubset (final String sSet)
+	@Override
+	public void configure(final String... lConfig)
 		throws Exception
 	{
-		m_sSubset = sSet;
+		final Map< String, String > aConfig = CollectionUtils.flat2MappedArguments(lConfig);
+
+		// mandatory
+		final String sImpl = aConfig.get(SimplePersistenceConfig.CFG_PERSISTENCE_IMPL);
+		Validate.notEmpty (sImpl, "Miss config item '"+SimplePersistenceConfig.CFG_PERSISTENCE_IMPL+"'.");
+		final Class< ? > aImplClass = Class.forName(sImpl);
+		m_iPersistenceLayer = (ISimplePersistenceImpl) aImplClass.newInstance();
+
+		// optional
+		final String sScope   = aConfig.get(SimplePersistenceConfig.CFG_PERSISTENCE_SCOPE);
+		             m_sScope = StringUtils.defaultString(sScope, "");
+		
+		// optional
+ 		final String sAutoCommit = aConfig.get(SimplePersistenceConfig.CFG_PERSISTENCE_AUTO_COMMIT);
+ 		if ( ! StringUtils.isEmpty(sAutoCommit))
+ 			m_bAutoCommit = Boolean.parseBoolean(sAutoCommit);
 	}
 
 	//-------------------------------------------------------------------------
-	/** bind this bean to the persistence layer where it can read/write values from/to
-	 * 
-	 *  @param	iLayer [IN]
-	 *  		the persistence layer.
-	 */
-	public synchronized void bindToPeristenceLayer (final ISimplePersistenceTransacted iLayer)
+	@Override
+	public synchronized List< String > listKeys ()
 		throws Exception
 	{
-		m_iPersistenceLayer = iLayer;
-	}
-	
-	//-------------------------------------------------------------------------
-	public synchronized List< String > list ()
-		throws Exception
-	{
-		final List< String >        lList    = new Vector< String > ();
-		final Map< String, Object > lChanges = mem_Changes ();
+		final List< String >        lList        = new Vector< String > ();
+		final Map< String, Object > lChanges     = mem_Changes ();
+		final Iterator< String >    rChangedKeys = lChanges.keySet().iterator();
 
-		final Iterator< String > rChangedKeys = lChanges.keySet().iterator();
 		while (rChangedKeys.hasNext())
 		{
 			final String sFullKey = rChangedKeys.next();
-			if ( ! impl_isKeyInCurrentSubset (sFullKey))
+			if ( ! impl_isKeyInCurrentScope (sFullKey))
 				continue;
 			
 			final String sRelKey = impl_makeKeyRelative (sFullKey);
@@ -90,7 +103,7 @@ public class SimplePersistenceBeanBase
 		while (rPersistentKeys.hasNext())
 		{
 			final String sFullKey = rPersistentKeys.next();
-			if ( ! impl_isKeyInCurrentSubset (sFullKey))
+			if ( ! impl_isKeyInCurrentScope (sFullKey))
 				continue;
 			
 			final String sRelKey = impl_makeKeyRelative (sFullKey);
@@ -101,24 +114,31 @@ public class SimplePersistenceBeanBase
 	}
 	
 	//-------------------------------------------------------------------------
-	public synchronized < T extends Serializable > void set (final String sKey  ,
-			               					                 final T      aValue)
+	@Override
+	public synchronized < T > void set (final String sKey  ,
+			               			    final T      aValue)
 	    throws Exception
 	{
+		begin ();
+		
 		final Map< String, Object > lChanges = mem_Changes ();
 		final String                sFullKey = impl_makeKeyAbsolute (sKey);
 		lChanges.put (sFullKey, aValue);
+		
+		if (m_bAutoCommit)
+			commit ();
 	}
 
 	//-------------------------------------------------------------------------
 	@SuppressWarnings("unchecked")
-	public synchronized < T extends Serializable > T get (final String sKey)
+	@Override
+	public synchronized < T > T get (final String sKey)
 	    throws Exception
 	{
-		      T      aValue   = null;
-		final String sFullKey = impl_makeKeyAbsolute (sKey);
-		
+		      T                     aValue   = null;
+		final String                sFullKey = impl_makeKeyAbsolute (sKey);
 		final Map< String, Object > lChanges = mem_Changes ();
+
 		if (lChanges.containsKey(sFullKey))
 			aValue = (T) lChanges.get (sFullKey);
 		else
@@ -128,65 +148,47 @@ public class SimplePersistenceBeanBase
 	}
 
 	//-------------------------------------------------------------------------
-	public synchronized void flush ()
+	@Override
+	public synchronized void begin ()
 		throws Exception
 	{
-		final Map< String, Object > lChanges = mem_Changes ();
-		if (lChanges.isEmpty())
-			return;
-		
-		try
-		{
-			m_iPersistenceLayer.begin();
-			
-			final Iterator< Entry< String, Object > > rChanges = lChanges.entrySet().iterator();
-			while (rChanges.hasNext())
-			{
-				final Entry< String, Object > rChange  = rChanges.next     ();
-				final String                  sKey     = rChange .getKey   ();
-				final Object                  aValue   = rChange .getValue ();
-
-				m_iPersistenceLayer.set(sKey, (Serializable)aValue);
-			}
-			
-			m_iPersistenceLayer.commit();
-		}
-		catch (final Throwable ex)
-		{
-			m_iPersistenceLayer.rollback();
-			throw new IOException (ex);
-		}
-		
-		m_lChanges = null;
 	}
 
 	//-------------------------------------------------------------------------
+	@Override
+	public synchronized void commit ()
+		throws Exception
+	{
+		final Map< String, Object > lChanges = mem_Changes ();
+		if ( ! lChanges.isEmpty())
+			m_iPersistenceLayer.set(lChanges);
+		lChanges.clear();
+	}
+
+	//-------------------------------------------------------------------------
+	@Override
 	public synchronized void rollback ()
 		throws Exception
 	{
-		final Map< String, Object > lChanges = mem_Changes ();
-		lChanges.clear();
-		
-		m_iPersistenceLayer.rollback();
+		mem_Changes ().clear ();
 	}
 
 	//-------------------------------------------------------------------------
-	@SuppressWarnings("unchecked")
-	public synchronized <T extends SimplePersistenceBeanBase> T getSubset (final String     sSubset,
-																		   final Class< T > aType  )
+	@Override
+	public synchronized ISimplePersistence getSubset (final String sSubset)
 		throws Exception
 	{
-		Validate.isTrue(m_lChanges == null, "Cant create sub set if changes exists.");
+		Validate.isTrue(mem_Changes().isEmpty(), "Creating sub set not allowed if changes exists.");
 		
-		final SimplePersistenceBeanBase aSubset = aType.newInstance();
-		aSubset.bindToPeristenceLayer( m_iPersistenceLayer);
-		aSubset.defineSubset         ( sSubset            );
-		aSubset.m_lChanges           = m_lChanges          ;
+		final SimplePersistenceImpl aSubset = new SimplePersistenceImpl ();
+		aSubset.m_iPersistenceLayer = m_iPersistenceLayer;
+		aSubset.m_sScope            = impl_makeKeyAbsolute(sSubset);
 	
-		return (T) aSubset;
+		return aSubset;
 	}
 
 	//-------------------------------------------------------------------------
+	@Override
 	public synchronized void clear ()
 		throws Exception
 	{
@@ -194,6 +196,52 @@ public class SimplePersistenceBeanBase
 		
 		if (m_iPersistenceLayer != null)
 			m_iPersistenceLayer.clear();
+	}
+
+	//-------------------------------------------------------------------------
+	@SuppressWarnings("unchecked")
+	@Override
+	public synchronized < T > boolean setIf (final String sKey          ,
+							                 final T      aExpectedValue,
+							                 final T      aNewValue     )
+		throws Exception
+	{
+		// a) interface directly supported by impl layer -> call it
+		if (ISimplePersistenceAtomic.class.isAssignableFrom(m_iPersistenceLayer.getClass()))
+		{
+			final ISimplePersistenceAtomic iAtomic = (ISimplePersistenceAtomic) m_iPersistenceLayer;
+			final boolean                  bOK     = iAtomic.setIf(sKey, aExpectedValue, aNewValue);
+			return bOK;
+		}
+
+		// b) not supported by impl layer -> "simulate" it on top
+		final T aCurrentValue = (T) get (sKey);
+		if ( ! TypeConverter.equalsWithDefault(aCurrentValue, aExpectedValue))
+			return false;
+
+		set (sKey, aNewValue);
+		return true;
+	}
+
+	//-------------------------------------------------------------------------
+	@SuppressWarnings("unchecked")
+	@Override
+	public synchronized < T > T setAndGet(final String sKey  ,
+										  final T      aValue)
+		throws Exception
+	{
+		// a) interface directly supported by impl layer -> call it
+		if (ISimplePersistenceAtomic.class.isAssignableFrom(m_iPersistenceLayer.getClass()))
+			{
+			final ISimplePersistenceAtomic iAtomic   = (ISimplePersistenceAtomic) m_iPersistenceLayer;
+			final T                        aOldValue = (T) iAtomic.setAndGet(sKey, aValue);
+			return aOldValue;
+		}
+
+		// b) not supported by impl layer -> "simulate" it on top
+		final T aCurrentValue = (T) get (sKey);
+		set (sKey, aValue);
+		return aCurrentValue;
 	}
 
 	//-------------------------------------------------------------------------
@@ -212,8 +260,8 @@ public class SimplePersistenceBeanBase
 		final Iterator< String > rKeys = m_iPersistenceLayer.listKeys().iterator();
 		while (rKeys.hasNext())
 		{
-			final String sKey   = rKeys.next();
-			if ( ! impl_isKeyInCurrentSubset (sKey))
+			final String sKey = rKeys.next();
+			if ( ! impl_isKeyInCurrentScope (sKey))
 				continue;
 			
 			final Object aValue = m_iPersistenceLayer .get (sKey);
@@ -232,7 +280,7 @@ public class SimplePersistenceBeanBase
 			final String                  sKey     = rChange .getKey   ();
 			final Object                  aValue   = rChange .getValue ();
 
-			if ( ! impl_isKeyInCurrentSubset (sKey))
+			if ( ! impl_isKeyInCurrentScope (sKey))
 				continue;
 
 			sDump.append ("['"+sKey+"'] = '"+aValue+"'\n");
@@ -245,11 +293,11 @@ public class SimplePersistenceBeanBase
 	private String impl_makeKeyAbsolute (final String sRelKey)
 		throws Exception
 	{
-		if (StringUtils.isEmpty(m_sSubset))
+		if (StringUtils.isEmpty(m_sScope))
 			return sRelKey;
 		
 		final StringBuffer sFullKey = new StringBuffer (256);
-		sFullKey.append (m_sSubset);
+		sFullKey.append (m_sScope);
 		sFullKey.append (SEPARATOR);
 		sFullKey.append (sRelKey  );
 		return sFullKey.toString ();
@@ -259,20 +307,20 @@ public class SimplePersistenceBeanBase
 	private String impl_makeKeyRelative (final String sAbsKey)
 		throws Exception
 	{
-		if (StringUtils.isEmpty(m_sSubset))
+		if (StringUtils.isEmpty(m_sScope))
 			return sAbsKey;
 		
-		final String sRelKey = StringUtils.substringAfter(sAbsKey, m_sSubset+SEPARATOR);
+		final String sRelKey = StringUtils.substringAfter(sAbsKey, m_sScope+SEPARATOR);
 		return sRelKey;
 	}
 
 	//-------------------------------------------------------------------------
-	private boolean impl_isKeyInCurrentSubset (final String sKey)
+	private boolean impl_isKeyInCurrentScope (final String sKey)
 		throws Exception
 	{
 		final boolean bIs = (
-							 (StringUtils.isEmpty   (m_sSubset          )) ||
-							 (StringUtils.startsWith(sKey    , m_sSubset))
+							 (StringUtils.isEmpty   (m_sScope          )) ||
+							 (StringUtils.startsWith(sKey    , m_sScope))
 							);
 		return bIs;
 	}
@@ -287,11 +335,14 @@ public class SimplePersistenceBeanBase
 	}
 
 	//-------------------------------------------------------------------------
-	private ISimplePersistenceTransacted m_iPersistenceLayer = null;
+	private ISimplePersistenceImpl m_iPersistenceLayer = null;
 
 	//-------------------------------------------------------------------------
-	private String m_sSubset = null;
+	private String m_sScope = "";
 	
+	//-------------------------------------------------------------------------
+	private boolean m_bAutoCommit = true;
+
 	//-------------------------------------------------------------------------
 	private Map< String, Object > m_lChanges = null;
 }

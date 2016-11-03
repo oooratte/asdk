@@ -31,6 +31,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Vector;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -45,17 +46,14 @@ import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IAtomicReference;
 import com.hazelcast.core.IMap;
 import com.hazelcast.instance.GroupProperties;
-import com.hazelcast.transaction.TransactionContext;
-import com.hazelcast.transaction.TransactionOptions;
-import com.hazelcast.transaction.TransactionOptions.TransactionType;
 
-import net.as_development.asdk.persistence.ISimplePersistence;
-import net.as_development.asdk.persistence.ISimplePersistenceTransacted;
+import net.as_development.asdk.persistence.ISimplePersistenceImpl;
+import net.as_development.asdk.persistence.SimplePersistenceConfig;
 import net.as_development.asdk.tools.common.CollectionUtils;
 import net.as_development.asdk.tools.reflection.SerializationUtils;
 
 //=============================================================================
-public class HZClient implements ISimplePersistenceTransacted
+public class HZClient implements ISimplePersistenceImpl
 {
 	//-------------------------------------------------------------------------
 	public static final String CFG_SERVER_HOST     = "server.host"    ;
@@ -79,8 +77,8 @@ public class HZClient implements ISimplePersistenceTransacted
 	{
 		m_lConfig = CollectionUtils.flat2MappedArguments(lConfig);
 		
-		final String sScope = m_lConfig.get(ISimplePersistence.CFG_PERSISTENCE_SCOPE);
-		Validate.notEmpty (sScope, "Miss config item '"+ISimplePersistence.CFG_PERSISTENCE_SCOPE+"'.");
+		final String sScope = m_lConfig.get(SimplePersistenceConfig.CFG_PERSISTENCE_SCOPE);
+		Validate.notEmpty (sScope, "Miss config item '"+SimplePersistenceConfig.CFG_PERSISTENCE_SCOPE+"'.");
 		m_sScope = new AtomicReference< String > (sScope);
 
 		final String sStoreType = m_lConfig.get(HZClient.CFG_STORE_TYPE);
@@ -125,79 +123,85 @@ public class HZClient implements ISimplePersistenceTransacted
 
 	//-------------------------------------------------------------------------
 	@Override
-	public /*no synchronized*/ < T extends Serializable > void set (final String sKey  ,
-			                                                        final T      aValue)
+	public /*no synchronized*/ void set (final Map< String, Object > lChanges)
 	    throws Exception
 	{
 		final EHZStoreType eStoreType = m_eStoreType.get();
 
-		if (eStoreType == EHZStoreType.E_MAP)
-			impl_setOnMAP (sKey, aValue);
-		else
-		if (eStoreType == EHZStoreType.E_DISTRIBUTED_OBJECT)
-			impl_setOnREF (sKey, aValue);
-		else
-			throw new UnsupportedOperationException ("No support for '"+eStoreType+"' implemented yet.");
+		final Iterator< Entry< String, Object > > rChanges = lChanges.entrySet().iterator();
+		while (rChanges.hasNext())
+		{
+			final Entry< String, Object > aChange = rChanges.next    ();
+			final String                        sKey    = aChange .getKey  ();
+			final Object                  aValue  = aChange .getValue();
+			
+			if (eStoreType == EHZStoreType.E_MAP)
+				impl_setOnMAP (sKey, aValue);
+			else
+			if (eStoreType == EHZStoreType.E_DISTRIBUTED_OBJECT)
+				impl_setOnREF (sKey, aValue);
+			else
+				throw new UnsupportedOperationException ("No support for '"+eStoreType+"' implemented yet.");
+		}
 	}
 	
 	//-------------------------------------------------------------------------
 	@Override
-	@SuppressWarnings("unchecked")
-	public /*no synchronized*/ < T extends Serializable > T get (final String sKey)
+	public /*no synchronized*/ Object get (final String sKey)
 	    throws Exception
 	{
 		final EHZStoreType eStoreType = m_eStoreType.get();
-		      T            aValue     = null;
+		      Object aValue     = null;
 
 		if (eStoreType == EHZStoreType.E_MAP)
-			aValue = (T) impl_getOnMAP (sKey);
+			aValue = impl_getOnMAP (sKey);
 		else
 		if (eStoreType == EHZStoreType.E_DISTRIBUTED_OBJECT)
-			aValue = (T) impl_getOnREF (sKey);
+			aValue = impl_getOnREF (sKey);
 		else
 			throw new UnsupportedOperationException ("No support for '"+eStoreType+"' implemented yet.");
 		
 		return aValue;
 	}
 	
-	//-------------------------------------------------------------------------
-	@Override
-	public synchronized void begin ()
-		throws Exception
-	{
-		if (m_aTransaction != null)
-			return;
-
-		final FailureAwareHZClient aCore        = mem_Core ();
-		final TransactionOptions   aOption      = new TransactionOptions()
-	                      							.setTransactionType(TransactionType.LOCAL);
-		final TransactionContext   aTransaction = aCore.newTransactionContext(aOption);
-
-		aTransaction.beginTransaction();
-		m_aTransaction = aTransaction;
-	}
-
-	//-------------------------------------------------------------------------
-	@Override
-	public synchronized void commit ()
-		throws Exception
-	{
-		Validate.notNull(m_aTransaction, "No transaction started. Commit not possible.");
-
-		m_aTransaction.commitTransaction();
-		m_aTransaction = null;
-	}
-
-	//-------------------------------------------------------------------------
-	@Override
-	public synchronized void rollback ()
-		throws Exception
-	{
-		Validate.notNull(m_aTransaction, "No transaction started. Rollback not possible.");
-
-		m_aTransaction.rollbackTransaction();
-		m_aTransaction = null;
-	}
+//	//-------------------------------------------------------------------------
+//	@Override
+//	public synchronized void begin ()
+//		throws Exception
+//	{
+//		if (m_aTransaction != null)
+//			return;
+//
+//		final FailureAwareHZClient aCore        = mem_Core ();
+//		final TransactionOptions   aOption      = new TransactionOptions()
+//	                      							.setTransactionType(TransactionType.LOCAL);
+//		final TransactionContext   aTransaction = aCore.newTransactionContext(aOption);
+//
+//		aTransaction.beginTransaction();
+//		m_aTransaction = aTransaction;
+//	}
+//
+//	//-------------------------------------------------------------------------
+//	@Override
+//	public synchronized void commit ()
+//		throws Exception
+//	{
+//		Validate.notNull(m_aTransaction, "No transaction started. Commit not possible.");
+//
+//		m_aTransaction.commitTransaction();
+//		m_aTransaction = null;
+//	}
+//
+//	//-------------------------------------------------------------------------
+//	@Override
+//	public synchronized void rollback ()
+//		throws Exception
+//	{
+//		Validate.notNull(m_aTransaction, "No transaction started. Rollback not possible.");
+//
+//		m_aTransaction.rollbackTransaction();
+//		m_aTransaction = null;
+//	}
 	
 	//-------------------------------------------------------------------------
 	private synchronized List< String > impl_listKeysOnMAP ()
@@ -250,8 +254,8 @@ public class HZClient implements ISimplePersistenceTransacted
 	}
 
 	//-------------------------------------------------------------------------
-	private synchronized < T extends Serializable > void impl_setOnMAP (final String sKey  ,
-																	    final T      aValue)
+	private synchronized void impl_setOnMAP (final String sKey  ,
+											 final Object aValue)
 	    throws Exception
 	{
 		final IMap< Object, Object > aMap = mem_Map();
@@ -262,14 +266,14 @@ public class HZClient implements ISimplePersistenceTransacted
 		}
 		else
 		{
-			final String sValue = SerializationUtils.mapObject2String(aValue);
+			final String sValue = SerializationUtils.mapObject2String((Serializable)aValue);
 			aMap.put(sKey, sValue);
 		}
 	}
 
 	//-------------------------------------------------------------------------
-	private synchronized < T extends Serializable > void impl_setOnREF (final String sKey  ,
-												                        final T      aValue)
+	private synchronized void impl_setOnREF (final String sKey  ,
+											 final Object aValue)
 		throws Exception
 	{
 		final FailureAwareHZClient                      aCore = mem_Core ();
@@ -289,31 +293,31 @@ public class HZClient implements ISimplePersistenceTransacted
 				lRefs.put(sKey, aRef);
 			}
 
-			final String sValue = SerializationUtils.mapObject2String(aValue);
+			final String sValue = SerializationUtils.mapObject2String((Serializable)aValue);
 			aRef.set ((Object)sValue);
 		}
 	}
 
 	//-------------------------------------------------------------------------
 	@SuppressWarnings("unchecked")
-	private synchronized < T extends Serializable > T impl_getOnMAP (final String sKey)
+	private synchronized Object impl_getOnMAP (final String sKey)
 	    throws Exception
 	{
 		final IMap< Object, Object > aMap   = mem_Map ();
 		      String                 sValue = null; 
-		      T                      aValue = null;
+		      Object           aValue = null;
 		
 		if (aMap.containsKey(sKey))
 			sValue = (String) aMap.get (sKey);
 		
-		aValue = (T) SerializationUtils.mapString2Object (sValue);
+		aValue = SerializationUtils.mapString2Object (sValue);
 		
 		return aValue;
 	}
 	
 	//-------------------------------------------------------------------------
 	@SuppressWarnings("unchecked")
-	private synchronized < T extends Serializable > T impl_getOnREF (final String sKey)
+	private synchronized Object impl_getOnREF (final String sKey)
 	    throws Exception
 	{
 		final FailureAwareHZClient                      aCore = mem_Core ();
@@ -330,10 +334,23 @@ public class HZClient implements ISimplePersistenceTransacted
 		if (aRef != null)
 			sValue = (String) aRef.get();
 		
-		T aValue = (T) SerializationUtils.mapString2Object (sValue);
+		final Object aValue = SerializationUtils.mapString2Object (sValue);
 		return aValue;
 	}
 	
+	//-------------------------------------------------------------------------
+	private String impl_makeKeyRelative (final String sAbsKey)
+		throws Exception
+	{
+		final String sScope = m_sScope.get ();
+
+		if (StringUtils.isEmpty(sScope))
+			return sAbsKey;
+		
+		final String sRelKey = StringUtils.substringAfter(sAbsKey, sScope);
+		return sRelKey;
+	}
+
 	//-------------------------------------------------------------------------
 	private ClientConfig impl_configClientStatic ()
 		throws Exception
@@ -429,8 +446,8 @@ public class HZClient implements ISimplePersistenceTransacted
 	//-------------------------------------------------------------------------
 	private FailureAwareHZClient m_aCore = null;
 
-	//-------------------------------------------------------------------------
-	private TransactionContext m_aTransaction = null;
+//	//-------------------------------------------------------------------------
+//	private TransactionContext m_aTransaction = null;
 	
 	//-------------------------------------------------------------------------
 	private AtomicReference< String > m_sScope = null;

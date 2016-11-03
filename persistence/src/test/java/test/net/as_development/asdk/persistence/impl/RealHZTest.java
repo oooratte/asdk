@@ -37,6 +37,7 @@ import org.junit.Test;
 
 import net.as_development.asdk.persistence.ISimplePersistence;
 import net.as_development.asdk.persistence.ISimplePersistenceTransacted;
+import net.as_development.asdk.persistence.SimplePersistenceConfig;
 import net.as_development.asdk.persistence.SimplePersistenceFactory;
 import net.as_development.asdk.persistence.impl.EHZStoreType;
 import net.as_development.asdk.persistence.impl.HZClient;
@@ -171,7 +172,7 @@ public class RealHZTest
 	    throws Exception
 	{
 		final ISimplePersistenceTransacted iClient = SimplePersistenceFactory.get(HZClient.class.getName (),
-				ISimplePersistence.CFG_PERSISTENCE_SCOPE,                  PERSIST_SCOPE   ,
+				SimplePersistenceConfig.CFG_PERSISTENCE_SCOPE,                  PERSIST_SCOPE   ,
 				HZClient.CFG_SERVER_HOST                ,                  SERVER_HOST     ,
 				HZClient.CFG_SERVER_PORT                , Integer.toString(SERVER_PORT    ),
 				HZClient.CFG_SERVER_ID                  ,                  SERVER_ID       ,

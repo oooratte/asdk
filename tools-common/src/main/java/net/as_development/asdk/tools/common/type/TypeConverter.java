@@ -37,6 +37,18 @@ public class TypeConverter
 	{}
 
 	//-------------------------------------------------------------------------
+	public static <T> String toString (final T aValue)
+	    throws Exception
+	{
+		if (aValue == null)
+			return null;
+
+		final Class< ? > aType   = aValue.getClass();
+		final String     sString = toString (aValue, aType);
+		return sString;
+	}
+
+	//-------------------------------------------------------------------------
 	public static <T> String toString (final T          aValue,
 								       final Class< ? > aType )
 	    throws Exception
@@ -189,5 +201,55 @@ public class TypeConverter
 		final Object aMappedValue = TypeConverter.fromString (sTempValue, aTargetType);
 		
 		return (T) aMappedValue;
+	}
+
+	//-------------------------------------------------------------------------
+	@SuppressWarnings("unchecked")
+	public static < T > boolean equalsWithDefault (final T aValue1,
+									               final T aValue2)
+	    throws Exception
+	{
+		if (
+			(aValue1 == null) &&
+			(aValue2 == null)
+		   )
+		{
+			return true;
+		}
+		
+		if (
+			(aValue1 != null) &&
+			(aValue2 != null)
+	       )
+		{
+			return aValue1.equals(aValue2);
+		}
+
+		T aValue   = null;
+		T aDefault = null;
+		
+		if (
+			(aValue1 != null) &&
+			(aValue2 == null)
+	       )
+		{
+			aValue = aValue1;
+		}
+		else
+		{
+			aValue = aValue2;
+		}
+		
+		final Class< T > aType = (Class< T >) aValue.getClass();
+
+		if (Number.class.isAssignableFrom(aType))
+			aDefault = (T)(Number)0;
+		else
+		if (String.class.isAssignableFrom(aType))
+			aDefault = (T)(String)"";
+		else
+			throw new UnsupportedOperationException ("No support for type '"+aType+"' implemented yet.");
+		
+		return aValue.equals(aDefault);
 	}
 }
