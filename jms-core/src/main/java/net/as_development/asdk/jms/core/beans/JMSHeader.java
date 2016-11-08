@@ -52,7 +52,7 @@ public @interface JMSHeader
 	public static final String JMSHEADER_PREFIX_CUSTOM = "jms"+SEPARATOR+"custom";
 	
 	//-------------------------------------------------------------------------
-	/** the name of the JMS header where the field has to be assigned from/to.
+	/** @return the name of the JMS header where the field has to be assigned from/to.
 	 */
 	public String name ();
 }

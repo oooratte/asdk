@@ -44,7 +44,7 @@ public @interface JMSProperty
 	public static final String SEPARATOR = "_";
 	
 	//-------------------------------------------------------------------------
-	/** the name of the JMS property where the field has to be assigned from/to.
+	/** @return the name of the JMS property where the field has to be assigned from/to.
 	 */
 	public String name ();
 }
