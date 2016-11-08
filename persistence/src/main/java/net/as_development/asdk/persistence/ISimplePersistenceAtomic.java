@@ -39,4 +39,14 @@ public interface ISimplePersistenceAtomic
 	public < T > T setAndGet (final String sKey  ,
 						      final T      aValue)
 	    throws Exception;
+
+	//-------------------------------------------------------------------------
+	public < T extends Number > T inc (final String sKey      ,
+									   final T      nIncrement)
+		throws Exception;
+
+	//-------------------------------------------------------------------------
+	public < T extends Number > T dec (final String sKey      ,
+			   						   final T      nDecrement)
+		throws Exception;
 }

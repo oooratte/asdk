@@ -49,7 +49,7 @@ import net.as_development.asdk.tools.common.CollectionUtils;
  *  it can be used as load balancer mapping new or sticky requests
  *  to queues.
  * 
- *  @note	These manager handle queue names only !
+ *  Note:	These manager handle queue names only !
  *  		It's not (directly) bound to queues ...
  */
 public class JMSQueueManager

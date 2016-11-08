@@ -35,7 +35,6 @@ import java.util.Vector;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
-import org.apache.commons.lang3.math.NumberUtils;
 
 import net.as_development.asdk.persistence.ISimplePersistence;
 import net.as_development.asdk.persistence.ISimplePersistenceAtomic;
@@ -43,6 +42,7 @@ import net.as_development.asdk.persistence.ISimplePersistenceImpl;
 import net.as_development.asdk.persistence.ISimplePersistenceTransacted;
 import net.as_development.asdk.persistence.SimplePersistenceConfig;
 import net.as_development.asdk.tools.common.CollectionUtils;
+import net.as_development.asdk.tools.common.NumberUtils;
 import net.as_development.asdk.tools.common.type.TypeConverter;
 
 //=============================================================================
@@ -242,6 +242,54 @@ public class SimplePersistenceImpl implements ISimplePersistenceTransacted
 		final T aCurrentValue = (T) get (sKey);
 		set (sKey, aValue);
 		return aCurrentValue;
+	}
+
+	//-------------------------------------------------------------------------
+	@SuppressWarnings("unchecked")
+	public synchronized < T extends Number > T inc (final String sKey      ,
+			   										final T      nIncrement)
+		throws Exception
+	{
+		// a) interface directly supported by impl layer -> call it
+		if (ISimplePersistenceAtomic.class.isAssignableFrom(m_iPersistenceLayer.getClass()))
+		{
+			final ISimplePersistenceAtomic iAtomic   = (ISimplePersistenceAtomic) m_iPersistenceLayer;
+			final T                        aOldValue = (T) iAtomic.inc(sKey, nIncrement);
+			return aOldValue;
+		}
+
+		// b) not supported by impl layer -> "simulate" it on top
+		Number aCurrentValue = (T) get (sKey);
+			   aCurrentValue = NumberUtils.defaultNumber(aCurrentValue, nIncrement.getClass());
+		Number aNewValue     = NumberUtils.increment    (aCurrentValue, nIncrement           );
+
+		set (sKey, aNewValue);
+		
+		return (T) aCurrentValue;
+	}
+
+	//-------------------------------------------------------------------------
+	@SuppressWarnings("unchecked")
+	public synchronized < T extends Number > T dec (final String sKey      ,
+			   										final T      nDecrement)
+		throws Exception
+	{
+		// a) interface directly supported by impl layer -> call it
+		if (ISimplePersistenceAtomic.class.isAssignableFrom(m_iPersistenceLayer.getClass()))
+		{
+			final ISimplePersistenceAtomic iAtomic   = (ISimplePersistenceAtomic) m_iPersistenceLayer;
+			final T                        aOldValue = (T) iAtomic.dec(sKey, nDecrement);
+			return aOldValue;
+		}
+
+		// b) not supported by impl layer -> "simulate" it on top
+		Number aCurrentValue = (T) get (sKey);
+		       aCurrentValue = NumberUtils.defaultNumber(aCurrentValue, nDecrement.getClass());
+	    Number aNewValue     = NumberUtils.decrement    (aCurrentValue, nDecrement           );
+
+        set (sKey, aNewValue);
+	
+        return (T) aCurrentValue;
 	}
 
 	//-------------------------------------------------------------------------
