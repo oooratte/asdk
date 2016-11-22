@@ -32,6 +32,9 @@ set -e
 # validate if given variable is set - and exit with error code if not
 # (printing the given error message)
 #
+# Note : As a special feature the value of the might existing variable is checked
+#        against the string 'null'.
+#
 # @param    var [IN]
 #           the name of the variable to be checked
 #
@@ -52,6 +55,12 @@ function lib_validate_var_is_set ()
 #    echo "DBG : length = '${v_value_length}'"
 
     if [ -z "$v_check_value" ];
+    then
+        lib_log_error "${v_msg}"
+        exit 1
+    fi
+
+    if [ "$v_check_value" == "null" ];
     then
         lib_log_error "${v_msg}"
         exit 1

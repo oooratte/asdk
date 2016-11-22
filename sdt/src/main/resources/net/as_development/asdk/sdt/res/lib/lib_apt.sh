@@ -118,6 +118,18 @@ function lib_apt_remove_package_repo ()
 }
 
 #-----------------------------------------------------------------------------------------
+function lib_apt_remove_package_repo_server ()
+{
+    local v_repo_server="$1"
+    
+    lib_validate_var_is_set "v_repo_server" "Invalid argument 'repo_server'."
+
+    local v_pkg_registry_file="${SDT_PKG_REGISTRY}"
+
+    lib_fileutils_remove_text_from_file_if_exists "${v_pkg_registry_file}" "${v_repo_server}"
+}
+
+#-----------------------------------------------------------------------------------------
 function lib_apt_update_packages_by_name ()
 {
     local v_pkg_search="$1"

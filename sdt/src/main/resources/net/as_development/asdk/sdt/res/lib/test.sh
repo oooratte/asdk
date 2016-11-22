@@ -26,18 +26,14 @@
 # For more information, please refer to <http://unlicense.org/>
 #
 
+SDT_SCRIPT_ROOT=$WORKSPACE_HOME/asdk/sdt/src/main/resources/net/as_development/asdk/sdt/res
+SDT_LIB_DIR=$SDT_SCRIPT_ROOT/lib
+
+. $SDT_LIB_DIR/lib.sh
 
 set -e
 
-. ./lib_log.sh
-. ./lib_validate.sh
-. ./lib_fileutils.sh
-. ./lib_exec.sh
-. ./lib_apt.sh
-. ./lib_config.sh
-
 lib_exec_set_simulate true
 
-v_args="-o Dpkg::Options::=\"--force-confdef\""
-
-lib_apt_update_packages_by_name "foo" "${v_args}"
+foo=null
+lib_validate_var_is_set "foo" "miss foo"
