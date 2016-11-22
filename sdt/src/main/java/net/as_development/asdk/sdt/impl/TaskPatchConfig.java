@@ -68,7 +68,7 @@ public class TaskPatchConfig extends TaskBase
 	public void execute(final Node aNode)
 		throws Exception
 	{
-		System.out.println("patch config '"+m_sConfig+"' ...");
+		log(aNode, "patch config '"+m_sConfig+"' ...");
 
 		final String    sSDT_HOME    = SDTConst.DEFAULT_SDT_HOME;
 		final String    sSdtConfFile = SDT.defineSDTResource(sSDT_HOME, SDTConst.SDT_DIR_CONFIG, m_sConfig+".properties");
@@ -77,7 +77,7 @@ public class TaskPatchConfig extends TaskBase
 
 		SSHMacros.dumpToFile(aSSH, sSdtConfFile, sContent);
 
-		System.out.println("ok");
+		log(aNode, "ok");
 	}
 
     //--------------------------------------------------------------------------

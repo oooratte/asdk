@@ -65,7 +65,7 @@ public class TaskDirectCommand extends TaskBase
 	public void execute(final Node aNode)
 		throws Exception
 	{
-		System.out.println("execute direct command '"+m_sCommand+"' ...");
+		log(aNode, "execute direct command '"+m_sCommand+"' ...");
 
 		final boolean  bDebug    = aNode.accessSDT().isDebug();
 		final String   sSDT_HOME = SDTConst.DEFAULT_SDT_HOME;
@@ -85,7 +85,7 @@ public class TaskDirectCommand extends TaskBase
 		
 		SSHMacros.execScript(aSSH, sSdtSh, lArgs);
 
-		System.out.println("ok");
+		log(aNode, "ok");
 	}
 
     //--------------------------------------------------------------------------
