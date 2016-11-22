@@ -58,12 +58,12 @@ public class TaskPatchFramework extends TaskDeployFrameworkCore
 	public void execute(final Node aNode)
 		throws Exception
 	{
-		System.out.println("patch SDT framework ...");
+		log(aNode, "patch SDT framework ...");
 
 		final SSHServer aSSH = aNode.accessSSH();
 		uploadFwkParts(aSSH, m_sPatchResourcePackage, DEFAULT_SDT_HOME);
 
-		System.out.println("ok");
+		log(aNode, "ok");
 	}
 
     //--------------------------------------------------------------------------

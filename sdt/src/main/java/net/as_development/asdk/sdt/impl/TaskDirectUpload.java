@@ -85,7 +85,7 @@ public class TaskDirectUpload extends TaskBase
 	public void execute(final Node aNode)
 		throws Exception
 	{
-		System.out.println("execute direct upload of file '"+m_aTargetFile+"' ...");
+		log(aNode, "execute direct upload of file '"+m_aTargetFile+"' ...");
 
 		final SSHServer   aSSH          = aNode.accessSSH();
 		final String      sRemoteFile   = m_aTargetFile.getAbsolutePath();
@@ -103,7 +103,7 @@ public class TaskDirectUpload extends TaskBase
 			IOUtils.closeQuietly(aSourceStream);
 		}
 
-		System.out.println("ok");
+		log(aNode, "ok");
 	}
 	
     //--------------------------------------------------------------------------

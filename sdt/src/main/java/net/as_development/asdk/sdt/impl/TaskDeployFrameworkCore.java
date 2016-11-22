@@ -76,10 +76,14 @@ public class TaskDeployFrameworkCore extends TaskBase
 		   )
 			return;
 
+		log(aNode, "deploy framework core ...");
+
 		final String sThisPackage  = TaskDeployFrameworkCore.class.getPackage().getName();
 		final String sResPackage   = StringUtils.replace(sThisPackage, ".sdt.impl", ".sdt.res");
 		
 		uploadFwkParts (aSSH, sResPackage, sSDT_HOME);
+		
+		log (aNode, "ok");
 	}
 
 	//-------------------------------------------------------------------------

@@ -67,7 +67,7 @@ public class TaskDirectSDTFunction extends TaskBase
 	public void execute(final Node aNode)
 		throws Exception
 	{
-		System.out.println("execute direct SDT function '"+m_sFunction+"' ...");
+		log(aNode, "execute direct SDT function '"+m_sFunction+"' ...");
 
 		final SDT      aSDT      = aNode.accessSDT();
 		final boolean  bDebug    = aSDT.isDebug();
@@ -85,7 +85,7 @@ public class TaskDirectSDTFunction extends TaskBase
 		final SSHServer aSSH = aNode.accessSSH();
 		SSHMacros.execScript(aSSH, sSdtSh, lShArgs);
 
-		System.out.println("ok");
+		log(aNode, "ok");
 	}
 
     //--------------------------------------------------------------------------

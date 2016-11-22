@@ -67,7 +67,7 @@ public class TaskScriptlet extends TaskBase
 	public void execute(final Node aNode)
 		throws Exception
 	{
-		System.out.println("execute scriptlet '"+m_sScriptlet+"' ...");
+		log(aNode, "execute scriptlet '"+m_sScriptlet+"' ...");
 
 		final boolean  bDebug    = aNode.accessSDT().isDebug();
 		final String   sSDT_HOME = SDTConst.DEFAULT_SDT_HOME;
@@ -83,7 +83,7 @@ public class TaskScriptlet extends TaskBase
 		final SSHServer aSSH = aNode.accessSSH();
 		SSHMacros.execScript(aSSH, sSdtSh, lArgs);
 
-		System.out.println("ok");
+		log(aNode, "ok");
 	}
 
     //--------------------------------------------------------------------------

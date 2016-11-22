@@ -26,6 +26,8 @@
  */
 package net.as_development.asdk.sdt;
 
+import org.apache.commons.lang3.StringUtils;
+
 //=============================================================================
 /** This is the base class for all deployment tasks used within SDT.
  * 
@@ -62,4 +64,23 @@ public abstract class TaskBase
 	 */
 	public abstract void execute (final Node aNode)
 		throws Exception;
+
+	//-------------------------------------------------------------------------
+	protected void log (final Node   aNode   ,
+						final String sMessage)
+		throws Exception
+	{
+		final StringBuffer sLog = new StringBuffer (256);
+		if (aNode != null)
+		{
+			sLog.append("["          );
+			sLog.append(aNode.getId());
+			sLog.append("] : "       );
+		}
+		
+		if ( ! StringUtils.isEmpty(sMessage))
+			sLog.append(sMessage);
+		
+		System.out.println(sLog.toString ());
+	}
 }
