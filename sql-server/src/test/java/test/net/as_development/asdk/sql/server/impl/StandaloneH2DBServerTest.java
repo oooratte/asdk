@@ -30,12 +30,12 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import junit.framework.Assert;
@@ -45,6 +45,7 @@ import net.as_development.asdk.tools.test.TestUtils;
 //==============================================================================
 /**
  */
+@Ignore
 public class StandaloneH2DBServerTest
 {
     //--------------------------------------------------------------------------
