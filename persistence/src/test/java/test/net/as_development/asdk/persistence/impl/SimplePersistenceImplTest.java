@@ -32,6 +32,7 @@ import net.as_development.asdk.persistence.ISimplePersistence;
 import net.as_development.asdk.persistence.SimplePersistenceConfig;
 import net.as_development.asdk.persistence.impl.MemoryPersistence;
 import net.as_development.asdk.persistence.impl.SimplePersistenceImpl;
+import net.as_development.asdk.tools.common.NumberUtils;
 
 //=============================================================================
 public class SimplePersistenceImplTest
@@ -73,7 +74,8 @@ public class SimplePersistenceImplTest
 		final SimplePersistenceImpl aImpl = new SimplePersistenceImpl ();
 		aImpl.configure(SimplePersistenceConfig.CFG_PERSISTENCE_IMPL       , MemoryPersistence.class.getName(),
 						SimplePersistenceConfig.CFG_PERSISTENCE_AUTO_COMMIT, "true"                          );
-		
-		System.err.println(aImpl.setIf("foo", 0, 1));
+
+		aImpl.set("foo", "2");
+		System.err.println(aImpl.setIf("foo", "2", "1"));
 	}
 }
