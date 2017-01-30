@@ -73,11 +73,37 @@ public class DiscPersistence implements ISimplePersistenceImpl
 
 	//-------------------------------------------------------------------------
 	@Override
+	public synchronized ISimplePersistenceImpl getSubSet (final String sSubSet)
+		throws Exception
+	{
+		final DiscPersistence aSubSet = new DiscPersistence ();
+		aSubSet.m_aKeyFile  = m_aKeyFile ;
+		aSubSet.m_aDataDir  = m_aDataDir ;
+		aSubSet.m_sDataPath = m_sDataPath;
+		aSubSet.m_sScope    = m_sScope   ;
+		aSubSet.m_sSubSet   = KeyHelper.nameKey(m_sSubSet, sSubSet);
+		return aSubSet;
+	}
+
+	//-------------------------------------------------------------------------
+	@Override
 	public synchronized void clear ()
 		throws Exception
 	{
-		FileUtils.deleteQuietly(mem_KeyFile  ());
-		FileUtils.deleteQuietly(mem_DataPath ());
+		// a) no sub set ? -> remove root of all data
+		if (StringUtils.isEmpty(m_sSubSet))
+		{
+			FileUtils.deleteQuietly(mem_KeyFile  ());
+			FileUtils.deleteQuietly(mem_DataPath ());
+		}
+		
+		// b) sub set ? -> remove subset relevant data only
+		//    It's implemented by our wrapper SimplePersistenceImpl already ...
+		//    so it's not called under normal circumstances.
+		else
+		{
+			throw new UnsupportedOperationException ("Implemented by wrapper ?!");
+		}
 	}
 
 	//-------------------------------------------------------------------------
@@ -215,6 +241,9 @@ public class DiscPersistence implements ISimplePersistenceImpl
 	
 	//-------------------------------------------------------------------------
 	private String m_sScope = null;
+
+	//-------------------------------------------------------------------------
+	private String m_sSubSet = null;
 
 	//-------------------------------------------------------------------------
 	private File m_aDataDir = null;

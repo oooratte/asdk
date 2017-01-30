@@ -53,7 +53,7 @@ import net.as_development.asdk.tools.common.CollectionUtils;
 import net.as_development.asdk.tools.reflection.SerializationUtils;
 
 //=============================================================================
-public class HZClient implements ISimplePersistenceImpl
+public class HazelcastPersistence implements ISimplePersistenceImpl
 {
 	//-------------------------------------------------------------------------
 	public static final String CFG_SERVER_HOST     = "server.host"    ;
@@ -66,7 +66,7 @@ public class HZClient implements ISimplePersistenceImpl
 	public static EHZStoreType DEFAULT_HZ_STORE_TYPE = EHZStoreType.E_DISTRIBUTED_OBJECT;
 	
 	//-------------------------------------------------------------------------
-	public HZClient ()
+	public HazelcastPersistence ()
 	    throws Exception
 	{}
 
@@ -81,7 +81,7 @@ public class HZClient implements ISimplePersistenceImpl
 		Validate.notEmpty (sScope, "Miss config item '"+SimplePersistenceConfig.CFG_PERSISTENCE_SCOPE+"'.");
 		m_sScope = new AtomicReference< String > (sScope);
 
-		final String sStoreType = m_lConfig.get(HZClient.CFG_STORE_TYPE);
+		final String sStoreType = m_lConfig.get(HazelcastPersistence.CFG_STORE_TYPE);
 		if (StringUtils.isEmpty(sStoreType))
 			m_eStoreType = new AtomicReference< EHZStoreType > (DEFAULT_HZ_STORE_TYPE);
 		else
@@ -93,6 +93,20 @@ public class HZClient implements ISimplePersistenceImpl
 		// distributed data of other processes reach our own process ;-)
 		// TODO think about : do we need an explicit start/stop API ?
 		mem_Core ();
+	}
+
+	//-------------------------------------------------------------------------
+	@Override
+	public synchronized ISimplePersistenceImpl getSubSet (final String sSubSet)
+		throws Exception
+	{
+		final HazelcastPersistence aSubSet  = new HazelcastPersistence ();
+		aSubSet.m_aCore   = m_aCore  ;
+		aSubSet.m_lConfig = m_lConfig;
+		aSubSet.m_sScope    .set(m_sScope.get());
+		aSubSet.m_sSubSet   .set(KeyHelper.nameKey(m_sSubSet.get(), sSubSet));
+		aSubSet.m_eStoreType.set(m_eStoreType.get());
+		return aSubSet;
 	}
 
 	//-------------------------------------------------------------------------
@@ -132,7 +146,7 @@ public class HZClient implements ISimplePersistenceImpl
 		while (rChanges.hasNext())
 		{
 			final Entry< String, Object > aChange = rChanges.next    ();
-			final String                        sKey    = aChange .getKey  ();
+			final String                  sKey    = aChange .getKey  ();
 			final Object                  aValue  = aChange .getValue();
 			
 			if (eStoreType == EHZStoreType.E_MAP)
@@ -299,7 +313,6 @@ public class HZClient implements ISimplePersistenceImpl
 	}
 
 	//-------------------------------------------------------------------------
-	@SuppressWarnings("unchecked")
 	private synchronized Object impl_getOnMAP (final String sKey)
 	    throws Exception
 	{
@@ -316,7 +329,6 @@ public class HZClient implements ISimplePersistenceImpl
 	}
 	
 	//-------------------------------------------------------------------------
-	@SuppressWarnings("unchecked")
 	private synchronized Object impl_getOnREF (final String sKey)
 	    throws Exception
 	{
@@ -338,19 +350,6 @@ public class HZClient implements ISimplePersistenceImpl
 		return aValue;
 	}
 	
-	//-------------------------------------------------------------------------
-	private String impl_makeKeyRelative (final String sAbsKey)
-		throws Exception
-	{
-		final String sScope = m_sScope.get ();
-
-		if (StringUtils.isEmpty(sScope))
-			return sAbsKey;
-		
-		final String sRelKey = StringUtils.substringAfter(sAbsKey, sScope);
-		return sRelKey;
-	}
-
 	//-------------------------------------------------------------------------
 	private ClientConfig impl_configClientStatic ()
 		throws Exception
@@ -451,6 +450,9 @@ public class HZClient implements ISimplePersistenceImpl
 	
 	//-------------------------------------------------------------------------
 	private AtomicReference< String > m_sScope = null;
+
+	//-------------------------------------------------------------------------
+	private AtomicReference< String > m_sSubSet = null;
 
 	//-------------------------------------------------------------------------
 	private AtomicReference< EHZStoreType > m_eStoreType = null;

@@ -31,7 +31,7 @@ import org.junit.Ignore;
 import net.as_development.asdk.persistence.ISimplePersistence;
 import net.as_development.asdk.persistence.SimplePersistenceConfig;
 import net.as_development.asdk.persistence.SimplePersistenceFactory;
-import net.as_development.asdk.persistence.impl.HZClient;
+import net.as_development.asdk.persistence.impl.HazelcastPersistence;
 
 //=============================================================================
 @Ignore
@@ -51,12 +51,12 @@ public class RealHZClient02
 	private static ISimplePersistence impl_newClient ()
 	    throws Exception
 	{
-		final ISimplePersistence iClient = SimplePersistenceFactory.get(HZClient.class.getName (),
+		final ISimplePersistence iClient = SimplePersistenceFactory.get(HazelcastPersistence.class.getName (),
 				SimplePersistenceConfig.CFG_PERSISTENCE_SCOPE,                  RealHZServer.PERSIST_SCOPE   ,
-				HZClient.CFG_SERVER_HOST                ,                  RealHZServer.SERVER_HOST     ,
-				HZClient.CFG_SERVER_PORT                , Integer.toString(RealHZServer.SERVER_PORT    ),
-				HZClient.CFG_SERVER_ID                  ,                  RealHZServer.SERVER_ID       ,
-				HZClient.CFG_SERVER_PASSWORD            ,                  RealHZServer.SERVER_PASSWORD);
+				HazelcastPersistence.CFG_SERVER_HOST                ,                  RealHZServer.SERVER_HOST     ,
+				HazelcastPersistence.CFG_SERVER_PORT                , Integer.toString(RealHZServer.SERVER_PORT    ),
+				HazelcastPersistence.CFG_SERVER_ID                  ,                  RealHZServer.SERVER_ID       ,
+				HazelcastPersistence.CFG_SERVER_PASSWORD            ,                  RealHZServer.SERVER_PASSWORD);
 		return iClient;
 	}
 }

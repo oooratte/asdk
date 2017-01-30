@@ -27,11 +27,13 @@
 package net.as_development.asdk.persistence.impl;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
+
+import org.apache.commons.lang3.StringUtils;
 
 import net.as_development.asdk.persistence.ISimplePersistenceImpl;
 
@@ -56,10 +58,33 @@ public class MemoryPersistence implements ISimplePersistenceImpl
 
 	//-------------------------------------------------------------------------
 	@Override
+	public synchronized ISimplePersistenceImpl getSubSet (final String sSubSet)
+		throws Exception
+	{
+		final MemoryPersistence aSubSet = new MemoryPersistence ();
+		aSubSet.m_lData   = m_lData; // we can do that because we use ConcurrentHashMap !
+		aSubSet.m_sSubSet = KeyHelper.nameKey(m_sSubSet, sSubSet);
+		return aSubSet;
+	}
+
+	//-------------------------------------------------------------------------
+	@Override
 	public synchronized void clear ()
 		throws Exception
 	{
-		mem_Data ().clear();
+		// a) no sub set ? -> remove root of all data
+		if (StringUtils.isEmpty(m_sSubSet))
+		{
+			mem_Data ().clear();
+		}
+		
+		// b) sub set ? -> remove subset relevant data only
+		//    It's implemented by our wrapper SimplePersistenceImpl already ...
+		//    so it's not called under normal circumstances.
+		else
+		{
+			throw new UnsupportedOperationException ("Implemented by wrapper ?!");
+		}
 	}
 
 	//-------------------------------------------------------------------------
@@ -86,8 +111,11 @@ public class MemoryPersistence implements ISimplePersistenceImpl
 			final Entry< String, Object > aChange = rChanges.next    ();
 			final String                  sKey    = aChange .getKey  ();
 			final Object                  aValue  = aChange .getValue();
-			
-			lData.put(sKey, aValue);
+
+			if (aValue == null)
+				lData.remove(sKey);
+			else
+				lData.put   (sKey, aValue);
 		}
 	}
 
@@ -105,10 +133,13 @@ public class MemoryPersistence implements ISimplePersistenceImpl
 		throws Exception
 	{
 		if (m_lData == null)
-			m_lData = new HashMap< String, Object > ();
+			m_lData = new ConcurrentHashMap< String, Object > ();
 		return m_lData;
 	}
 
 	//-------------------------------------------------------------------------
 	private Map< String, Object > m_lData = null;
+
+	//-------------------------------------------------------------------------
+	private String m_sSubSet = null;
 }
