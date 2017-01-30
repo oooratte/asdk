@@ -26,6 +26,7 @@
  */
 package net.as_development.asdk.persistence;
 
+import net.as_development.asdk.persistence.impl.SimplePersistenceImpl;
 
 //=============================================================================
 public class SimplePersistenceFactory
@@ -41,6 +42,16 @@ public class SimplePersistenceFactory
 		throws Exception
 	{
 		final ISimplePersistenceTransacted aInst = (ISimplePersistenceTransacted) Class.forName (sImplClass).newInstance();
+		aInst.configure (lConfig);
+		return aInst;
+	}
+
+	//-------------------------------------------------------------------------
+	public static ISimplePersistenceTransacted get (final ISimplePersistenceImpl aImpl  ,
+													final String...              lConfig)
+		throws Exception
+	{
+		final ISimplePersistenceTransacted aInst = new SimplePersistenceImpl (aImpl);
 		aInst.configure (lConfig);
 		return aInst;
 	}

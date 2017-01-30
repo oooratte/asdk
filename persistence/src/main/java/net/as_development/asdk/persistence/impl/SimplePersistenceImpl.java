@@ -58,17 +58,26 @@ public class SimplePersistenceImpl implements ISimplePersistenceTransacted
 	{}
 
 	//-------------------------------------------------------------------------
+	public SimplePersistenceImpl (final ISimplePersistenceImpl aImpl)
+		throws Exception
+	{
+		m_iPersistenceLayer = aImpl;
+	}
+	
+	//-------------------------------------------------------------------------
 	@Override
 	public void configure(final String... lConfig)
 		throws Exception
 	{
 		final Map< String, String > aConfig = CollectionUtils.flat2MappedArguments(lConfig);
 
-		// mandatory
-		final String sImpl = aConfig.get(SimplePersistenceConfig.CFG_PERSISTENCE_IMPL);
-		Validate.notEmpty (sImpl, "Miss config item '"+SimplePersistenceConfig.CFG_PERSISTENCE_IMPL+"'.");
-		final Class< ? > aImplClass = Class.forName(sImpl);
-		m_iPersistenceLayer = (ISimplePersistenceImpl) aImplClass.newInstance();
+		// optional
+		if (m_iPersistenceLayer == null)
+		{
+			final String     sImpl      = aConfig.get(SimplePersistenceConfig.CFG_PERSISTENCE_IMPL);
+			final Class< ? > aImplClass = Class.forName(sImpl);
+			m_iPersistenceLayer = (ISimplePersistenceImpl) aImplClass.newInstance();
+		}
 
 		// optional
 		final String sScope   = aConfig.get(SimplePersistenceConfig.CFG_PERSISTENCE_SCOPE);
