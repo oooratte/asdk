@@ -33,5 +33,4 @@ public class SimplePersistenceConfig
 	public static final String CFG_PERSISTENCE_SCOPE        = "persistence.scope"      ;
 	public static final String CFG_PERSISTENCE_IMPL         = "persistence.impl"       ;
 	public static final String CFG_PERSISTENCE_AUTO_COMMIT  = "persistence.auto-commit";
-
 }

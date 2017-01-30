@@ -36,7 +36,7 @@ import net.as_development.asdk.persistence.ISimplePersistence;
 import net.as_development.asdk.persistence.SimplePersistenceConfig;
 import net.as_development.asdk.persistence.SimplePersistenceFactory;
 import net.as_development.asdk.persistence.impl.EHZStoreType;
-import net.as_development.asdk.persistence.impl.HZClient;
+import net.as_development.asdk.persistence.impl.HazelcastPersistence;
 import net.as_development.asdk.persistence.impl.HZServer;
 
 //=============================================================================
@@ -61,7 +61,7 @@ public class HazelcastServerTest
 	public void testCrashRecovery ()
 		throws Exception
 	{
-		if ( ! (HZClient.DEFAULT_HZ_STORE_TYPE == EHZStoreType.E_MAP))
+		if ( ! (HazelcastPersistence.DEFAULT_HZ_STORE_TYPE == EHZStoreType.E_MAP))
 			return;
 
 		final String SERVER_INTERFACE = "127.0.0.1";
@@ -86,12 +86,12 @@ public class HazelcastServerTest
 
 		aServer.start();
 
-		final ISimplePersistence iClient01 = SimplePersistenceFactory.get(HZClient.class.getName (),
+		final ISimplePersistence iClient01 = SimplePersistenceFactory.get(HazelcastPersistence.class.getName (),
 													SimplePersistenceConfig.CFG_PERSISTENCE_SCOPE, PERSIST_SCOPE                    ,
-													HZClient.CFG_SERVER_HOST                ,                  SERVER_HOST     ,
-													HZClient.CFG_SERVER_PORT                , Integer.toString(SERVER_PORT    ),
-													HZClient.CFG_SERVER_ID                  ,                  SERVER_ID       ,
-													HZClient.CFG_SERVER_PASSWORD            ,                  SERVER_PASSWORD);
+													HazelcastPersistence.CFG_SERVER_HOST                ,                  SERVER_HOST     ,
+													HazelcastPersistence.CFG_SERVER_PORT                , Integer.toString(SERVER_PORT    ),
+													HazelcastPersistence.CFG_SERVER_ID                  ,                  SERVER_ID       ,
+													HazelcastPersistence.CFG_SERVER_PASSWORD            ,                  SERVER_PASSWORD);
 
 		Assert.assertTrue ("testCrashRecovery [01] initial list of keys has to be empty", iClient01.listKeys().isEmpty());
 		iClient01.set(TEST_KEY, TEST_VALUE);
@@ -104,12 +104,12 @@ public class HazelcastServerTest
 		// restart server - recovery is done automatically
 		aServer.start();
 		
-		final ISimplePersistence iClient02 = SimplePersistenceFactory.get(HZClient.class.getName (),
+		final ISimplePersistence iClient02 = SimplePersistenceFactory.get(HazelcastPersistence.class.getName (),
 													SimplePersistenceConfig.CFG_PERSISTENCE_SCOPE, PERSIST_SCOPE                    ,
-													HZClient.CFG_SERVER_HOST                ,                  SERVER_HOST     ,
-													HZClient.CFG_SERVER_PORT                , Integer.toString(SERVER_PORT    ),
-													HZClient.CFG_SERVER_ID                  ,                  SERVER_ID       ,
-													HZClient.CFG_SERVER_PASSWORD            ,                  SERVER_PASSWORD);
+													HazelcastPersistence.CFG_SERVER_HOST                ,                  SERVER_HOST     ,
+													HazelcastPersistence.CFG_SERVER_PORT                , Integer.toString(SERVER_PORT    ),
+													HazelcastPersistence.CFG_SERVER_ID                  ,                  SERVER_ID       ,
+													HazelcastPersistence.CFG_SERVER_PASSWORD            ,                  SERVER_PASSWORD);
 		Assert.assertEquals ("testCrashRecovery [03] recovered list has wrong size", 1         , iClient02.listKeys().size());
 		Assert.assertEquals ("testCrashRecovery [04] recovery shows wrong values"  , TEST_VALUE, iClient02.get(TEST_KEY)    );
 
@@ -120,12 +120,12 @@ public class HazelcastServerTest
 		// restart server
 		aServer.start();
 
-		final ISimplePersistence iClient03 = SimplePersistenceFactory.get(HZClient.class.getName (),
+		final ISimplePersistence iClient03 = SimplePersistenceFactory.get(HazelcastPersistence.class.getName (),
 													SimplePersistenceConfig.CFG_PERSISTENCE_SCOPE, PERSIST_SCOPE                    ,
-													HZClient.CFG_SERVER_HOST                ,                  SERVER_HOST     ,
-													HZClient.CFG_SERVER_PORT                , Integer.toString(SERVER_PORT    ),
-													HZClient.CFG_SERVER_ID                  ,                  SERVER_ID       ,
-													HZClient.CFG_SERVER_PASSWORD            ,                  SERVER_PASSWORD);
+													HazelcastPersistence.CFG_SERVER_HOST                ,                  SERVER_HOST     ,
+													HazelcastPersistence.CFG_SERVER_PORT                , Integer.toString(SERVER_PORT    ),
+													HazelcastPersistence.CFG_SERVER_ID                  ,                  SERVER_ID       ,
+													HazelcastPersistence.CFG_SERVER_PASSWORD            ,                  SERVER_PASSWORD);
 		Assert.assertTrue ("testCrashRecovery [05] persistent data was not cleaned", iClient03.listKeys().isEmpty());
 		
 		// final shutdown ;-)

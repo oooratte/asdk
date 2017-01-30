@@ -48,7 +48,7 @@ import net.as_development.asdk.persistence.ISimplePersistence;
 import net.as_development.asdk.persistence.ISimplePersistenceTransacted;
 import net.as_development.asdk.persistence.SimplePersistenceConfig;
 import net.as_development.asdk.persistence.SimplePersistenceFactory;
-import net.as_development.asdk.persistence.impl.HZClient;
+import net.as_development.asdk.persistence.impl.HazelcastPersistence;
 import test.net.as_development.asdk.persistence.mocks.HazelcastMock;
 
 //=============================================================================
@@ -56,7 +56,7 @@ import test.net.as_development.asdk.persistence.mocks.HazelcastMock;
 @PrepareForTest
 (
 	{
-		HZClient.class,
+		HazelcastPersistence.class,
 		HazelcastInstance   .class,
 		HazelcastClient     .class,
 		Hazelcast           .class
@@ -138,12 +138,12 @@ public class HazelcastPersistenceTest
 	private ISimplePersistenceTransacted impl_newPersistenceInstance ()
 		throws Exception
 	{
-		final ISimplePersistenceTransacted iInst = SimplePersistenceFactory.get(HZClient.class.getName(),
+		final ISimplePersistenceTransacted iInst = SimplePersistenceFactory.get(HazelcastPersistence.class.getName(),
 				   SimplePersistenceConfig.CFG_PERSISTENCE_SCOPE, HazelcastPersistenceTest.class.getName(),
-				   HZClient.CFG_SERVER_HOST                , "127.0.0.1",
-				   HZClient.CFG_SERVER_PORT                , "4711"     ,
-				   HZClient.CFG_SERVER_ID                  , "test"     ,
-				   HZClient.CFG_SERVER_PASSWORD            , "test"     );
+				   HazelcastPersistence.CFG_SERVER_HOST                , "127.0.0.1",
+				   HazelcastPersistence.CFG_SERVER_PORT                , "4711"     ,
+				   HazelcastPersistence.CFG_SERVER_ID                  , "test"     ,
+				   HazelcastPersistence.CFG_SERVER_PASSWORD            , "test"     );
 		
 		return iInst;
 	}

@@ -33,22 +33,70 @@ import java.util.Map;
 public interface ISimplePersistenceImpl
 {
 	//-------------------------------------------------------------------------
+	/** configure this instance
+	 *  Is called at first - before other methods are used at this instance.
+	 *  Is called one times only.
+	 *  
+	 *	@param	lConfig [IN]
+	 *			a "flatten config" (where string list contains tuple of <key, value> pairs)
+	 */
 	public void configure (final String... lConfig)
 		throws Exception;
 	
 	//-------------------------------------------------------------------------
+	/** @return a impl for the define sub set of current key scope.
+	 * 
+	 *  It's up to the implementation to decide if same instance can be reused ...
+	 *  needs to be wrapped ... or if a complete new instance has to be used here.
+	 *  
+	 *  NOTE : SubSet information has not to be used to encode/decode keys !
+	 *  Thats done within a wrapper implementation already !
+	 *  
+	 *  @param	sSubSet [IN]
+	 *  		the new sub set.
+	 */
+	public ISimplePersistenceImpl getSubSet (final String sSubSet)
+		throws Exception;
+
+	//-------------------------------------------------------------------------
+	/** @return a list of all keys supported by this instance.
+	 * 
+	 *  NOTE: All keys within that list needs to be absolute !
+	 *  It's allowed (not mandatory) to filter them by using sub set information ...
+	 *  but it's not allowed to make keys relative to the sub set information !
+	 */
 	public List< String > listKeys ()
 		throws Exception;
 
 	//-------------------------------------------------------------------------
+	/** set new values for a some keys within current scope.
+	 * 
+	 *  Setting a key to "null" means : remove it.
+	 * 
+	 *  NOTE: All keys within that list are absolute.
+	 *  If anything goes right no key outside sub set scope will reach this method ;-)
+	 *  
+	 *	@param	lChanges [IN]
+	 *			the list of changes to be applied.
+	 */
 	public void set (final Map< String, Object > lChanges)
 	    throws Exception;
 
 	//-------------------------------------------------------------------------
+	/** @return the current value of the requested key.
+	 * 
+	 *  NOTE: Key is absolute.
+	 *  If anything goes right no key outside sub set scope will reach this method ;-)
+
+	 *	@param	sKey [IN]
+	 *			the key where the value needs to be returned.
+	 */
 	public Object get (final String sKey)
 	    throws Exception;
 
 	//-------------------------------------------------------------------------
+	/** clear all information within the current sub set scope.
+	 */
 	public void clear ()
 		throws Exception;
 }

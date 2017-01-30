@@ -40,7 +40,7 @@ import net.as_development.asdk.persistence.ISimplePersistenceTransacted;
 import net.as_development.asdk.persistence.SimplePersistenceConfig;
 import net.as_development.asdk.persistence.SimplePersistenceFactory;
 import net.as_development.asdk.persistence.impl.EHZStoreType;
-import net.as_development.asdk.persistence.impl.HZClient;
+import net.as_development.asdk.persistence.impl.HazelcastPersistence;
 import net.as_development.asdk.persistence.impl.HZServer;
 
 //=============================================================================
@@ -87,7 +87,7 @@ public class RealHZTest
 	public void testCrashRecovery ()
 		throws Exception
 	{
-		if ( ! (HZClient.DEFAULT_HZ_STORE_TYPE == EHZStoreType.E_MAP))
+		if ( ! (HazelcastPersistence.DEFAULT_HZ_STORE_TYPE == EHZStoreType.E_MAP))
 			return;
 		
 		final String TEST_KEY         = "key-a";
@@ -171,12 +171,12 @@ public class RealHZTest
 	private ISimplePersistenceTransacted impl_newClient ()
 	    throws Exception
 	{
-		final ISimplePersistenceTransacted iClient = SimplePersistenceFactory.get(HZClient.class.getName (),
+		final ISimplePersistenceTransacted iClient = SimplePersistenceFactory.get(HazelcastPersistence.class.getName (),
 				SimplePersistenceConfig.CFG_PERSISTENCE_SCOPE,                  PERSIST_SCOPE   ,
-				HZClient.CFG_SERVER_HOST                ,                  SERVER_HOST     ,
-				HZClient.CFG_SERVER_PORT                , Integer.toString(SERVER_PORT    ),
-				HZClient.CFG_SERVER_ID                  ,                  SERVER_ID       ,
-				HZClient.CFG_SERVER_PASSWORD            ,                  SERVER_PASSWORD);
+				HazelcastPersistence.CFG_SERVER_HOST                ,                  SERVER_HOST     ,
+				HazelcastPersistence.CFG_SERVER_PORT                , Integer.toString(SERVER_PORT    ),
+				HazelcastPersistence.CFG_SERVER_ID                  ,                  SERVER_ID       ,
+				HazelcastPersistence.CFG_SERVER_PASSWORD            ,                  SERVER_PASSWORD);
 		return iClient;
 	}
 

@@ -50,9 +50,6 @@ public class SimplePersistenceImpl implements ISimplePersistenceTransacted
 											, ISimplePersistenceAtomic
 {
 	//-------------------------------------------------------------------------
-	public static final String SEPARATOR = ".";
-	
-	//-------------------------------------------------------------------------
 	public SimplePersistenceImpl ()
 		throws Exception
 	{}
@@ -82,7 +79,7 @@ public class SimplePersistenceImpl implements ISimplePersistenceTransacted
 		// optional
 		final String sScope   = aConfig.get(SimplePersistenceConfig.CFG_PERSISTENCE_SCOPE);
 		             m_sScope = StringUtils.defaultString(sScope, "");
-		
+
 		// optional
  		final String sAutoCommit = aConfig.get(SimplePersistenceConfig.CFG_PERSISTENCE_AUTO_COMMIT);
  		if ( ! StringUtils.isEmpty(sAutoCommit))
@@ -184,14 +181,15 @@ public class SimplePersistenceImpl implements ISimplePersistenceTransacted
 
 	//-------------------------------------------------------------------------
 	@Override
-	public synchronized ISimplePersistence getSubset (final String sSubset)
+	public synchronized ISimplePersistence getSubset (final String sSubSet)
 		throws Exception
 	{
 		Validate.isTrue(mem_Changes().isEmpty(), "Creating sub set not allowed if changes exists.");
 		
 		final SimplePersistenceImpl aSubset = new SimplePersistenceImpl ();
-		aSubset.m_iPersistenceLayer = m_iPersistenceLayer;
-		aSubset.m_sScope            = impl_makeKeyAbsolute(sSubset);
+		aSubset.m_iPersistenceLayer = m_iPersistenceLayer.getSubSet(sSubSet);
+		aSubset.m_sScope            = m_sScope;
+		aSubset.m_sSubSet           = KeyHelper.nameKey(m_sSubSet, sSubSet);
 	
 		return aSubset;
 	}
@@ -203,8 +201,21 @@ public class SimplePersistenceImpl implements ISimplePersistenceTransacted
 	{
 		mem_Changes ().clear();
 		
-		if (m_iPersistenceLayer != null)
-			m_iPersistenceLayer.clear();
+		// NOTE : SubSets share same persistence layer ... see getSubSet().
+		// Dont call clear() on such shared layer !
+		// Remove all keys bound to the current subset explicit !
+
+		if (StringUtils.isEmpty(m_sSubSet))
+		{
+			if (m_iPersistenceLayer != null)
+				m_iPersistenceLayer.clear();
+		}
+		else
+		{
+			final List< String > lSubSetKeys = listKeys ();
+			for (final String sSubSetKey : lSubSetKeys)
+				set (sSubSetKey, null);
+		}
 	}
 
 	//-------------------------------------------------------------------------
@@ -305,7 +316,8 @@ public class SimplePersistenceImpl implements ISimplePersistenceTransacted
 	public synchronized String dump ()
 		throws Exception
 	{
-		final StringBuffer sDump = new StringBuffer (256);
+		final StringBuffer sDump       = new StringBuffer (256);
+		final StringBuffer sOutOfScope = new StringBuffer (256);
 		
 		sDump.append (super.toString ());
 		sDump.append ("\n"             );
@@ -319,8 +331,11 @@ public class SimplePersistenceImpl implements ISimplePersistenceTransacted
 		{
 			final String sKey = rKeys.next();
 			if ( ! impl_isKeyInCurrentScope (sKey))
+			{
+				sOutOfScope.append("['"+sKey+"']\n");
 				continue;
-			
+			}
+
 			final Object aValue = m_iPersistenceLayer .get (sKey);
 			sDump.append ("['"+sKey+"'] = '"+aValue+"'\n");
 		}
@@ -338,10 +353,16 @@ public class SimplePersistenceImpl implements ISimplePersistenceTransacted
 			final Object                  aValue   = rChange .getValue ();
 
 			if ( ! impl_isKeyInCurrentScope (sKey))
+			{
+				sOutOfScope.append("['"+sKey+"']\n");
 				continue;
+			}
 
 			sDump.append ("['"+sKey+"'] = '"+aValue+"'\n");
 		}
+		
+		sDump.append("out of scope :\n");
+		sDump.append(sOutOfScope       );
 		
 		return sDump.toString ();
 	}
@@ -350,24 +371,15 @@ public class SimplePersistenceImpl implements ISimplePersistenceTransacted
 	private String impl_makeKeyAbsolute (final String sRelKey)
 		throws Exception
 	{
-		if (StringUtils.isEmpty(m_sScope))
-			return sRelKey;
-		
-		final StringBuffer sFullKey = new StringBuffer (256);
-		sFullKey.append (m_sScope);
-		sFullKey.append (SEPARATOR);
-		sFullKey.append (sRelKey  );
-		return sFullKey.toString ();
+		final String sFullKey = KeyHelper.makeKeyAbsolute(m_sScope, m_sSubSet, sRelKey);
+		return sFullKey;
 	}
 
 	//-------------------------------------------------------------------------
 	private String impl_makeKeyRelative (final String sAbsKey)
 		throws Exception
 	{
-		if (StringUtils.isEmpty(m_sScope))
-			return sAbsKey;
-		
-		final String sRelKey = StringUtils.substringAfter(sAbsKey, m_sScope+SEPARATOR);
+		final String sRelKey = KeyHelper.makeKeyRelative(m_sScope, m_sSubSet, sAbsKey);
 		return sRelKey;
 	}
 
@@ -375,10 +387,7 @@ public class SimplePersistenceImpl implements ISimplePersistenceTransacted
 	private boolean impl_isKeyInCurrentScope (final String sKey)
 		throws Exception
 	{
-		final boolean bIs = (
-							 (StringUtils.isEmpty   (m_sScope          )) ||
-							 (StringUtils.startsWith(sKey    , m_sScope))
-							);
+		final boolean bIs = KeyHelper.isAbsoluteKeyInScopeSubset(m_sScope, m_sSubSet, sKey);
 		return bIs;
 	}
 	
@@ -397,6 +406,9 @@ public class SimplePersistenceImpl implements ISimplePersistenceTransacted
 	//-------------------------------------------------------------------------
 	private String m_sScope = "";
 	
+	//-------------------------------------------------------------------------
+	private String m_sSubSet = null;
+
 	//-------------------------------------------------------------------------
 	private boolean m_bAutoCommit = true;
 

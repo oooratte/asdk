@@ -28,11 +28,11 @@ package test.net.as_development.asdk.persistence.impl;
 
 import org.junit.Test;
 
+import junit.framework.Assert;
 import net.as_development.asdk.persistence.ISimplePersistence;
 import net.as_development.asdk.persistence.SimplePersistenceConfig;
 import net.as_development.asdk.persistence.impl.MemoryPersistence;
 import net.as_development.asdk.persistence.impl.SimplePersistenceImpl;
-import net.as_development.asdk.tools.common.NumberUtils;
 
 //=============================================================================
 public class SimplePersistenceImplTest
@@ -49,21 +49,21 @@ public class SimplePersistenceImplTest
 		aImpl.set("scope-01.key-1a", "value-01-a");
 		aImpl.set("scope-02.key-2a", "value-02-a");
 
-		System.err.println(aImpl.listKeys());
-		System.err.println(aImpl.get("scope-01.key-1a"));
-		System.err.println(aImpl.get("scope-02.key-2a"));
-		System.err.println(aImpl.get("key-1a"));
-		System.err.println(aImpl.get("key-2a"));
+		Assert.assertEquals("test [01]", 2           , aImpl.listKeys().size ()         );
+		Assert.assertEquals("test [02]", "value-01-a", aImpl.get     ("scope-01.key-1a"));
+		Assert.assertEquals("test [03]", "value-02-a", aImpl.get     ("scope-02.key-2a"));
+		Assert.assertNull  ("test [04]",               aImpl.get     ("key-1a")         );
+		Assert.assertNull  ("test [05]",               aImpl.get     ("key-2a")         );
 
 		final ISimplePersistence aScope01 = aImpl.getSubset("scope-01");
-		System.err.println(aScope01.listKeys()   );
-		System.err.println(aScope01.get("key-1a"));
-		System.err.println(aScope01.get("key-2a"));
+		Assert.assertEquals("test [06]", 1           , aScope01.listKeys().size() );
+		Assert.assertEquals("test [07]", "value-01-a", aScope01.get     ("key-1a"));
+		Assert.assertNull  ("test [08]",               aScope01.get     ("key-2a"));
 
 		final ISimplePersistence aScope02 = aImpl.getSubset("scope-02");
-		System.err.println(aScope02.listKeys()   );
-		System.err.println(aScope02.get("key-1a"));
-		System.err.println(aScope02.get("key-2a"));
+		Assert.assertEquals("test [09]", 1           , aScope02.listKeys().size() );
+		Assert.assertNull  ("test [10]",               aScope02.get     ("key-1a"));
+		Assert.assertEquals("test [11]", "value-02-a", aScope02.get     ("key-2a"));
 	}
 
 	//-------------------------------------------------------------------------
