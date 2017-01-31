@@ -38,7 +38,7 @@ public interface ISimplePersistenceImpl
 	 *  Is called one times only.
 	 *  
 	 *	@param	lConfig [IN]
-	 *			a "flatten config" (where string list contains tuple of <key, value> pairs)
+	 *			a "flatten config" (where string list contains tuple of key-value pairs)
 	 */
 	public void configure (final String... lConfig)
 		throws Exception;
