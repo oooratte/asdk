@@ -61,11 +61,17 @@ function lib_fileutils_append_text_to_file ()
 {
     local v_file="$1"
     local v_text="$2"
+    local v_at_beginning="$3"
     
     lib_validate_var_is_set "v_file" "Invalid argument 'file'."
     lib_validate_var_is_set "v_text" "Invalid argument 'text'."
 
-    echo "${v_text}" >> "${v_file}"    
+    if [ "${v_at_beginning}" == "true" ];
+    then
+        sed -i'' -e "1s:^:${v_text}:" "${v_file}"
+    else
+        echo "${v_text}" >> "${v_file}"
+    fi
 }
 
 #-----------------------------------------------------------------------------------------
