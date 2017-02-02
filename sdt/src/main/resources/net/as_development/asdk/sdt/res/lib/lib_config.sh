@@ -90,6 +90,7 @@ function lib_config_save_prop()
 	local v_key="$2"
 	local v_value="$3"
     local v_quote_value="$4"
+    local v_escape_value="$5"
 	
 	lib_validate_var_is_set "v_file"  "Illegal argument 'file'."
 	lib_validate_var_is_set "v_key"   "Illegal argument 'key'."
@@ -101,25 +102,55 @@ function lib_config_save_prop()
         v_quote_value=false
     fi
 
- 	local v_escaped_value=${v_value}
-          v_escaped_value=$(echo -e "${v_escaped_value}" | sed 's,/,\/,g')
-          v_escaped_value=$(echo -e "${v_escaped_value}" | sed 's,:,\\:,g')
+    # v_escape_value is optional : default = true ... as it was used before that way !
+    if [ -z "${v_escape_value}" ];
+    then
+        v_escape_value=true
+    fi
+
+    local v_final_value=${v_value}
+
+    if [ "${v_escape_value}" == "true" ];
+    then
+     	local v_escaped_value=${v_final_value}
+              v_escaped_value=$(echo -e "${v_escaped_value}" | sed 's,/,\/,g')
+              v_escaped_value=$(echo -e "${v_escaped_value}" | sed 's,:,\\:,g')
+        v_final_value=${v_escaped_value}
+    fi
 
     if [ "${v_quote_value}" == "true" ];
     then
-        v_escaped_value=\"${v_escaped_value}\"
+        local v_quoted_value=\"${v_final_value}\"
+        v_final_value=${v_quoted_value}
     fi
 
 	lib_config_contains_prop $v_file $v_key r_result
 	
 	if [[ $r_result = true ]];
 	then
-		echo "... patch [${v_file}] '${v_key}' = '${v_value}' ... escaped '${v_escaped_value}' "
-		sed -i -e "s:^[ \t]*${v_key}[ \t]*=\([ \t]*.*\)$:${v_key}=${v_escaped_value}:" "${v_file}"
+		echo "... patch [${v_file}] '${v_key}' = '${v_value}' ... escaped '${v_final_value}' "
+		sed -i -e "s:^[ \t]*${v_key}[ \t]*=\([ \t]*.*\)$:${v_key}=${v_final_value}:" "${v_file}"
 	else
-		echo "... new   [${v_file}] '${v_key}'='${v_value}' ... escaped '${v_escaped_value}' "
-		echo "${v_key}=${v_escaped_value}" >> "${v_file}"
+		echo "... new   [${v_file}] '${v_key}'='${v_value}' ... escaped '${v_final_value}' "
+		echo "${v_key}=${v_final_value}" >> "${v_file}"
 	fi
+}
+
+#-----------------------------------------------------------------------------------------
+function lib_config_remove_prop()
+{
+    local v_file="$1"
+    local v_key="$2"
+    
+    lib_validate_var_is_set "v_file"  "Illegal argument 'file'."
+    lib_validate_var_is_set "v_key"   "Illegal argument 'key'."
+
+    lib_config_contains_prop $v_file $v_key r_result
+    
+    if [[ $r_result = true ]];
+    then
+        lib_fileutils_remove_text_from_file "${v_file}" "${v_key}="
+    fi
 }
 
 #-----------------------------------------------------------------------------------------
