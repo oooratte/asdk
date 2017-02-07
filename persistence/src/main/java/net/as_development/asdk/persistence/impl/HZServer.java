@@ -107,6 +107,8 @@ public class HZServer
 	//-------------------------------------------------------------------------
 	/** for testing purposes only !
 	 *  Be careful by using that method in production code ,-)
+	 *
+	 *	@throws	Exception
 	 */
 	public synchronized void cleanPersistenceLayer ()
 	    throws Exception

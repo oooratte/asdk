@@ -95,7 +95,7 @@ public class KeyHelper
 	 *	@param	sFullKey [IN]
 	 *			the key to be made relative.
 	 *
-	 *	@throws	an error in case scope/subset are defined ...
+	 *	@throws	Exception in case scope/subset are defined ...
 	 *        	but full key do not starts with those value.
 	 */
 	public static String makeKeyRelative (final String sScope  ,
