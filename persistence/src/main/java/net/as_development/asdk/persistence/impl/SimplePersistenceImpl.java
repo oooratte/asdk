@@ -229,8 +229,9 @@ public class SimplePersistenceImpl implements ISimplePersistenceTransacted
 		// a) interface directly supported by impl layer -> call it
 		if (ISimplePersistenceAtomic.class.isAssignableFrom(m_iPersistenceLayer.getClass()))
 		{
-			final ISimplePersistenceAtomic iAtomic = (ISimplePersistenceAtomic) m_iPersistenceLayer;
-			final boolean                  bOK     = iAtomic.setIf(sKey, aExpectedValue, aNewValue);
+			final String                   sAbsoluteKey = impl_makeKeyAbsolute(sKey);
+			final ISimplePersistenceAtomic iAtomic      = (ISimplePersistenceAtomic) m_iPersistenceLayer;
+			final boolean                  bOK          = iAtomic.setIf(sAbsoluteKey, aExpectedValue, aNewValue);
 			return bOK;
 		}
 
@@ -253,8 +254,9 @@ public class SimplePersistenceImpl implements ISimplePersistenceTransacted
 		// a) interface directly supported by impl layer -> call it
 		if (ISimplePersistenceAtomic.class.isAssignableFrom(m_iPersistenceLayer.getClass()))
 			{
-			final ISimplePersistenceAtomic iAtomic   = (ISimplePersistenceAtomic) m_iPersistenceLayer;
-			final T                        aOldValue = (T) iAtomic.setAndGet(sKey, aValue);
+			final String                   sAbsoluteKey = impl_makeKeyAbsolute(sKey);
+			final ISimplePersistenceAtomic iAtomic      = (ISimplePersistenceAtomic) m_iPersistenceLayer;
+			final T                        aOldValue    = (T) iAtomic.setAndGet(sAbsoluteKey, aValue);
 			return aOldValue;
 		}
 
@@ -273,8 +275,9 @@ public class SimplePersistenceImpl implements ISimplePersistenceTransacted
 		// a) interface directly supported by impl layer -> call it
 		if (ISimplePersistenceAtomic.class.isAssignableFrom(m_iPersistenceLayer.getClass()))
 		{
-			final ISimplePersistenceAtomic iAtomic   = (ISimplePersistenceAtomic) m_iPersistenceLayer;
-			final T                        aOldValue = (T) iAtomic.inc(sKey, nIncrement);
+			final String                   sAbsoluteKey = impl_makeKeyAbsolute(sKey);
+			final ISimplePersistenceAtomic iAtomic      = (ISimplePersistenceAtomic) m_iPersistenceLayer;
+			final T                        aOldValue    = (T) iAtomic.inc(sAbsoluteKey, nIncrement);
 			return aOldValue;
 		}
 
@@ -297,8 +300,9 @@ public class SimplePersistenceImpl implements ISimplePersistenceTransacted
 		// a) interface directly supported by impl layer -> call it
 		if (ISimplePersistenceAtomic.class.isAssignableFrom(m_iPersistenceLayer.getClass()))
 		{
-			final ISimplePersistenceAtomic iAtomic   = (ISimplePersistenceAtomic) m_iPersistenceLayer;
-			final T                        aOldValue = (T) iAtomic.dec(sKey, nDecrement);
+			final String                   sAbsoluteKey = impl_makeKeyAbsolute(sKey);
+			final ISimplePersistenceAtomic iAtomic      = (ISimplePersistenceAtomic) m_iPersistenceLayer;
+			final T                        aOldValue    = (T) iAtomic.dec(sAbsoluteKey, nDecrement);
 			return aOldValue;
 		}
 
