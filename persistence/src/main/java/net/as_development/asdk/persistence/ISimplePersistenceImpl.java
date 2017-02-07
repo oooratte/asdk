@@ -39,6 +39,8 @@ public interface ISimplePersistenceImpl
 	 *  
 	 *	@param	lConfig [IN]
 	 *			a "flatten config" (where string list contains tuple of key-value pairs)
+	 *
+	 *	@throws	Exception
 	 */
 	public void configure (final String... lConfig)
 		throws Exception;
@@ -54,6 +56,8 @@ public interface ISimplePersistenceImpl
 	 *  
 	 *  @param	sSubSet [IN]
 	 *  		the new sub set.
+	 *
+	 *	@throws	Exception
 	 */
 	public ISimplePersistenceImpl getSubSet (final String sSubSet)
 		throws Exception;
@@ -64,6 +68,8 @@ public interface ISimplePersistenceImpl
 	 *  NOTE: All keys within that list needs to be absolute !
 	 *  It's allowed (not mandatory) to filter them by using sub set information ...
 	 *  but it's not allowed to make keys relative to the sub set information !
+	 *
+	 *	@throws	Exception
 	 */
 	public List< String > listKeys ()
 		throws Exception;
@@ -78,6 +84,8 @@ public interface ISimplePersistenceImpl
 	 *  
 	 *	@param	lChanges [IN]
 	 *			the list of changes to be applied.
+	 *
+	 *	@throws	Exception
 	 */
 	public void set (final Map< String, Object > lChanges)
 	    throws Exception;
@@ -90,12 +98,16 @@ public interface ISimplePersistenceImpl
 
 	 *	@param	sKey [IN]
 	 *			the key where the value needs to be returned.
+	 *
+	 *	@throws	Exception
 	 */
 	public Object get (final String sKey)
 	    throws Exception;
 
 	//-------------------------------------------------------------------------
 	/** clear all information within the current sub set scope.
+	 *
+	 *	@throws	Exception
 	 */
 	public void clear ()
 		throws Exception;
