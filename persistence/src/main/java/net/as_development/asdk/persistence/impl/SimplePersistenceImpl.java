@@ -31,7 +31,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.UUID;
 import java.util.Vector;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
@@ -39,6 +41,7 @@ import org.apache.commons.lang3.Validate;
 import net.as_development.asdk.persistence.ISimplePersistence;
 import net.as_development.asdk.persistence.ISimplePersistenceAtomic;
 import net.as_development.asdk.persistence.ISimplePersistenceImpl;
+import net.as_development.asdk.persistence.ISimplePersistenceLock;
 import net.as_development.asdk.persistence.ISimplePersistenceTransacted;
 import net.as_development.asdk.persistence.SimplePersistenceConfig;
 import net.as_development.asdk.tools.common.CollectionUtils;
@@ -48,6 +51,7 @@ import net.as_development.asdk.tools.common.type.TypeConverter;
 //=============================================================================
 public class SimplePersistenceImpl implements ISimplePersistenceTransacted
 											, ISimplePersistenceAtomic
+											, ISimplePersistenceLock
 {
 	//-------------------------------------------------------------------------
 	public SimplePersistenceImpl ()
@@ -317,6 +321,125 @@ public class SimplePersistenceImpl implements ISimplePersistenceTransacted
 	}
 
 	//-------------------------------------------------------------------------
+	@Override
+	public synchronized ILock lock(final String sId)
+		throws Exception
+	{
+		Validate.isTrue( ! StringUtils.isEmpty(sId), "Invalid argument 'id'.");
+
+		// a) interface directly supported by impl layer -> call it
+		if (ISimplePersistenceLock.class.isAssignableFrom(m_iPersistenceLayer.getClass()))
+		{
+			final ISimplePersistenceLock       iLockable = (ISimplePersistenceLock) m_iPersistenceLayer;
+			final ISimplePersistenceLock.ILock iLock     = iLockable.lock(sId);
+			return iLock;
+		}
+
+		final ILock iLock = impl_tryLock (sId, Integer.MAX_VALUE, TimeUnit.DAYS); // max-int in days : that should be infinite enough ;-)
+		return iLock;
+	}
+
+	//-------------------------------------------------------------------------
+	@Override
+	public synchronized ILock tryLock(final String   sId      ,
+									  final int      nTimeOut ,
+									  final TimeUnit aTimeUnit)
+		throws Exception
+    {
+		Validate.isTrue( ! StringUtils.isEmpty(sId), "Invalid argument 'id'."                   );
+		Validate.isTrue(   nTimeOut > 0            , "Invalid argument 'timeout'. Needs to > 0.");
+
+		// a) interface directly supported by impl layer -> call it
+		if (ISimplePersistenceLock.class.isAssignableFrom(m_iPersistenceLayer.getClass()))
+		{
+			final ISimplePersistenceLock       iLockable = (ISimplePersistenceLock) m_iPersistenceLayer;
+			final ISimplePersistenceLock.ILock iLock     = iLockable.tryLock(sId, nTimeOut, aTimeUnit);
+			return iLock;
+		}
+
+		final ILock iLock = impl_tryLock (sId, nTimeOut, aTimeUnit);
+		return iLock;
+	}
+
+	//-------------------------------------------------------------------------
+	@Override
+	public synchronized boolean unlock(final ILock iLock)
+		throws Exception
+	{
+		Validate.isTrue(iLock != null, "Invalid argument 'lock'.");
+		
+		// a) interface directly supported by impl layer -> call it
+		if (ISimplePersistenceLock.class.isAssignableFrom(m_iPersistenceLayer.getClass()))
+		{
+			final ISimplePersistenceLock iLockable = (ISimplePersistenceLock) m_iPersistenceLayer;
+			final boolean                bOk       = iLockable.unlock(iLock);
+			return bOk;
+		}
+		
+		if ( ! Lock.class.isAssignableFrom(iLock.getClass ()))
+			throw new IllegalMonitorStateException ("This is not a lock owned by this persistence instance. (wrong type)");
+
+		final Lock   aLock    = (Lock) iLock;
+		final String sSecrect = mem_LockSecret ();
+
+		if ( ! StringUtils.equals(sSecrect, aLock.sSecret))
+			throw new IllegalMonitorStateException ("This is not a lock owned by this persistence instance. (wrong secret)");
+		
+		final boolean bLockUnset = impl_unlock (aLock.sId);
+		return bLockUnset;
+	}
+
+	//-------------------------------------------------------------------------
+	private /* no synchronized*/ ILock impl_tryLock (final String   sId      ,
+			  										 final int      nTimeOut ,
+			  										 final TimeUnit aTimeUnit)
+	    throws Exception
+	{
+		      long nNow         = System.currentTimeMillis();
+		final long nTimeOutInMS = aTimeUnit.toMillis(nTimeOut);
+		final long nEnd         = nNow + nTimeOutInMS;
+
+		while (true)
+		{
+			final ILock iLock = impl_tryLock (sId);
+			if (iLock != null)
+				return iLock;
+
+			Thread.sleep(25);
+			
+			nNow = System.currentTimeMillis();
+			if (nNow > nEnd)
+				return null;
+		}
+	}
+	
+	//-------------------------------------------------------------------------
+	private ILock impl_tryLock (final String sId)
+	    throws Exception
+	{
+		final String  sLockKey = "lock-"+sId;
+		final boolean bLockSet = setIf (sLockKey, Boolean.FALSE, Boolean.TRUE);
+		
+		if ( ! bLockSet)
+			return null;
+
+		final Lock iLock = new Lock ();
+		iLock.sId     = sId;
+		iLock.sSecret = mem_LockSecret ();
+
+		return iLock;
+	}
+	
+	//-------------------------------------------------------------------------
+	private boolean impl_unlock (final String sId)
+	    throws Exception
+	{
+		final String  sLockKey   = "lock-"+sId;
+		final boolean bLockUnset = setIf (sLockKey, Boolean.TRUE, Boolean.FALSE);
+		return bLockUnset;
+	}
+
+	//-------------------------------------------------------------------------
 	public synchronized String dump ()
 		throws Exception
 	{
@@ -396,12 +519,28 @@ public class SimplePersistenceImpl implements ISimplePersistenceTransacted
 	}
 	
 	//-------------------------------------------------------------------------
+	private class Lock implements ISimplePersistenceLock.ILock
+	{
+		protected String sId     = null;
+		protected String sSecret = null;
+	}
+	
+	//-------------------------------------------------------------------------
 	private Map< String, Object > mem_Changes ()
 	    throws Exception
 	{
 		if (m_lChanges == null)
 			m_lChanges = new HashMap< String, Object > ();
 		return m_lChanges;
+	}
+
+	//-------------------------------------------------------------------------
+	private synchronized String mem_LockSecret ()
+	    throws Exception
+	{
+		if (m_sLockSecret == null)
+			m_sLockSecret = UUID.randomUUID().toString();
+		return m_sLockSecret;
 	}
 
 	//-------------------------------------------------------------------------
@@ -418,4 +557,7 @@ public class SimplePersistenceImpl implements ISimplePersistenceTransacted
 
 	//-------------------------------------------------------------------------
 	private Map< String, Object > m_lChanges = null;
+
+	//-------------------------------------------------------------------------
+	private String m_sLockSecret = null;
 }

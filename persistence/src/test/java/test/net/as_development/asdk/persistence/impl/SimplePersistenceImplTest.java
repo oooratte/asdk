@@ -26,10 +26,13 @@
  */
 package test.net.as_development.asdk.persistence.impl;
 
+import java.util.concurrent.TimeUnit;
+
 import org.junit.Test;
 
 import junit.framework.Assert;
 import net.as_development.asdk.persistence.ISimplePersistence;
+import net.as_development.asdk.persistence.ISimplePersistenceLock;
 import net.as_development.asdk.persistence.SimplePersistenceConfig;
 import net.as_development.asdk.persistence.impl.MemoryPersistence;
 import net.as_development.asdk.persistence.impl.SimplePersistenceImpl;
@@ -77,5 +80,24 @@ public class SimplePersistenceImplTest
 
 		aImpl.set("foo", "2");
 		System.err.println(aImpl.setIf("foo", "2", "1"));
+	}
+
+	//-------------------------------------------------------------------------
+	@Test
+	public void testLocks()
+		throws Exception
+	{
+		final SimplePersistenceImpl aImpl = new SimplePersistenceImpl ();
+		aImpl.configure(SimplePersistenceConfig.CFG_PERSISTENCE_IMPL       , MemoryPersistence.class.getName(),
+						SimplePersistenceConfig.CFG_PERSISTENCE_AUTO_COMMIT, "true"                          );
+
+		final ISimplePersistenceLock.ILock iLock = aImpl.lock("foo");
+		Assert.assertNotNull("testLocks [01] could not lock", iLock);
+
+		final ISimplePersistenceLock.ILock iLock2 = aImpl.tryLock("foo", 100, TimeUnit.MILLISECONDS);
+		Assert.assertNull("testLocks [02] was able to lock it twice", iLock2);
+
+		final boolean bUnlocked = aImpl.unlock(iLock);
+		Assert.assertTrue("testLocks [01] could not unlock", bUnlocked);
 	}
 }

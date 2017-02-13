@@ -248,6 +248,9 @@ public class TypeConverter
 		if (String.class.isAssignableFrom(aType))
 			aDefault = (T)(String)"";
 		else
+		if (Boolean.class.isAssignableFrom(aType))
+			aDefault = (T)Boolean.FALSE;
+		else
 			throw new UnsupportedOperationException ("No support for type '"+aType+"' implemented yet.");
 		
 		return aValue.equals(aDefault);

@@ -29,7 +29,6 @@ package net.as_development.asdk.persistence.impl;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
@@ -37,8 +36,8 @@ import org.apache.commons.lang3.Validate;
 import com.hazelcast.core.DistributedObject;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IAtomicReference;
+import com.hazelcast.core.ILock;
 import com.hazelcast.core.IMap;
-import com.hazelcast.core.Partition;
 import com.hazelcast.transaction.TransactionContext;
 import com.hazelcast.transaction.TransactionOptions;
 
@@ -96,6 +95,22 @@ public class FailureAwareHZClient
 		}
 	}
 
+	//-------------------------------------------------------------------------
+	public synchronized ILock getLock (final String sId)
+		throws Exception
+	{
+		try
+		{
+			final ILock iLock = m_aCore.getLock(sId);
+			return iLock;
+		}
+		catch (final Throwable ex)
+		{
+			m_bHasErrors = true;
+			throw new RuntimeException (ex);
+		}
+	}
+	
 	//-------------------------------------------------------------------------
 	public synchronized List< String > listKeysInScope (final String sScope)
 	    throws Exception

@@ -24,41 +24,28 @@
  *
  * For more information, please refer to <http://unlicense.org/>
  */
-package net.as_development.asdk.single_webapp_server;
+package net.as_development.asdk.persistence;
+
+import java.util.concurrent.TimeUnit;
 
 //=============================================================================
-public class Main
+public interface ISimplePersistenceLock
 {
 	//-------------------------------------------------------------------------
-	private Main()
+	public interface ILock
 	{}
+	
+	//-------------------------------------------------------------------------
+	public ILock lock (final String sId)
+	    throws Exception;
 
 	//-------------------------------------------------------------------------
-	public static void main (final String[] lArgs)
-	{
-		try
-		{
-			final CmdLine aCmdLine = new CmdLine ();
-			aCmdLine.parse(lArgs);
-			
-			if (aCmdLine.needsHelp())
-			{
-				aCmdLine.printHelp();
-				System.exit(1);
-			}
+	public ILock tryLock (final String   sId      ,
+						  final int      nTimeOut ,
+						  final TimeUnit aTimeUnit)
+	    throws Exception;
 
-			final Server aServer = new Server ();
-			aServer.init  ();
-			aServer.start ();
-			aServer.join  ();
-			
-			System.exit(0);
-		}
-		catch (Throwable ex)
-		{
-			System.err.println(ex.getMessage());
-			ex.printStackTrace(System.err     );
-			System.exit(1);
-		}
-	}
+	//-------------------------------------------------------------------------
+	public boolean unlock (final ILock iLock)
+	    throws Exception;
 }
