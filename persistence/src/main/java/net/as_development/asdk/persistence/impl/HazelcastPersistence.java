@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Vector;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.commons.lang3.StringUtils;
@@ -48,12 +49,14 @@ import com.hazelcast.core.IMap;
 import com.hazelcast.instance.GroupProperties;
 
 import net.as_development.asdk.persistence.ISimplePersistenceImpl;
+import net.as_development.asdk.persistence.ISimplePersistenceLock;
 import net.as_development.asdk.persistence.SimplePersistenceConfig;
 import net.as_development.asdk.tools.common.CollectionUtils;
 import net.as_development.asdk.tools.reflection.SerializationUtils;
 
 //=============================================================================
 public class HazelcastPersistence implements ISimplePersistenceImpl
+										   , ISimplePersistenceLock
 {
 	//-------------------------------------------------------------------------
 	public static final String CFG_SERVER_HOST     = "server.host"    ;
@@ -216,6 +219,73 @@ public class HazelcastPersistence implements ISimplePersistenceImpl
 //		m_aTransaction.rollbackTransaction();
 //		m_aTransaction = null;
 //	}
+	
+
+	//-------------------------------------------------------------------------
+	@Override
+	public /* no synchronized */ ILock lock(final String sId)
+		throws Exception
+	{
+		Validate.isTrue( ! StringUtils.isEmpty(sId), "Invalid argument 'id'.");
+
+		final com.hazelcast.core.ILock iHZLock = mem_Core().getLock(sId);
+		iHZLock.lock();
+		
+		final Lock aLock = new Lock ();
+		aLock.sId     = sId;
+		aLock.iHZLock = iHZLock;
+		return aLock;
+	}
+
+	//-------------------------------------------------------------------------
+	@Override
+	public /* no synchronized */ ILock tryLock(final String   sId      ,
+									  		   final int      nTimeOut ,
+									  		   final TimeUnit aTimeUnit)
+		throws Exception
+	{
+		Validate.isTrue( ! StringUtils.isEmpty(sId), "Invalid argument 'id'."                   );
+		Validate.isTrue(   nTimeOut > 0            , "Invalid argument 'timeout'. Needs to > 0.");
+
+		final com.hazelcast.core.ILock iHZLock = mem_Core().getLock(sId);
+		final boolean                  bOK     = iHZLock.tryLock(nTimeOut, aTimeUnit);
+
+		if ( ! bOK)
+			return null;
+		
+		final Lock aLock = new Lock ();
+		aLock.sId     = sId;
+		aLock.iHZLock = iHZLock;
+		return aLock;
+	}
+
+	//-------------------------------------------------------------------------
+	@Override
+	public /* no synchronized */ boolean unlock(final ILock iLock)
+		throws Exception
+	{
+		Validate.isTrue(iLock != null, "Invalid argument 'lock'.");
+
+		if ( ! Lock.class.isAssignableFrom(iLock.getClass ()))
+			throw new IllegalMonitorStateException ("This is not a lock owned by this persistence instance. (wrong type)");
+
+		final Lock aLock = (Lock) iLock;
+
+		try
+		{
+			aLock.iHZLock.unlock();
+		}
+		catch (final IllegalMonitorStateException exIllegalMonitor)
+		{
+			throw exIllegalMonitor;
+		}
+		catch (final Throwable exAny)
+		{
+			return false;
+		}
+
+		return true;
+	}
 	
 	//-------------------------------------------------------------------------
 	private synchronized List< String > impl_listKeysOnMAP ()
@@ -440,6 +510,13 @@ public class HazelcastPersistence implements ISimplePersistenceImpl
 		if (m_iRefs == null)
 			m_iRefs = new HashMap< Object, IAtomicReference< Object > > ();
 		return m_iRefs;
+	}
+
+	//-------------------------------------------------------------------------
+	private class Lock implements ISimplePersistenceLock.ILock
+	{
+		protected String                   sId     = null;
+		protected com.hazelcast.core.ILock iHZLock = null;
 	}
 
 	//-------------------------------------------------------------------------
