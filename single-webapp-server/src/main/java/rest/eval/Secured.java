@@ -24,27 +24,18 @@
  *
  * For more information, please refer to <http://unlicense.org/>
  */
-package net.as_development.asdk.single_webapp_server;
+package rest.eval;
 
-import net.as_development.asdk.tools.commandline.CommandLineBase;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-//=============================================================================
-public class CmdLine extends CommandLineBase
-{
-	//-------------------------------------------------------------------------
-	public static final String OPT_SHORT_HELP = "h";
-	public static final String OPT_LONG_HELP  = "help";
-	
-	//-------------------------------------------------------------------------
-	public CmdLine()
-		throws Exception
-	{
-		super ("single-webapp-server");
-		
-		addOption(OPT_SHORT_HELP,
-			      OPT_LONG_HELP ,
-			      HAS_NO_VALUE  ,
-			      NOT_REQUIRED  ,
-			      "show this help");
-	}
-}
+import javax.ws.rs.NameBinding;
+
+// http://stackoverflow.com/questions/26777083/best-practice-for-rest-token-based-authentication-with-jax-rs-and-jersey
+
+@NameBinding
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.TYPE, ElementType.METHOD})
+public @interface Secured { }
