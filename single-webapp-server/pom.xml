@@ -52,6 +52,13 @@
 
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>${artifact-prefix}tools-configuration</artifactId>
+            <version>${project.version}</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>${artifact-prefix}tools-commandline</artifactId>
             <version>${project.version}</version>
             <scope>compile</scope>
@@ -76,6 +83,30 @@
             <scope>compile</scope>
         </dependency>           
 
+        <dependency>
+            <groupId>org.glassfish.jersey.core</groupId>
+            <artifactId>jersey-server</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.glassfish.jersey.containers</groupId>
+            <artifactId>jersey-container-servlet-core</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.glassfish.jersey.containers</groupId>
+            <artifactId>jersey-container-jetty-http</artifactId>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+			<groupId>com.owlike</groupId>
+			<artifactId>genson</artifactId>
+			<version>1.4</version>
+        </dependency>
+    
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>

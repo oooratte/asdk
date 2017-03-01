@@ -26,36 +26,14 @@
  */
 package net.as_development.asdk.single_webapp_server;
 
-import java.io.IOException;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import net.as_development.asdk.tools.common.CollectionUtils;
-
-@SuppressWarnings("serial")
-public class TestTheRest extends HttpServlet
+//=============================================================================
+public class ServerRESTBase
 {
-	@Override
-    protected void doGet(final HttpServletRequest  aRequest ,
-                         final HttpServletResponse aResponse)
-        throws ServletException
-             , IOException
-    {
-		try
-		{
-			System.err.println("##### COOKIES     : "+CollectionUtils.toString(aRequest.getCookies(), ','));
-			System.err.println("##### REMOT EADDR : "+aRequest.getRemoteAddr());
-			
-	        aResponse.setContentType("text/html");
-	        aResponse.setStatus(HttpServletResponse.SC_OK);
-	        aResponse.getWriter().println("<h1>Hello from HelloServlet</h1>");
-		}
-		catch (Throwable ex)
-		{
-			aResponse.sendError(500);
-		}
-    }
+	//-------------------------------------------------------------------------
+	public ServerRESTBase ()
+	    throws Exception
+	{}
+
+	//-------------------------------------------------------------------------
+	
 }

@@ -27,6 +27,7 @@
         <module>../tools-test</module>
         <module>../tools-reflection</module>
         <module>../tools-commandline</module>
+        <module>../tools-configuration</module>
         <module>../tools-exec</module>
         <module>../tools-usb-serial</module>
 
