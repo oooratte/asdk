@@ -43,9 +43,24 @@ public class CollectionUtils
 	{}
 
 	//-------------------------------------------------------------------------
+	public static < T > void copy (final Collection< T > aSource,
+								   final Collection< T > aTarget)
+		throws Exception
+	{
+		if (aSource == null)
+			return;
+
+		if (aTarget == null)
+			return;
+
+		aTarget.addAll (aSource);
+	}
+	
+	//-------------------------------------------------------------------------
 	@SuppressWarnings("unchecked")
-	public static < T > T[] listToArray (final List< T > aList,
-			final Class< T > aType)
+	public static < T > T[] listToArray (final List< T >  aList,
+									     final Class< T > aType)
+		throws Exception
 	{
 		final int c      = aList.size();
 		final T[] aArray = (T[])Array.newInstance(aType, c);
