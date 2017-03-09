@@ -43,17 +43,19 @@ public class CollectionUtils
 	{}
 
 	//-------------------------------------------------------------------------
-	public static < T > void copy (final Collection< T > aSource,
-								   final Collection< T > aTarget)
+	public static < T > Collection< T > copy (final Collection< T > aSource,
+								   			  final Collection< T > aTarget)
 		throws Exception
 	{
-		if (aSource == null)
-			return;
+		if (
+			(aSource != null) &&
+			(aTarget != null)
+		    )
+		{
+			aTarget.addAll (aSource);
+		}
 
-		if (aTarget == null)
-			return;
-
-		aTarget.addAll (aSource);
+		return aTarget;
 	}
 	
 	//-------------------------------------------------------------------------
