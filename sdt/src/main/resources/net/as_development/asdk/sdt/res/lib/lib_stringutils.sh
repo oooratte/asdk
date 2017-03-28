@@ -98,3 +98,34 @@ function lib_stringutils_replace_char ()
     local v_result=$(echo -n "${v_string}" | sed -n 1'p' | tr "${v_search}" "${v_replace}")
     eval "${r_retvar}=\"${v_result}\""
 }
+
+#-----------------------------------------------------------------------------------------
+# check if given string ends with defined char sequence
+#
+# @param 1 : 'string' [IN]
+#        the string where the end should be checked
+#
+# @param 2 : 'ends-with' [IN]
+#        the character to be searched
+#
+# @param 3 : 'retvar' [OUT]
+#        true if string ends with given character sequence; false otherwise
+#
+
+function lib_stringutils_ends_with ()
+{
+    local v_string="$1"
+    local v_ends_with="$2"
+    local r_retvar="$3"
+
+    lib_validate_var_is_set "v_string"    "Illegal argument 'string'."
+    lib_validate_var_is_set "v_ends_with" "Illegal argument 'ends-with'."
+    lib_validate_var_is_set "r_retvar"    "Illegal argument 'retvar'."
+
+    if [[ "${v_string}" == *${v_ends_with} ]];
+    then
+        eval $r_retvar=true
+    else
+        eval $r_retvar=false
+    fi
+}
