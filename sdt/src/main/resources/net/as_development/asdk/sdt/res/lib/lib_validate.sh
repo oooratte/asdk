@@ -66,3 +66,30 @@ function lib_validate_var_is_set ()
         exit 1
     fi
 }
+
+#-----------------------------------------------------------------------------------------
+# validate if given variable is TRUE
+#
+# @param    var [IN]
+#           the name of the variable to be checked
+#
+# @param    msg [IN]
+#           the error message shown in case variable is not true
+#
+
+function lib_validate_var_is_true ()
+{
+    local v_var="$1"
+    local v_msg="$2"
+
+    local v_check_value=$(eval echo \$$v_var)
+
+    echo "DBG : var    = '${v_var}'"
+    echo "DBG : value  = '${v_check_value}'"
+
+    if [ "$v_check_value" != "true" ];
+    then
+        lib_log_error "(2) ${v_msg}"
+        exit 1
+    fi
+}

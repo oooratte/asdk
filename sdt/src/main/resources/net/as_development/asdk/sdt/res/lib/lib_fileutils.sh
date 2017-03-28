@@ -124,3 +124,37 @@ function lib_fileutils_remove_text_from_file_if_exists ()
         lib_fileutils_remove_text_from_file "${v_file}" "${v_text}"
     fi
 }
+
+#-----------------------------------------------------------------------------------------
+function lib_fileutils_file_exists ()
+{
+    local v_file="$1"
+    local r_retvar="$2"
+
+    lib_validate_var_is_set "v_file"   "Invalid argument 'file'."
+    lib_validate_var_is_set "r_retvar" "No return var given."
+
+    if [ -f "${v_file}" ];
+    then
+        eval $r_retvar=true
+    else
+        eval $r_retvar=false
+    fi
+}
+
+#-----------------------------------------------------------------------------------------
+function lib_fileutils_copy_file_to_dir ()
+{
+    local v_file="$1"
+    local v_dir="$2"
+    
+    lib_validate_var_is_set "v_file" "Invalid argument 'file'."
+    lib_validate_var_is_set "v_dir"  "Invalid argument 'dir'."
+
+    lib_fileutils_file_exists "${v_file}" v_exists
+    lib_validate_var_is_true "v_exists" "File '${v_file}' for copy do not exists."
+
+    lib_dirutils_ensure_dir "${v_dir}"
+
+    cp "${v_file}" "${v_dir}/"
+}

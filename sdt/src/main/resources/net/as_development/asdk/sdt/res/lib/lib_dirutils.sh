@@ -30,12 +30,29 @@
 set -e
 
 #-----------------------------------------------------------------------------------------
+function lib_dirutils_dir_exists ()
+{
+    local v_dir="$1"
+    local r_retvar="$2"
+
+    lib_validate_var_is_set "v_dir"    "Invalid argument 'dir'."
+    lib_validate_var_is_set "r_retvar" "No return var given."
+
+    if [ -d "${v_dir}" ];
+    then
+        eval $r_retvar=true
+    else
+        eval $r_retvar=false
+    fi
+}
+
+#-----------------------------------------------------------------------------------------
 function lib_dirutils_ensure_dir ()
 {
     local v_dir="$1"
     
     lib_validate_var_is_set "v_dir" "Invalid argument 'dir'."
-    
+
     if [ ! -d "${v_dir}" ];
     then
         lib_log_info "... dir '${v_dir}' do not exists - will be created new"
