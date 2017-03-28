@@ -29,6 +29,32 @@
 set -e
 
 #-----------------------------------------------------------------------------------------
+# check if given string is undefined/null or even empty
+#
+# @param 1 : 'string' [IN]
+#        the string to be checked here
+#
+# @param 2 : 'retvar' [OUT]
+#        true if string is empty; false otherwise
+#
+
+function lib_stringutils_is_empty ()
+{
+    local v_string="$1"
+    local r_retvar="$2"
+
+    # we cant validate for parameter v_string ... as it can be null or empty ;-)
+    lib_validate_var_is_set "r_retvar" "Illegal argument 'retvar'."
+
+    if [ -z "${v_string// }" ];
+    then
+        eval $r_retvar=true
+    else
+        eval $r_retvar=false
+    fi
+}
+
+#-----------------------------------------------------------------------------------------
 # replace all occurrence of a variable inside given string
 #
 # A variable inside the string can be defined using the following schema:
