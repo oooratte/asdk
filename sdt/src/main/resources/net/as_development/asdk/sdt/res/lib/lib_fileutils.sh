@@ -143,18 +143,38 @@ function lib_fileutils_file_exists ()
 }
 
 #-----------------------------------------------------------------------------------------
-function lib_fileutils_copy_file_to_dir ()
+function lib_fileutils_get_path ()
 {
     local v_file="$1"
-    local v_dir="$2"
+    local r_retvar="$2"
+
+    lib_validate_var_is_set "v_file"   "Invalid argument 'file'."
+    lib_validate_var_is_set "r_retvar" "No return var given."
+
+    local v_path=$(dirname ${v_file})
+    eval "${r_retvar}=\"${v_path}\"/"
+}
+
+#-----------------------------------------------------------------------------------------
+function lib_fileutils_copy_file ()
+{
+    local v_file="$1"
+    local v_target="$2"
     
-    lib_validate_var_is_set "v_file" "Invalid argument 'file'."
-    lib_validate_var_is_set "v_dir"  "Invalid argument 'dir'."
+    lib_validate_var_is_set "v_file"   "Invalid argument 'file'."
+    lib_validate_var_is_set "v_target" "Invalid argument 'target'."
 
     lib_fileutils_file_exists "${v_file}" v_exists
     lib_validate_var_is_true "v_exists" "File '${v_file}' for copy do not exists."
 
-    lib_dirutils_ensure_dir "${v_dir}"
+    lib_stringutils_ends_with "${v_target}" "/" v_target_is_dir
 
-    cp "${v_file}" "${v_dir}/"
+    if [ "${v_target_is_dir}" == "true" ];
+    then
+        cp "${v_file}" "${v_target}/"
+    else
+        lib_fileutils_get_path "${v_target}" v_dir
+        lib_dirutils_ensure_dir "${v_dir}"
+        cp "${v_file}" "${v_target}" # target = dir + file name !
+    fi
 }
