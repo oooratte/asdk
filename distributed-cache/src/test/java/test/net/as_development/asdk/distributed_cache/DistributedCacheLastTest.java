@@ -37,6 +37,7 @@ import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.junit.Ignore;
 
 import net.as_development.asdk.distributed_cache.DistributedCache;
+import net.as_development.asdk.distributed_cache.DistributedCacheSink;
 import net.as_development.asdk.distributed_cache.impl.ERunMode;
 
 //=============================================================================
@@ -50,7 +51,8 @@ public class DistributedCacheLastTest
 	{
 		final int CACHE_SIZE = 1000000;
 		
-		final DistributedCache aServer = impl_newCache (ERunMode.E_SERVER);
+		final DistributedCache     aServer    = impl_newCache (ERunMode.E_SERVER);
+		final DistributedCacheSink aCacheSink = aServer.getCacheSink();
 		aServer.connect();
 
 		System.out.println("fill cache with "+CACHE_SIZE+" items ...");
@@ -60,7 +62,7 @@ public class DistributedCacheLastTest
 		long start = System.nanoTime(); // System.currentTimeMillis();
 		
 		System.out.println("list key items ...");
-		final List< String > lKeys = aServer.listSubSet("msg.*");
+		final List< String > lKeys = aCacheSink.listSubSet("msg.*");
 		System.out.println("ok.");
 		
 		System.out.println("keys : "+lKeys.size());
@@ -85,8 +87,8 @@ public class DistributedCacheLastTest
 //				throw new Error ("Duplicate : "+sMsgId);
 //			lCheck.add(sMsgId);
 			
-			final String sClientOut = aServer.get("msg."+sMsgId+".ws-client-out");
-			final String sServerIn  = aServer.get("msg."+sMsgId+".ws-server-in" );
+			final String sClientOut = aCacheSink.get("msg."+sMsgId+".ws-client-out");
+			final String sServerIn  = aCacheSink.get("msg."+sMsgId+".ws-server-in" );
 			
 			if (StringUtils.isEmpty(sClientOut))
 			{

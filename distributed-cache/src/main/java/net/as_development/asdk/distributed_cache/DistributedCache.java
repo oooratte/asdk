@@ -26,10 +26,6 @@
  */
 package net.as_development.asdk.distributed_cache;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
@@ -41,10 +37,16 @@ import net.as_development.asdk.distributed_cache.impl.channel.MulticastChannel;
 import net.as_development.asdk.distributed_cache.impl.channel.UnicastChannel;
 import net.as_development.asdk.tools.common.pattern.observation.Observable;
 import net.as_development.asdk.tools.common.pattern.observation.Observer;
+import net.as_development.asdk.tools.logging.ELogLevel;
+import net.as_development.asdk.tools.logging.LoggerFactory;
+import net.as_development.asdk.tools.logging.impl.Logger;
 
 //=============================================================================
 public class DistributedCache implements Observer< Message >
 {
+	//-------------------------------------------------------------------------
+	private static Logger LOG = LoggerFactory.newLogger(DistributedCache.class);
+	
 	//-------------------------------------------------------------------------
 	public DistributedCache ()
 	    throws Exception
@@ -58,6 +60,13 @@ public class DistributedCache implements Observer< Message >
 	}
 
 	//-------------------------------------------------------------------------
+	public synchronized DistributedCacheSink getCacheSink ()
+		throws Exception
+	{
+		return mem_Cache ();
+	}
+
+	//-------------------------------------------------------------------------
 	@SuppressWarnings("unchecked")
 	public synchronized void connect ()
 	    throws Exception
@@ -65,7 +74,11 @@ public class DistributedCache implements Observer< Message >
 		if (m_iChannel != null)
 			return;
 
-		final String                 sME          = mem_MyId   ();
+		LOG	.forLevel	(ELogLevel.E_DEBUG)
+			.withMessage("["+mem_CacheID ()+"] connect ...")
+			.log 		();
+		
+		final String                 sME          = mem_CacheID   ();
 		final DistributedCacheConfig aConfig      = mem_Config ();
 		final boolean                bIsMulticast = aConfig.isMulticast();
 		      IChannel               iChannel     = null;
@@ -73,9 +86,9 @@ public class DistributedCache implements Observer< Message >
 		if (bIsMulticast)
 			iChannel = new MulticastChannel ();
 		else
-			iChannel = new UnicastChannel ();
+			iChannel = new UnicastChannel   ();
 
-		iChannel.setSenderId(sME    );
+		iChannel.setCacheID(sME    );
 		iChannel.configure  (aConfig);
 		iChannel.connect    (       );
 
@@ -91,6 +104,10 @@ public class DistributedCache implements Observer< Message >
 		if (m_iChannel == null)
 			return;
 		
+		LOG	.forLevel	(ELogLevel.E_DEBUG)
+			.withMessage("["+mem_CacheID ()+"] disconnect ...")
+			.log 		();
+
 		final IChannel iChannel = m_iChannel;
 		
 		if (iChannel != null)
@@ -104,7 +121,7 @@ public class DistributedCache implements Observer< Message >
 		{
 			disconnect ();
 		}
-		catch (Throwable ex)
+		catch (Throwable exIgnore)
 		{}
 	}
 
@@ -113,79 +130,35 @@ public class DistributedCache implements Observer< Message >
 								  final String sValue)
 	    throws Exception
 	{
-		final Map< String, String > aCache    = mem_Cache ();
-		final String                sOldValue = aCache.get(sKey);
-		final boolean               bChanged  = ! StringUtils.equals(sValue, sOldValue);
+		LOG	.forLevel	(ELogLevel.E_DEBUG)
+			.withMessage("["+mem_CacheID ()+"] set ("+sKey+"="+sValue+") ...")
+			.log 		();
+
+		final DistributedCacheSink aCache    = mem_Cache ();
+		final String               sOldValue = aCache.get(sKey);
+		final boolean              bChanged  = ! StringUtils.equals(sValue, sOldValue);
 		
 		if ( ! bChanged)
 			return;
 
-		aCache.put(sKey, sValue);
-		
-		final Message aSet = Set.newSet(sKey, sValue);
+		final Set aSet = Set.newSet(sKey, sValue);
+
+		aCache.set(aSet);
 		impl_send (aSet);
-	}
-
-	//-------------------------------------------------------------------------
-	public synchronized String get (final String sKey)
-	    throws Exception
-	{
-		final Map< String, String > aCache = mem_Cache ();
-		final String                sValue = aCache.get(sKey);
-		return sValue;
-	}
-
-	//-------------------------------------------------------------------------
-	public synchronized Map< String, String > get (final List< String > lKeys)
-	    throws Exception
-	{
-		final Map< String, String > aCache  = mem_Cache ();
-		final Map< String, String > aResult = new HashMap< String, String > ();
-		
-		for (final String sKey : lKeys)
-		{
-			final String sValue = aCache.get(sKey);
-			aResult.put(sKey, sValue);
-		}
-		
-		return aResult;
-	}
-
-	//-------------------------------------------------------------------------
-	public synchronized List< String > listAll ()
-	    throws Exception
-	{
-		final Map< String, String > aCache = mem_Cache ();
-		final List< String >        lAll   = new ArrayList< String > ();
-		lAll.addAll(aCache.keySet());
-		return lAll;
-	}
-
-	//-------------------------------------------------------------------------
-	public /* no synchronized */ List< String > listSubSet (final String sRegEx)
-	    throws Exception
-	{
-		final List< String > lAll    = listAll ();
-		final List< String > lSubSet = new ArrayList< String > ();
-		
-		for (final String sKey : lAll)
-		{
-			if (sKey.matches(sRegEx))
-				lSubSet.add(sKey);
-		}
-		
-		return lSubSet;
 	}
 
 	//-------------------------------------------------------------------------
 	private void impl_send (final Message aMsg)
 		throws Exception
 	{
-		final String sME = mem_MyId ();
+		final String sME = mem_CacheID ();
 		if (m_iChannel == null)
-			throw new RuntimeException ("["+sME+"] Not connected.");
+			throw new RuntimeException ("["+mem_CacheID ()+"] cant send : not connected !");
 
-//		System.out.println("... ["+sME+"] send out : '"+aMsg+"'");
+		LOG	.forLevel	(ELogLevel.E_DEBUG)
+			.withMessage("["+mem_CacheID ()+"] send : "+aMsg+" ...")
+			.log 		();
+
 		aMsg.setSender(sME);
 		m_iChannel.send(aMsg);
 	}
@@ -204,14 +177,14 @@ public class DistributedCache implements Observer< Message >
 	private synchronized void impl_doSet (final Message aMsg)
 	    throws Exception
 	{
-		final String                sME    = mem_MyId  ();
-		final Map< String, String > aCache = mem_Cache ();
-		final Set                   aSet   = Set.fromMessage(aMsg);
-		final String                sKey   = aSet.getKey  ();
-		final String                sValue = aSet.getValue();
+		final String               sME    = mem_CacheID  ();
+		final DistributedCacheSink aCache = mem_Cache ();
+		final Set                  aSet   = Set.fromMessage(aMsg);
 
-//		System.out.println("["+sME+"] set : '"+sKey+"' = '"+sValue+"'");
-		aCache.put(sKey, sValue);
+		LOG	.forLevel	(ELogLevel.E_DEBUG)
+			.withMessage("["+mem_CacheID ()+"] got : "+aMsg+" ...")
+			.log 		();
+		aCache.set(aSet);
 	}
 	
 	//-------------------------------------------------------------------------
@@ -224,25 +197,31 @@ public class DistributedCache implements Observer< Message >
 	}
 
 	//-------------------------------------------------------------------------
-	private synchronized String mem_MyId ()
+	private synchronized String mem_CacheID ()
 	    throws Exception
 	{
-		if (m_sMyId == null)
-			m_sMyId = UUID.randomUUID().toString();
-		return m_sMyId;
+		if (m_sCacheID == null)
+			m_sCacheID = UUID.randomUUID().toString();
+		return m_sCacheID;
 	}
 
 	//-------------------------------------------------------------------------
-	private synchronized Map< String, String > mem_Cache ()
+	private synchronized DistributedCacheSink mem_Cache ()
 	    throws Exception
 	{
 		if (m_aCache == null)
-			m_aCache = new HashMap< String, String > ();
+		{
+			m_aCache = new DistributedCacheSink ();
+			m_aCache.setCacheID(mem_CacheID ());
+		}
 		return m_aCache;
 	}
 
 	//-------------------------------------------------------------------------
-	private String m_sMyId = null;
+	private String m_sCacheID = null;
+
+	//-------------------------------------------------------------------------
+	private boolean m_bNoSendWhileServerInUnicast = false;
 	
 	//-------------------------------------------------------------------------
 	private DistributedCacheConfig m_aConfig = null;
@@ -251,5 +230,5 @@ public class DistributedCache implements Observer< Message >
 	private IChannel m_iChannel = null;
 
 	//-------------------------------------------------------------------------
-	private Map< String, String > m_aCache = null;
+	private DistributedCacheSink m_aCache = null;
 }

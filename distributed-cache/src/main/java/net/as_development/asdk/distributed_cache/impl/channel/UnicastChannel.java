@@ -39,24 +39,31 @@ import java.util.concurrent.Executors;
 import org.apache.commons.lang3.StringUtils;
 
 import net.as_development.asdk.distributed_cache.DistributedCacheConfig;
+import net.as_development.asdk.distributed_cache.DistributedCacheSink;
 import net.as_development.asdk.distributed_cache.impl.ERunMode;
 import net.as_development.asdk.distributed_cache.impl.Message;
 import net.as_development.asdk.tools.common.pattern.observation.ObservableBase;
+import net.as_development.asdk.tools.logging.ELogLevel;
+import net.as_development.asdk.tools.logging.LoggerFactory;
+import net.as_development.asdk.tools.logging.impl.Logger;
 
 //=============================================================================
 public class UnicastChannel extends    ObservableBase< Message >
-							  implements IChannel
+							implements IChannel
 {
+	//-------------------------------------------------------------------------
+	private static Logger LOG = LoggerFactory.newLogger(UnicastChannel.class);
+
 	//-------------------------------------------------------------------------
 	public UnicastChannel ()
 	{}
 
 	//-------------------------------------------------------------------------
 	@Override
-	public synchronized void setSenderId (final String sId)
+	public synchronized void setCacheID (final String sId)
 	    throws Exception
 	{
-		m_sSenderId = sId;
+		m_sCacheID = sId;
 	}
 	
 	//-------------------------------------------------------------------------
@@ -78,15 +85,23 @@ public class UnicastChannel extends    ObservableBase< Message >
 		   )
 			return;
 		
-		final String                 sME      = m_sSenderId;
+		final String                 sME      = m_sCacheID;
 		final DistributedCacheConfig aConfig  = m_aConfig;
 		final ERunMode               eRunMode = aConfig.getRunMode();
 		final String                 sAddress = aConfig.getAddress();
 		final int                    nPort    = aConfig.getPort   ();
 		final InetAddress            aAddress = InetAddress.getByName(sAddress);
 		
+		LOG	.forLevel	(ELogLevel.E_DEBUG)
+			.withMessage("["+m_sCacheID+"] connect ...")
+			.log 		();
+
 		if (eRunMode == ERunMode.E_SERVER)
 		{
+			LOG	.forLevel	(ELogLevel.E_DEBUG)
+				.withMessage("["+m_sCacheID+"] ... enable server mode : port="+nPort)
+				.log 		();
+
 			final ServerSocket aServerSocket = new ServerSocket (nPort);
 			impl_startServer  (aServerSocket);
 			m_aServerSocket =  aServerSocket;
@@ -94,11 +109,14 @@ public class UnicastChannel extends    ObservableBase< Message >
 		else
 		if (eRunMode == ERunMode.E_CLIENT)
 		{
+			LOG	.forLevel	(ELogLevel.E_DEBUG)
+				.withMessage("["+m_sCacheID+"] ... enable client mode : server="+sAddress+" port="+nPort)
+				.log 		();
+
 			final Socket aClientSocket = new Socket (sAddress, nPort);
 			m_aClientSocket = aClientSocket;
 		}
 		
-//		System.out.println ("["+sME+"] connected to '"+sAddress+":"+nPort+"'");
 		m_aAddress = aAddress;
 		m_nPort    = nPort   ;
 	}
@@ -113,6 +131,10 @@ public class UnicastChannel extends    ObservableBase< Message >
 			(m_aClientSocket == null)
 		   )
 			return;
+
+		LOG	.forLevel	(ELogLevel.E_DEBUG)
+			.withMessage("["+m_sCacheID+"] disconnect ...")
+			.log 		();
 
 		final ServerSocket aServerSocket = m_aServerSocket;
 		                 m_aServerSocket = null;
@@ -133,9 +155,9 @@ public class UnicastChannel extends    ObservableBase< Message >
 		if (m_aServerSocket != null)
 			return; // server cant be used for sending data ...
 		
-		final String sME = m_sSenderId;
+		final String sME = m_sCacheID;
 		if (m_aClientSocket == null)
-			throw new RuntimeException ("["+sME+"] Not connected.");
+			throw new RuntimeException ("["+m_sCacheID+"] cant end : not connected !");
 
 		aMsg.setSender(sME);
 		final String sMsg = Message.serialize(aMsg);
@@ -150,11 +172,20 @@ public class UnicastChannel extends    ObservableBase< Message >
 				if (m_aClientOut == null)
 					m_aClientOut = new DataOutputStream (m_aClientSocket.getOutputStream());
 		
+				LOG	.forLevel	(ELogLevel.E_DEBUG)
+					.withMessage("["+m_sCacheID+"] send : "+sMsg)
+					.log 		();
+
 				m_aClientOut.writeUTF(sMsg);
 				break;
 			}
 			catch (final Throwable ex)
 			{
+				LOG	.forLevel	(ELogLevel.E_ERROR)
+					.withError  (ex)
+					.setVar     ("cache-id", m_sCacheID)
+					.log 		();
+
 				final boolean FORCE = true;
 				reconnect(FORCE);
 			}
@@ -237,8 +268,10 @@ public class UnicastChannel extends    ObservableBase< Message >
 							return;
 					}
 
-					System.err.println(ex.getMessage ());
-					ex.printStackTrace(System.err      );
+					LOG	.forLevel	(ELogLevel.E_ERROR)
+						.withError	(ex)
+						.setVar     ("cache-id", m_sCacheID)
+						.log 		();
 				}
 			}
 		};
@@ -251,9 +284,13 @@ public class UnicastChannel extends    ObservableBase< Message >
 	private void impl_handleClient (final Socket aSocket)
 	    throws Exception
 	{
-//		System.out.println("server : new client connected ...");
+		final String sClientID = aSocket.getRemoteSocketAddress().toString();
 		
-		final String          sME         = m_sSenderId;
+		LOG	.forLevel	(ELogLevel.E_DEBUG)
+			.withMessage("["+m_sCacheID+"] new client connected : "+sClientID)
+			.log 		();
+		
+		final String          sME         = m_sCacheID;
 		final ExecutorService aThreadPool = mem_ClientThreadPool ();
 		final Runnable        aReceiver   = new Runnable ()
 		{
@@ -272,6 +309,9 @@ public class UnicastChannel extends    ObservableBase< Message >
 				        if (StringUtils.equals(aMsg.getSender(), sME))
 			        		continue;
 				        
+						LOG	.forLevel	(ELogLevel.E_DEBUG)
+							.withMessage("["+m_sCacheID+"] new message from client : "+sClientID)
+							.log 		();
 				        fire (aMsg);
 					}
 				}
@@ -281,8 +321,10 @@ public class UnicastChannel extends    ObservableBase< Message >
 				}
 				catch (Throwable ex)
 				{
-					System.err.println(ex.getMessage ());
-					ex.printStackTrace(System.err      );
+					LOG	.forLevel	(ELogLevel.E_ERROR)
+						.withError	(ex)
+						.setVar     ("cache-id", m_sCacheID)
+						.log 		();
 				}
 			}
 		};
@@ -300,7 +342,7 @@ public class UnicastChannel extends    ObservableBase< Message >
 	}
 
 	//-------------------------------------------------------------------------
-	private String m_sSenderId = null;
+	private String m_sCacheID = null;
 	
 	//-------------------------------------------------------------------------
 	private DistributedCacheConfig m_aConfig = null;

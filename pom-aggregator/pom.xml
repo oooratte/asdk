@@ -26,6 +26,7 @@
         <module>../tools-common</module>
         <module>../tools-test</module>
         <module>../tools-reflection</module>
+        <module>../tools-logging</module>
         <module>../tools-commandline</module>
         <module>../tools-configuration</module>
         <module>../tools-exec</module>
@@ -33,6 +34,7 @@
 
         <module>../service-env</module>
         <module>../distributed-cache</module>
+        <module>../monitoring</module>
         <module>../sql-server</module>
         <module>../ssh</module>
         <module>../sdt</module>

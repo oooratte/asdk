@@ -39,7 +39,7 @@ public class ObservableBase< T > implements Observable< T >
 	{}
 	
 	//-------------------------------------------------------------------------
-	public void addObserver (final Observer< T > aObserver)
+	public synchronized void addObserver (final Observer< T > aObserver)
 		throws Exception
 	{
 		Validate.notNull(aObserver, "Invalid argument 'observer'.");
@@ -47,7 +47,7 @@ public class ObservableBase< T > implements Observable< T >
 	}
 
 	//-------------------------------------------------------------------------
-	public void removeObserver (final Observer< T > aObserver)
+	public synchronized void removeObserver (final Observer< T > aObserver)
 		throws Exception
 	{
 		Validate.notNull(aObserver, "Invalid argument 'observer'.");
@@ -55,16 +55,16 @@ public class ObservableBase< T > implements Observable< T >
 	}
 
 	//-------------------------------------------------------------------------
-	public void fire (final T aEvent)
+	public /* no synchronized */ void fire (final T aEvent)
 		throws Exception
 	{
-		final Set< Observer< T > > lObserver = mem_Observer ();
+		final Set< Observer< T > > lObserver = new HashSet< Observer< T > >(mem_Observer ());
 		for (final Observer< T > aObserver : lObserver)
 			aObserver.notify(aEvent);
 	}
 	
 	//-------------------------------------------------------------------------
-	private Set< Observer< T > > mem_Observer ()
+	private synchronized Set< Observer< T > > mem_Observer ()
 		throws Exception
 	{
 		if (m_lObserver == null)

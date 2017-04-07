@@ -48,7 +48,7 @@ public class MulticastChannel extends    ObservableBase< Message >
 
 	//-------------------------------------------------------------------------
 	@Override
-	public synchronized void setSenderId (final String sId)
+	public synchronized void setCacheID (final String sId)
 	    throws Exception
 	{
 		m_sSenderId = sId;

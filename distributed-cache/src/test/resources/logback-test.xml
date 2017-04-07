@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    This is free and unencumbered software released into the public domain.
+
+    Anyone is free to copy, modify, publish, use, compile, sell, or
+    distribute this software, either in source code form or as a compiled
+    binary, for any purpose, commercial or non-commercial, and by any
+    means.
+
+    In jurisdictions that recognize copyright laws, the author or authors
+    of this software dedicate any and all copyright interest in the
+    software to the public domain. We make this dedication for the benefit
+    of the public at large and to the detriment of our heirs and
+    successors. We intend this dedication to be an overt act of
+    relinquishment in perpetuity of all present and future rights to this
+    software under copyright law.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+    EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+    MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+    IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR
+    OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+    ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+    OTHER DEALINGS IN THE SOFTWARE.
+
+    For more information, please refer to <http://unlicense.org/>
+
+-->
+
+<configuration>
+
+    <property name="CUSTOM_LOGGING"  value="false"                 />
+    
+    <property name="ENABLE_CONSOLE"  value="true"                  /> 
+    <property name="ENABLE_FILE"     value="false"                 /> 
+    <property name="ENABLE_SPLUNK"   value="false"                 />
+    <property name="ENABLE_ECLIPSE"  value="false"                 /> 
+    
+    <property name="LOG_LEVEL"       value="DEBUG"                 />
+    
+    <property name="LOG_CALLERDATA"  value="true"                  />
+    <property name="LOG_QUEUE_SIZE"  value="10000"                 />
+    <property name="LOG_DIR"         value="/var/log/open-xchange" />
+
+    <property name="SPLUNK_HOST"     value="127.0.0.1"             />
+    <property name="SPLUNK_PORT"     value="15000"                 />
+
+<!-- look for an user defined logging configuration (optional).
+     This can be used within a development environment ...
+  -->
+
+    <if condition='property("CUSTOM_LOGGING").equalsIgnoreCase("false")'>
+        <then>
+            <include file    ="${CONFIG_PATH}/logback.xml"
+                     optional="true"
+            />
+        </then>
+    </if>
+
+<!-- If no custom logging was defined at all ...
+     use default logging instead.
+  -->
+
+    <if condition='property("CUSTOM_LOGGING").equalsIgnoreCase("false")'>
+        <then>
+            <if condition='property("ENABLE_CONSOLE").equalsIgnoreCase("true")'>
+            <then>
+                <appender name ="CONSOLE"
+                          class="ch.qos.logback.core.ConsoleAppender">
+                    <encoder>
+                        <if condition='property("LOG_CALLERDATA").equalsIgnoreCase("true")'>
+                        <then>
+                            <pattern>%date{"HH:mm:ss"} %.-1level [%10.10thread] %40.-40(%logger{0}.%method):%5.5line - %replace(%message){'\n', ' '}%n%rEx{full}</pattern>
+                        </then>
+                        <else>
+                            <pattern>%date{"HH:mm:ss"} %.-1level [%10.10thread] - %replace(%message){'\n', ' '}%n%rEx{full}</pattern>
+                        </else>
+                        </if>
+                    </encoder>
+                    <includeCallerData>${LOG_CALLERDATA}</includeCallerData>
+                </appender>
+
+                <appender name ="ASYNC_CONSOLE"
+                          class="ch.qos.logback.classic.AsyncAppender">
+                    <queueSize>${LOG_QUEUE_SIZE}</queueSize>
+                    <discardingThreshold>0</discardingThreshold>
+                    <includeCallerData>${LOG_CALLERDATA}</includeCallerData>
+                    <appender-ref ref="CONSOLE" />
+                </appender>
+            </then>
+            </if>
+    
+            <if condition='property("ENABLE_FILE").equalsIgnoreCase("true")'>
+            <then>
+                <appender name ="FILE"
+                          class="ch.qos.logback.core.FileAppender">
+                    <file>${LOG_DIR}/${APPLICATION_ID}/${INSTANCE_ID}.log</file>
+                    <encoder>
+                        <if condition='property("LOG_CALLERDATA").equalsIgnoreCase("true")'>
+                        <then>
+                            <pattern>%X{PID} %date{"HH:mm:ss"} %.-1level [%5.5thread] %40.-40(%logger{0}.%method):%5.5line - %replace(%message){'\n', ' '}%n%rEx{full}</pattern>
+                        </then>
+                        <else>
+                            <pattern>%X{PID} %date{"HH:mm:ss"} %.-1level [%5.5thread] - %replace(%message){'\n', ' '}%n%rEx{full}</pattern>
+                        </else>
+                        </if>
+                    </encoder>
+                    <includeCallerData>${LOG_CALLERDATA}</includeCallerData>
+                </appender>
+
+                <appender name ="ASYNC_FILE"
+                          class="ch.qos.logback.classic.AsyncAppender">
+                    <queueSize>${LOG_QUEUE_SIZE}</queueSize>
+                    <discardingThreshold>0</discardingThreshold>
+                    <includeCallerData>${LOG_CALLERDATA}</includeCallerData>
+                    <appender-ref ref="FILE" />
+                </appender>
+            </then>
+            </if>
+    
+            <if condition='property("ENABLE_SPLUNK").equalsIgnoreCase("true")'>
+            <then>
+                <appender name ="SPLUNK"
+                          class="com.splunk.logging.logback.appender.SplunkRawTCPAppender">
+                    <host>${SPLUNK_HOST}</host>
+                    <port>${SPLUNK_PORT}</port>
+                    <maxQueueSize>64MB</maxQueueSize>
+                    <dropEventsOnQueueFull>true</dropEventsOnQueueFull>
+                    <layout>
+                        <if condition='property("LOG_CALLERDATA").equalsIgnoreCase("true")'>
+                        <then>
+                            <pattern>%level : %date{ISO8601} : %message%n - [app=${APPLICATION_ID}:inst=${INSTANCE_ID}:pid=%X{PID}:thread=%thread]%n - %logger{0}.%method:%line - %n%rEx{full}</pattern>
+                        </then>
+                        <else>
+                            <pattern>%level : %date{ISO8601} : %message%n - [app=${APPLICATION_ID}:inst=${INSTANCE_ID}:pid=%X{PID}:thread=%thread]%n - %n%rEx{full}</pattern>
+                        </else>
+                        </if>
+                    </layout>
+                </appender>
+
+                <appender name ="ASYNC_SPLUNK"
+                          class="ch.qos.logback.classic.AsyncAppender">
+                    <queueSize>${LOG_QUEUE_SIZE}</queueSize>
+                    <discardingThreshold>0</discardingThreshold>
+                    <includeCallerData>${LOG_CALLERDATA}</includeCallerData>
+                    <appender-ref ref="SPLUNK" />
+                </appender>
+            </then>
+            </if>
+    
+            <if condition='property("ENABLE_ECLIPSE").equalsIgnoreCase("true")'>
+            <then>
+                <consolePlugin />
+            </then>
+            </if>
+
+            <root level="${LOG_LEVEL}">
+                <if condition='property("ENABLE_CONSOLE").equalsIgnoreCase("true")'>
+                <then>
+                    <appender-ref ref="ASYNC_CONSOLE" />
+                </then>
+                </if>
+
+                <if condition='property("ENABLE_FILE").equalsIgnoreCase("true")'>
+                <then>
+                    <appender-ref ref="ASYNC_FILE" />
+                </then>
+                </if>
+
+                <if condition='property("ENABLE_SPLUNK").equalsIgnoreCase("true")'>
+                <then>
+                    <appender-ref ref="ASYNC_SPLUNK" />
+                </then>
+                </if>
+            </root> 
+        </then>
+    </if>
+
+</configuration>

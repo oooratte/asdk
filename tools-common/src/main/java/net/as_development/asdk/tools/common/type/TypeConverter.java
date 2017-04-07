@@ -26,6 +26,9 @@
  */
 package net.as_development.asdk.tools.common.type;
 
+import java.util.Collection;
+import java.util.List;
+
 import org.apache.commons.lang3.StringUtils;
 
 //=============================================================================
@@ -37,7 +40,7 @@ public class TypeConverter
 	{}
 
 	//-------------------------------------------------------------------------
-	public static <T> String toString (final T aValue)
+	public static < T > String toString (final T aValue)
 	    throws Exception
 	{
 		if (aValue == null)
@@ -49,8 +52,8 @@ public class TypeConverter
 	}
 
 	//-------------------------------------------------------------------------
-	public static <T> String toString (final T          aValue,
-								       final Class< ? > aType )
+	public static < T > String toString (final T          aValue,
+								         final Class< ? > aType )
 	    throws Exception
 	{
 		if (aValue == null)
@@ -103,17 +106,17 @@ public class TypeConverter
 		
 		if (aType.isEnum())
 			return ((Enum< ? >)aValue).name();
-			
-		if (Convertible.class.isAssignableFrom(aType))
-			return ((Convertible)aValue).convertToString();
+
+		if (IStringConvertible.class.isAssignableFrom(aType))
+			return ((IStringConvertible)aValue).convertToString();
 
 		throw new UnsupportedOperationException ("no support for type '"+aType+"' implemented yet");
 	}
 
 	//-------------------------------------------------------------------------
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public static <T> T fromString (final String     sValue,
-								    final Class< T > aType )
+	public static < T > T fromString (final String     sValue,
+								      final Class< T > aType )
 	    throws Exception
 	{
 		if (sValue == null)
@@ -170,10 +173,10 @@ public class TypeConverter
 		if (aType.isEnum())
 			return (T) Enum.valueOf((Class< ? extends Enum >)aType, sValue);
 		
-		if (Convertible.class.isAssignableFrom(aType))
+		if (IStringConvertible.class.isAssignableFrom(aType))
 		{
 			final T aInst = (T) aType.newInstance();
-			((Convertible)aInst).convertFromString(sValue);
+			((IStringConvertible)aInst).convertFromString(sValue);
 			return aInst;
 		}
 
