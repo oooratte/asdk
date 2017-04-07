@@ -73,6 +73,7 @@
 
         <version.slf4j>1.7.7</version.slf4j>
         <version.logback>1.1.2</version.logback>
+        <version.janino>3.0.7</version.janino>
 
         <version.hazelcast>3.3-EA</version.hazelcast>
 
@@ -235,13 +236,19 @@
                 <version>${version.slf4j}</version>
             </dependency>
 
-            <!-- logback -->
+            <!-- logback - janino -->
 
 			<dependency>
 			    <groupId>ch.qos.logback</groupId>
 			    <artifactId>logback-classic</artifactId>
                 <version>${version.logback}</version>
 			</dependency>
+
+            <dependency>
+				<groupId>org.codehaus.janino</groupId>
+				<artifactId>janino</artifactId>
+				<version>${version.janino}</version>
+            </dependency>
 
             <!-- aws -->
 

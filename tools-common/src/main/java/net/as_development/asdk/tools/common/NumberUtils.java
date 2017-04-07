@@ -221,4 +221,82 @@ public class NumberUtils
 
 		return (T) nNewValue;
 	}
+
+	//-------------------------------------------------------------------------
+	public static < T extends Number > boolean equals (final T nNumber1,
+										               final T nNumber2)
+	    throws Exception
+	{
+		if (
+			(nNumber1 == null) &&
+			(nNumber2 == null)
+		   )
+			return true;
+
+		if (
+			(nNumber1 != null) &&
+			(nNumber2 == null)
+		   )
+			return false;
+
+		if (
+			(nNumber1 == null) &&
+			(nNumber2 != null)
+		   )
+			return false;
+
+		final Class< ? > aType   = nNumber1.getClass ();
+		      boolean    bEquals = false;
+		if (
+			(aType.equals(Double.class)) ||
+			(aType.equals(double.class))
+	       )
+		{
+			bEquals = ((Double) nNumber1).equals((Double) nNumber2);
+		}
+		else
+		if (
+			(aType.equals(Float.class)) ||
+			(aType.equals(float.class))
+	       )
+		{
+			bEquals = ((Float) nNumber1).equals((Float) nNumber2);
+		}
+		else
+		if (
+			(aType.equals(Byte.class)) ||
+			(aType.equals(byte.class))
+	       )
+		{
+			bEquals = ((Byte) nNumber1).equals((Byte) nNumber2);
+		}
+		else
+		if (
+			(aType.equals(Short.class)) ||
+			(aType.equals(short.class))
+	       )
+		{
+			bEquals = ((Short) nNumber1).equals((Short) nNumber2);
+		}
+		else
+		if (
+			(aType.equals(Integer.class)) ||
+			(aType.equals(int    .class))
+	       )
+		{
+			bEquals = ((Integer) nNumber1).equals((Integer) nNumber2);
+		}
+		else
+		if (
+			(aType.equals(Long.class)) ||
+			(aType.equals(long.class))
+	       )
+		{
+			bEquals = ((Long) nNumber1).equals((Long) nNumber2);
+		}
+		else
+			throw new UnsupportedOperationException ("No support for number format '"+aType+"' implemented yet.");
+		
+		return bEquals;
+	}
 }

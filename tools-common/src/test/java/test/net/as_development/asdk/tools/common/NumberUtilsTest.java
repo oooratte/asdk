@@ -24,16 +24,28 @@
  *
  * For more information, please refer to <http://unlicense.org/>
  */
-package net.as_development.asdk.tools.common.type;
+package test.net.as_development.asdk.tools.common;
+
+import static org.junit.Assert.*;
+
+import org.junit.Test;
+
+import junit.framework.Assert;
+import net.as_development.asdk.tools.common.NumberUtils;
 
 //=============================================================================
-public interface Convertible
+public class NumberUtilsTest
 {
 	//-------------------------------------------------------------------------
-	public String convertToString ()
-		throws Exception;
+	@Test
+	public void testEquals()
+		throws Exception
+	{
+		Assert.assertTrue ("", NumberUtils.equals(null         , null         ));
+		Assert.assertTrue ("", NumberUtils.equals(new Long( 12), new Long( 12)));
+		Assert.assertTrue ("", NumberUtils.equals(new Long(256), new Long(256)));
 
-	//-------------------------------------------------------------------------
-	public void convertFromString (final String sValue)
-		throws Exception;
+		Assert.assertFalse("", NumberUtils.equals(null         , 25           ));
+		Assert.assertFalse("", NumberUtils.equals(new Long( 12), new Long(256)));
+	}
 }

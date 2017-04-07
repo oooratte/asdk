@@ -77,6 +77,18 @@ public class CollectionUtils
 	}
 
 	//-------------------------------------------------------------------------
+	@SuppressWarnings("unchecked")
+	public static < T > T[] toArray (final Collection< T > aCollection,
+									 final Class< T >      aType      )
+		throws Exception
+	{
+		final int c      = aCollection.size();
+		final T[] aArray = (T[])Array.newInstance(aType, c);
+		aCollection.toArray(aArray);
+		return (T[]) aArray;
+	}
+
+	//-------------------------------------------------------------------------
 	public static < T > String toString (final T[]  aArray    ,
 									     final char aSeparator)
 		throws Exception
@@ -89,19 +101,31 @@ public class CollectionUtils
 	}
 
 	//-------------------------------------------------------------------------
-	public static String formatAsProperties (final Map< String, String > aMap)
+	public static < T > String toString (final Collection< T > aCollection,
+									     final char            aSeparator )
 		throws Exception
 	{
-		final StringBuffer                       sString  = new StringBuffer (256);
-		final Iterator< Entry< String, String >> rEntries = aMap.entrySet().iterator();
+		final StringBuffer sString = new StringBuffer (256);
+		sString.append ("["                                      );
+		sString.append (StringUtils.join(aCollection, aSeparator));
+		sString.append ("]"                                      );
+		return sString.toString ();
+	}
+
+	//-------------------------------------------------------------------------
+	public static < T > String formatAsProperties (final Map< T, T > aMap)
+		throws Exception
+	{
+		final StringBuffer              sString  = new StringBuffer (256);
+		final Iterator< Entry< T, T > > rEntries = aMap.entrySet().iterator();
 		while (rEntries.hasNext())
 		{
-			final Entry< String, String > rEntry = rEntries.next();
-			final String                  sKey   = rEntry.getKey();
-			final String                  sValue = rEntry.getValue();
-			sString.append(sKey  );
+			final Entry< T, T > rEntry = rEntries.next    ();
+			final T             aKey   = rEntry  .getKey  ();
+			final T             aValue = rEntry  .getValue();
+			sString.append(aKey  );
 			sString.append("="   );
-			sString.append(sValue);
+			sString.append(aValue);
 			sString.append("\n"  );
 		}
 		return sString.toString ();
@@ -118,10 +142,10 @@ public class CollectionUtils
 	}
 
 	//-------------------------------------------------------------------------
-	public static Map< String, String > flat2MappedArguments (final String... lFlat)
+	public static < T > Map< T, T > flat2MappedArguments (final T... lFlat)
 	    throws Exception
 	{
-		final Map< String, String > aMap = new HashMap< String, String > ();
+		final Map< T, T > aMap = new HashMap< T, T > ();
 
 		if (lFlat == null)
 			return aMap;
@@ -139,13 +163,13 @@ public class CollectionUtils
 			if (nValueItem > nLastItem)
 				break;
 
-			final String sKey   = lFlat[nKeyItem  ];
-			final String sValue = lFlat[nValueItem];
+			final T aKey   = (T) lFlat[nKeyItem  ];
+			final T aValue = (T) lFlat[nValueItem];
 			
-			if (StringUtils.isEmpty(sKey))
+			if (aKey == null)
 				continue;
 			
-			aMap.put(sKey, sValue);
+			aMap.put(aKey, aValue);
 			
 			nItem += 2;
 		}

@@ -33,7 +33,7 @@ import net.as_development.asdk.distributed_cache.impl.Message;
 public interface IChannel
 {
 	//-------------------------------------------------------------------------
-	public void setSenderId (final String sId)
+	public void setCacheID (final String sId)
 	    throws Exception;
 	
 	//-------------------------------------------------------------------------

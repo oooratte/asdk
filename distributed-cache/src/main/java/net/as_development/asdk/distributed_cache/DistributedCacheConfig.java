@@ -47,10 +47,11 @@ public class DistributedCacheConfig
 	{}
 
 	//-------------------------------------------------------------------------
-	public synchronized void enableMulticast (final boolean bState)
+	public synchronized DistributedCacheConfig enableMulticast (final boolean bState)
 		throws Exception
 	{
 		m_bMulticast = bState;
+		return this;
 	}
 	
 	//-------------------------------------------------------------------------
@@ -61,10 +62,11 @@ public class DistributedCacheConfig
 	}
 
 	//-------------------------------------------------------------------------
-	public synchronized void setRunMode (final ERunMode eMode)
+	public synchronized DistributedCacheConfig setRunMode (final ERunMode eMode)
 	    throws Exception
 	{
 		m_eRunMode = eMode;
+		return this;
 	}
 
 	//-------------------------------------------------------------------------
@@ -75,11 +77,12 @@ public class DistributedCacheConfig
 	}
 
 	//-------------------------------------------------------------------------
-	public synchronized void setAddress (final String sAddress)
+	public synchronized DistributedCacheConfig setAddress (final String sAddress)
 		throws Exception
 	{
 		Validate.notEmpty(sAddress, "Invalid argument 'address'.");
 		m_sAddress = sAddress;
+		return this;
 	}
 
 	//-------------------------------------------------------------------------
@@ -97,10 +100,11 @@ public class DistributedCacheConfig
 	}
 
 	//-------------------------------------------------------------------------
-	public synchronized void setPort (final int nPort)
+	public synchronized DistributedCacheConfig setPort (final int nPort)
 		throws Exception
 	{
 		m_nPort = nPort;
+		return this;
 	}
 
 	//-------------------------------------------------------------------------
