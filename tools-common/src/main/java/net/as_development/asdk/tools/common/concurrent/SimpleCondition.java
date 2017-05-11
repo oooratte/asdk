@@ -33,45 +33,33 @@ import java.util.concurrent.atomic.AtomicInteger;
 //=============================================================================
 /**
  */
-public class ResetableCountDownLatch
+public class SimpleCondition
 {
 	//-------------------------------------------------------------------------
-	public ResetableCountDownLatch (final int nCount)
+	public SimpleCondition ()
 		/* no throws Exception */
-	{
-		m_nCount = nCount;
-		reset();
-	}
+	{}
 
 	//-------------------------------------------------------------------------
 	public synchronized void reset()
 		/* no throws Exception */
 	{
-		if (m_nAwaits.get() > 0)
-			throw new IllegalStateException ("There are awating clients. Reseting current latch and creating new one is not be possible ...");
-        m_aLatch = new CountDownLatch (m_nCount);
+		set ();
+		mem_Core ().reset();
     }
 
 	//-------------------------------------------------------------------------
-    public synchronized void countDown()
+    public synchronized void set()
     	/* no throws Exception */
     {
-        m_aLatch.countDown();
+    	mem_Core ().countDown();
     }
 
 	//-------------------------------------------------------------------------
     public /* no synchronized */ void await()
     	throws InterruptedException
     {
-    	try
-    	{
-    		m_nAwaits.incrementAndGet();
-    		m_aLatch.await();
-    	}
-    	finally
-    	{
-    		m_nAwaits.decrementAndGet();
-    	}
+    	mem_Core ().await();
     }
 
 	//-------------------------------------------------------------------------
@@ -79,26 +67,19 @@ public class ResetableCountDownLatch
     										   final TimeUnit aTimeUnit)
     	throws InterruptedException
     {
-    	boolean bOK = false;
-    	try
-    	{
-    		m_nAwaits.incrementAndGet();
-	        bOK = m_aLatch.await(nTimeOut, aTimeUnit);
-		}
-		finally
-		{
-			m_nAwaits.decrementAndGet();
-		}
-    	
+    	boolean bOK = mem_Core ().await(nTimeOut, aTimeUnit);
     	return bOK;
     }
 
 	//-------------------------------------------------------------------------
-	private Integer m_nCount = null; 
+	private synchronized ResetableCountDownLatch mem_Core ()
+		// no throws
+	{
+		if (m_aCore == null)
+			m_aCore = new ResetableCountDownLatch (1);
+		return m_aCore;
+	}
 
 	//-------------------------------------------------------------------------
-	private CountDownLatch m_aLatch = null; 
-
-	//-------------------------------------------------------------------------
-	private AtomicInteger m_nAwaits = new AtomicInteger (0);
+	private ResetableCountDownLatch m_aCore = null; 
 }
