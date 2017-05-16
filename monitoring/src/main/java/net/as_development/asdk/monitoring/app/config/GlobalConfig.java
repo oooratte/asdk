@@ -72,6 +72,15 @@ public class GlobalConfig
     }
 
     //-------------------------------------------------------------------------
+    public String getDataPath ()
+        throws Exception
+    {
+        final IComplexConfiguration iCfg   = mem_Config ();
+        final String                sValue = iCfg.get("monitor.data.path", String.class);
+        return sValue;
+    }
+
+    //-------------------------------------------------------------------------
     public <T> T getDirectValue (final String     sKey    ,
     							 final Class< T > aType   ,
     							 final T          aDefault)
