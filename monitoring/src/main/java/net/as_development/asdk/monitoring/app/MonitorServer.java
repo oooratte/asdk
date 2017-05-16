@@ -35,6 +35,7 @@ import net.as_development.asdk.distributed_cache.DistributedCache;
 import net.as_development.asdk.distributed_cache.DistributedCacheConfig;
 import net.as_development.asdk.distributed_cache.DistributedCacheSink;
 import net.as_development.asdk.distributed_cache.impl.ERunMode;
+import net.as_development.asdk.monitoring.app.config.GlobalConfig;
 import net.as_development.asdk.monitoring.app.config.MonitorAppConfig;
 import net.as_development.asdk.monitoring.persistence.MonitorPersistence;
 
@@ -116,11 +117,11 @@ public class MonitorServer
     private /* no synchronized */ void impl_runServer ()
         throws Exception
     {
-        final DistributedCache       aServer        = new DistributedCache ();
-        final MonitorAppConfig       aMonitorConfig = mem_Config ();
-        final DistributedCacheConfig aCacheConfig   = aServer.configure   ();
-        final DistributedCacheSink   aCacheSink     = aServer.getCacheSink();
-        final MonitorPersistence  aPersistence   = new MonitorPersistence ();
+        final DistributedCache       aServer        = new DistributedCache   ();
+        final MonitorAppConfig       aMonitorConfig = mem_Config             ();
+        final DistributedCacheConfig aCacheConfig   = aServer.configure      ();
+        final DistributedCacheSink   aCacheSink     = aServer.getCacheSink   ();
+        final MonitorPersistence     aPersistence   = new MonitorPersistence ();
 
         System.err.println ("configure server : interface = 0.0.0.0");
         System.err.println ("configure server : port      = "+aMonitorConfig.getServerPort());
@@ -130,7 +131,8 @@ public class MonitorServer
         aCacheConfig.setAddress     ("0.0.0.0"                     );
         aCacheConfig.setPort        (aMonitorConfig.getServerPort());
         
-        aPersistence.bindCacheSink(aCacheSink);
+        aPersistence.configure      (GlobalConfig.get()            );
+        aPersistence.bindCacheSink  (aCacheSink                    );
         aPersistence.start();
         
         System.err.println("server connect ...");

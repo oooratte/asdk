@@ -36,9 +36,12 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+
 import org.apache.commons.io.FileUtils;
+
 import net.as_development.asdk.distributed_cache.DistributedCacheItem;
 import net.as_development.asdk.distributed_cache.DistributedCacheSink;
+import net.as_development.asdk.monitoring.app.config.GlobalConfig;
 import net.as_development.asdk.monitoring.core.MonitorRecord;
 import net.as_development.asdk.tools.common.pattern.observation.Observer;
 
@@ -53,6 +56,13 @@ public class MonitorPersistence
         throws Exception
     {}
 
+    //-------------------------------------------------------------------------
+    public synchronized void configure (final GlobalConfig aConfig)
+    	throws Exception
+    {
+    	m_aConfig = aConfig;
+    }
+    
     //-------------------------------------------------------------------------
     public synchronized void bindCacheSink (final DistributedCacheSink aSink)
         throws Exception
@@ -205,7 +215,7 @@ public class MonitorPersistence
             final MonitorRecord aRecord = MonitorRecord.create(aCacheItem.sValue);
             System.err.println ("RECORD : ["+aRecord+"]");
         }
-        final File aCacheDir  = new File ("/tmp/asdk-monitor/cache");
+        final File aCacheDir  = mem_DataPath ();
         final int  nCacheNr   = m_nCacheFileNr.incrementAndGet();
         final File aCacheFile = new File (aCacheDir, nCacheNr+".cache");
 
@@ -215,6 +225,19 @@ public class MonitorPersistence
         FileUtils.writeStringToFile(aCacheFile, sData.toString(), "utf-8");
     }
     
+    //-------------------------------------------------------------------------
+    private synchronized File mem_DataPath ()
+        throws Exception
+    {
+    	if (m_aDataPath == null)
+    	{
+    		final String sDataPath = m_aConfig.getDataPath();
+    		final File   aDataPath = new File (sDataPath);
+    		m_aDataPath = aDataPath;
+    	}
+    	return m_aDataPath;
+    }
+
     //-------------------------------------------------------------------------
     private synchronized Queue< DistributedCacheItem > mem_CacheItemQueue ()
         throws Exception
@@ -252,6 +275,12 @@ public class MonitorPersistence
             m_aShutdownTrigger = new CountDownLatch (1);
         return m_aShutdownTrigger;
     }
+
+    //-------------------------------------------------------------------------
+    private GlobalConfig m_aConfig = null;
+    
+    //-------------------------------------------------------------------------
+    private File m_aDataPath = null;
 
     //-------------------------------------------------------------------------
     private DistributedCacheSink m_aCacheSink = null;
