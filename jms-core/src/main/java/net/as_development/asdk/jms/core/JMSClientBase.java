@@ -306,6 +306,7 @@ public class JMSClientBase
 			{
 				try
 				{
+					System.err.println("##### DBG : onMessage ("+aJMSResponse+")");
 					aRRManager.registerResponseAndNotify(aJMSResponse);
 					aJMSResponse.acknowledge();
 				}
