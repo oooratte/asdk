@@ -29,15 +29,14 @@ package test.net.as_development.asdk.distributed_cache;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadLocalRandom;
 
+import org.junit.Assert;
 import org.junit.Test;
 
-import junit.framework.Assert;
 import net.as_development.asdk.distributed_cache.DistributedCache;
 import net.as_development.asdk.distributed_cache.DistributedCacheItem;
 import net.as_development.asdk.distributed_cache.DistributedCacheSink;
@@ -49,7 +48,6 @@ import net.as_development.asdk.tools.logging.LoggerFactory;
 import net.as_development.asdk.tools.logging.impl.Logger;
 
 //=============================================================================
-
 public class DistributedCacheTest
 {
 	//-------------------------------------------------------------------------
@@ -60,25 +58,35 @@ public class DistributedCacheTest
 	public void test()
 		throws Exception
 	{
-		final int              nMessagesPerBE    = 1;
-		final DistributedCache aServer           = newCache ("server", ERunMode.E_SERVER); 
-		final CountDownLatch   aShutdownSync     = new CountDownLatch (3);
-		final ExecutorService  aBE01             = newBE (1, nMessagesPerBE, aShutdownSync);
-		final ExecutorService  aBE02             = newBE (2, nMessagesPerBE, aShutdownSync);
-		final ExecutorService  aBE03             = newBE (3, nMessagesPerBE, aShutdownSync);
-		final int              nExpectedMessages = 3 * nMessagesPerBE;
-
-		aShutdownSync.await();
-		Thread.sleep(1000); // not fine ... but (for the moment) functional ;-)
-
-		final DistributedCacheSink aCachSink = aServer.getCacheSink();
-		final List< String >       lAll      = aCachSink.listAll();
-		Assert.assertNotNull("test [01] never return NULL here !", lAll          );
-		Assert.assertFalse  ("test [02] miss all messages"       , lAll.isEmpty());
-
-		System.err.println (CollectionUtils.toString(lAll, '\n'));
+		DistributedCache aServer = null;
 		
-		Assert.assertEquals("test [03] miss some messages", nExpectedMessages, lAll.size());
+		try
+		{
+			final int              nMessagesPerBE    = 1;
+			                       aServer           = newCache ("server", ERunMode.E_SERVER); 
+			final CountDownLatch   aShutdownSync     = new CountDownLatch (3);
+			final ExecutorService  aBE01             = newBE (1, nMessagesPerBE, aShutdownSync);
+			final ExecutorService  aBE02             = newBE (2, nMessagesPerBE, aShutdownSync);
+			final ExecutorService  aBE03             = newBE (3, nMessagesPerBE, aShutdownSync);
+			final int              nExpectedMessages = 3 * nMessagesPerBE;
+	
+			aShutdownSync.await();
+			Thread.sleep(1000); // not fine ... but (for the moment) functional ;-)
+	
+			final DistributedCacheSink aCachSink = aServer.getCacheSink();
+			final List< String >       lAll      = aCachSink.listAll();
+			Assert.assertNotNull("test [01] never return NULL here !", lAll          );
+			Assert.assertFalse  ("test [02] miss all messages"       , lAll.isEmpty());
+	
+			System.err.println (CollectionUtils.toString(lAll, '\n'));
+			
+			Assert.assertEquals("test [03] miss some messages", nExpectedMessages, lAll.size());
+		}
+		finally
+		{
+			if (aServer != null)
+				aServer.disconnectQuietly();
+		}
 	}
 
 	//-------------------------------------------------------------------------
@@ -86,41 +94,51 @@ public class DistributedCacheTest
 	public void testCacheSink()
 		throws Exception
 	{
-		final DistributedCache                 aServer        = newCache ("server", ERunMode.E_SERVER); 
-		final DistributedCacheSink             aCacheSink     = aServer.getCacheSink();
-		final Map< String, String >            aObserverCache = new HashMap< String, String > ();
-		final Observer< DistributedCacheItem > aObserver      = new Observer< DistributedCacheItem > ()
+		DistributedCache aServer = null;
+		
+		try
 		{
-			@Override
-			public void notify(final DistributedCacheItem aCacheItem)
-				throws Exception
+			                                       aServer        = newCache ("server", ERunMode.E_SERVER); 
+			final DistributedCacheSink             aCacheSink     = aServer.getCacheSink();
+			final Map< String, String >            aObserverCache = new HashMap< String, String > ();
+			final Observer< DistributedCacheItem > aObserver      = new Observer< DistributedCacheItem > ()
 			{
-				aObserverCache.put(aCacheItem.sKey, aCacheItem.sValue);
-			}
-		};
-		
-		aCacheSink.addObserver(aObserver);
-
-		final String TEST_KEY_01   = "key.01"  ;
-		final String TEST_VALUE_01 = "value.01";
-		final String TEST_KEY_02   = "key.02"  ;
-		final String TEST_VALUE_02 = "value.02";
-		
-		// a) new key should reach internal cache sink ... and should be notified to registered observer 
-		
-		aServer.set(TEST_KEY_01, TEST_VALUE_01);
-		
-		Assert.assertEquals("testCacheSink [01] new set value didnt reached the cache sink", TEST_VALUE_01, aCacheSink    .get(TEST_KEY_01));
-		Assert.assertEquals("testCacheSink [02] new set value didnt reached the observer"  , TEST_VALUE_01, aObserverCache.get(TEST_KEY_01));
-
-		// b) disable internal cache sink ... now new keys will be notified to registered observer only
-		
-		aCacheSink.setCachingEnabled(false);
-
-		aServer.set(TEST_KEY_02, TEST_VALUE_02);
-
-		Assert.assertEquals("testCacheSink [01] new set value didnt reached the cache sink", null         , aCacheSink    .get(TEST_KEY_02));
-		Assert.assertEquals("testCacheSink [02] new set value didnt reached the observer"  , TEST_VALUE_02, aObserverCache.get(TEST_KEY_02));
+				@Override
+				public void notify(final DistributedCacheItem aCacheItem)
+					throws Exception
+				{
+					aObserverCache.put(aCacheItem.sKey, aCacheItem.sValue);
+				}
+			};
+			
+			aCacheSink.addObserver(aObserver);
+	
+			final String TEST_KEY_01   = "key.01"  ;
+			final String TEST_VALUE_01 = "value.01";
+			final String TEST_KEY_02   = "key.02"  ;
+			final String TEST_VALUE_02 = "value.02";
+			
+			// a) new key should reach internal cache sink ... and should be notified to registered observer 
+			
+			aServer.set(TEST_KEY_01, TEST_VALUE_01);
+			
+			Assert.assertEquals("testCacheSink [01] new set value didnt reached the cache sink", TEST_VALUE_01, aCacheSink    .get(TEST_KEY_01));
+			Assert.assertEquals("testCacheSink [02] new set value didnt reached the observer"  , TEST_VALUE_01, aObserverCache.get(TEST_KEY_01));
+	
+			// b) disable internal cache sink ... now new keys will be notified to registered observer only
+			
+			aCacheSink.setCachingEnabled(false);
+	
+			aServer.set(TEST_KEY_02, TEST_VALUE_02);
+	
+			Assert.assertEquals("testCacheSink [01] new set value didnt reached the cache sink", null         , aCacheSink    .get(TEST_KEY_02));
+			Assert.assertEquals("testCacheSink [02] new set value didnt reached the observer"  , TEST_VALUE_02, aObserverCache.get(TEST_KEY_02));
+		}
+		finally
+		{
+			if (aServer != null)
+				aServer.disconnectQuietly();
+		}
 	}
 
 	//-------------------------------------------------------------------------
@@ -130,15 +148,15 @@ public class DistributedCacheTest
 	{
 		final DistributedCache aCache = new DistributedCache ();
 
-		aCache	.configure()
+		aCache	.configure      (           )
 				.setRunMode     (eRunMode   )
 				.enableMulticast(false      )
 				.setAddress     ("localhost")
-				.setPort		(9876       );
+				.setPort		    (9876       );
 		
 		impl_oberveAndLog (sID, aCache);
 		
-		aCache.connect  ();
+		aCache.connect();
 		return aCache;
 	}
 

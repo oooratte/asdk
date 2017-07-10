@@ -58,9 +58,9 @@
          global list of properties
 	  -->
     <properties>
-        
+
         <!-- settings : generic -->
-        <version.java>1.7</version.java>
+        <version.java>1.8</version.java>
         <generic.encoding>utf-8</generic.encoding>
 
         <generic.mem.min>64m</generic.mem.min>
@@ -68,41 +68,44 @@
 
 		<project.build.sourceEncoding>${generic.encoding}</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>${generic.encoding}</project.reporting.outputEncoding>
-		
+
         <!-- versions : generic -->
 
         <!-- versions : maven plugins -->
-        <version.maven.plugin.dependency>2.8</version.maven.plugin.dependency>
-        <version.maven.plugin.resources>2.6</version.maven.plugin.resources>
-        <version.maven.plugin.clean>2.4.1</version.maven.plugin.clean>
-        <version.maven.plugin.compiler>3.1</version.maven.plugin.compiler>
-        <version.maven.plugin.jar>2.5</version.maven.plugin.jar>
-        <version.maven.plugin.surefire>2.15</version.maven.plugin.surefire>
-        <version.maven.plugin.install>2.3.1</version.maven.plugin.install>
-        <version.maven.plugin.shade>2.3</version.maven.plugin.shade>
-        <version.maven.plugin.buildhelper>1.9</version.maven.plugin.buildhelper>
-        <version.maven.plugin.eclipse>2.9</version.maven.plugin.eclipse>
+        <version.maven.plugin.versions>2.4</version.maven.plugin.versions>
+        <version.maven.plugin.dependency>3.0.1</version.maven.plugin.dependency>
+        <version.maven.plugin.resources>3.0.2</version.maven.plugin.resources>
+        <version.maven.plugin.clean>3.0.0</version.maven.plugin.clean>
+        <version.maven.plugin.compiler>3.6.1</version.maven.plugin.compiler>
+        <version.maven.plugin.jar>3.0.2</version.maven.plugin.jar>
+        <version.maven.plugin.surefire>2.20</version.maven.plugin.surefire>
+        <version.maven.plugin.install>2.5.2</version.maven.plugin.install>
+        <version.maven.plugin.shade>3.0.0</version.maven.plugin.shade>
+        <version.maven.plugin.buildhelper>3.0.0</version.maven.plugin.buildhelper>
+        <version.maven.plugin.eclipse>2.10</version.maven.plugin.eclipse>
         <version.maven.plugin.license>3.0</version.maven.plugin.license>
-        <version.maven.plugin.source>2.3</version.maven.plugin.source>
-        <version.maven.plugin.javadoc>2.9.1</version.maven.plugin.javadoc>
+        <version.maven.plugin.source>3.0.1</version.maven.plugin.source>
+        <version.maven.plugin.javadoc>2.10.4</version.maven.plugin.javadoc>
+        <version.maven.plugin.site>3.6</version.maven.plugin.site>
         <version.maven.plugin.aspectj>1.6</version.maven.plugin.aspectj>
         <version.maven.plugin.cobertura>2.6</version.maven.plugin.cobertura>
         <version.maven.plugin.findbugs>3.0.0</version.maven.plugin.findbugs>
         <version.maven.plugin.jni>1.0.6</version.maven.plugin.jni>
         <version.maven.plugin.ant>1.8</version.maven.plugin.ant>
         <version.maven.plugin.frontend>0.0.29</version.maven.plugin.frontend>
+        <version.maven.plugin.nexus-staging>1.4.7</version.maven.plugin.nexus-staging>
 
         <version.plugin.node>v5.9.0</version.plugin.node>
         <version.plugin.npm>3.8.3</version.plugin.npm>
 
     </properties>
-    
+
     <!-- ===========================================================
          define which dependencies in which version has to be used
       -->
     <dependencyManagement>
 	    <dependencies>
-	    
+
             <!-- dependencies : runtime -->
 
             <!-- dependencies : test env -->
@@ -117,15 +120,20 @@
         <!-- dependencies : runtime -->
 
 	    <!-- dependencies : test env -->
-    
+
     </dependencies>
-    
+
     <!-- ===========================================================
       -->
     <build>
 	    <pluginManagement>
 			<plugins>
-				<plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>versions-maven-plugin</artifactId>
+                    <version>${version.maven.plugin.versions}</version>
+                </plugin>
+                <plugin>
 			        <groupId>org.apache.maven.plugins</groupId>
 			        <artifactId>maven-enforcer-plugin</artifactId>
 			        <version>${version.maven.plugin.enforcer}</version>
@@ -154,7 +162,7 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-jar-plugin</artifactId>
                     <version>${version.maven.plugin.jar}</version>
-                </plugin> 
+                </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
@@ -197,6 +205,11 @@
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
+			        <artifactId>maven-site-plugin</artifactId>
+                    <version>${version.maven.plugin.site}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-gpg-plugin</artifactId>
                     <version>${version.maven.plugin.gpg}</version>
                 </plugin>
@@ -222,7 +235,7 @@
 	                    <npmDownloadRoot>https://registry.npmjs.org/npm/-/</npmDownloadRoot>
 	                </configuration>
 				</plugin>
-				
+
                 <!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
                 <plugin>
                 	<groupId>org.eclipse.m2e</groupId>
@@ -278,6 +291,10 @@
 
         <plugins>
             <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>versions-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
                <groupId>com.mycila</groupId>
                <artifactId>license-maven-plugin</artifactId>
                <configuration>
@@ -295,5 +312,5 @@
         </plugins>
 
     </build>
-    
+
 </project>

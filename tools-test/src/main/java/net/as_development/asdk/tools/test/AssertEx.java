@@ -97,50 +97,7 @@ public class AssertEx extends Assert
 			}
 		}
 	}
-	
-    //-------------------------------------------------------------------------
-	public static < T > void assertNotEquals (T aNotExpected,
-	                                          T aActual     )
-	    throws Exception
-	{
-	    assertNotEquals ("", aNotExpected, aActual);
-	}
-	
-    //-------------------------------------------------------------------------
-	/** check if both values are not equals.
-	 *  Throw an error if they are equals.
-	 *
-	 *  @param sMessage [IN]
-	 *         the error message shown in case both values are equals.
-	 *         
-	 *  @param aNotExpected [IN]
-	 *         the value not expected here.
-	 * 
-     *  @param aActual [IN]
-     *         the actual value to be checked here.
-	 */
-    public static < T >  void assertNotEquals (String sMessage    ,
-                                               T      aNotExpected,
-                                               T      aActual     )
-        throws Exception
-    {
-        if (StringUtils.isEmpty (sMessage))
-            sMessage = "equals - but was not expected: '"+aNotExpected+"' <> '"+aActual+"'";
-        
-        if (
-            (aNotExpected == null) &&
-            (aActual      == null)
-           )
-            AssertEx.fail (sMessage);
-        
-        if (
-            (aNotExpected != null        ) &&
-            (aActual      != null        ) &&
-            (aNotExpected.equals(aActual))
-           )
-            AssertEx.fail (sMessage);
-    }
-    
+
     //-------------------------------------------------------------------------
     /// see @link #assertArrayNotEquals(java.lang.String,...);
     public static < T >  void assertArrayNotEquals (T[] aNotExpected,
