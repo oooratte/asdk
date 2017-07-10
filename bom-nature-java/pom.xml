@@ -58,21 +58,21 @@
       -->
     <properties>
 
-        <version.commons.lang3>3.3.2</version.commons.lang3>
-        <version.commons.io>2.4</version.commons.io>
-        <version.commons.cli>1.2</version.commons.cli>
+        <version.commons.lang3>3.6</version.commons.lang3>
+        <version.commons.io>2.5</version.commons.io>
+        <version.commons.cli>1.4</version.commons.cli>
         <version.commons.codec>1.10</version.commons.codec>
         <version.commons.collections>3.2.1</version.commons.collections>
         <version.commons.configuration>1.10</version.commons.configuration>
         <version.commons.jexl>2.1.1</version.commons.jexl>
-        <version.commons.vfs2>2.0</version.commons.vfs2>
-        <version.commons.beanutils>1.9.2</version.commons.beanutils>
-        <version.commons.compress>1.10</version.commons.compress>
+        <version.commons.vfs2>2.1</version.commons.vfs2>
+        <version.commons.beanutils>1.9.3</version.commons.beanutils>
+        <version.commons.compress>1.14</version.commons.compress>
 
-        <version.aspectj>1.8.0</version.aspectj>
+        <version.aspectj>1.8.10</version.aspectj>
 
         <version.slf4j>1.7.7</version.slf4j>
-        <version.logback>1.1.2</version.logback>
+        <version.logback>1.2.3</version.logback>
         <version.janino>3.0.7</version.janino>
 
         <version.hazelcast>3.3-EA</version.hazelcast>
@@ -92,20 +92,24 @@
         <version.amq>5.9.0</version.amq>
         <version.spring>3.2.4.RELEASE</version.spring>
         <version.camel>2.12.1</version.camel>
-        <!-- 
+        <!--
         <version.jetty>9.3.8.v20160314</version.jetty>
          -->
         <version.jetty>8.2.0.v20160908</version.jetty>
         <version.jersey>2.7</version.jersey>
         <version.genson>1.4</version.genson>
 
-        <version.jsch>0.1.53</version.jsch>
+        <version.jsch>0.1.54</version.jsch>
         <version.reflections>0.9.10</version.reflections>
         <version.quartz>2.2.2</version.quartz>
-        
+
         <!-- versions : test env -->
 
-        <version.test.junit>4.10</version.test.junit>
+        <version.test.junit>4.12</version.test.junit>
+        <!--
+        it's declared in pom-parent-root/pom.xml as it's used for surefire plugin configuration .... where this BOM is not used for ;-(
+        <version.test.powermock>1.7.0</version.test.powermock>
+        -->
 
     </properties>
 
@@ -114,11 +118,11 @@
       -->
     <dependencyManagement>
 	    <dependencies>
-	    
+
             <!-- dependencies : runtime -->
-            
+
             <!-- apache commons -->
-            
+
 			<dependency>
 			    <groupId>org.apache.commons</groupId>
 			    <artifactId>commons-lang3</artifactId>
@@ -169,7 +173,7 @@
 	            <artifactId>commons-vfs2</artifactId>
                 <version>${version.commons.vfs2}</version>
 	        </dependency>
-	
+
             <dependency>
                 <groupId>commons-collections</groupId>
                 <artifactId>commons-collections</artifactId>
@@ -209,7 +213,7 @@
 	            <artifactId>aspectjrt</artifactId>
                 <version>${version.aspectj}</version>
             </dependency>
-            
+
             <dependency>
 	            <groupId>org.aspectj</groupId>
 	            <artifactId>aspectjweaver</artifactId>
@@ -223,13 +227,13 @@
 			    <artifactId>slf4j-api</artifactId>
 			    <version>${version.slf4j}</version>
 			</dependency>
-			
+
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-ext</artifactId>
                 <version>${version.slf4j}</version>
             </dependency>
-            
+
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>jcl-over-slf4j</artifactId>
@@ -257,25 +261,25 @@
 	            <artifactId>aws-java-sdk</artifactId>
 	            <version>${version.aws.sdk}</version>
 	        </dependency>
-	
+
 	       <!-- mongodb -->
-	
+
 	        <dependency>
 	            <groupId>org.mongodb</groupId>
 	            <artifactId>mongo-java-driver</artifactId>
 	            <version>${version.mongodb}</version>
 	        </dependency>
-	        
+
 	        <!-- opencsv -->
-	        
+
 	        <dependency>
 	            <groupId>net.sf.opencsv</groupId>
 	            <artifactId>opencsv</artifactId>
 	            <version>${version.opencsv}</version>
 	        </dependency>
-	        
+
 	        <!-- derby db -->
-	        
+
 	        <dependency>
 	            <groupId>org.apache.derby</groupId>
 	            <artifactId>derby</artifactId>
@@ -297,33 +301,33 @@
 			    <artifactId>h2</artifactId>
 			    <version>${version.h2db}</version>
 			</dependency>
-	        
+
 	        <!-- mysql -->
-	        
+
 			<dependency>
 				<groupId>mysql</groupId>
 				<artifactId>mysql-connector-java</artifactId>
 				<version>${version.mysql}</version>
 			</dependency>
-            
+
             <!-- jsch -->
-            
+
 			<dependency>
 			    <groupId>com.jcraft</groupId>
 			    <artifactId>jsch</artifactId>
 			    <version>${version.jsch}</version>
 			</dependency>
-			
+
 			<!-- reflections -->
-			
+
 			<dependency>
 			    <groupId>org.reflections</groupId>
 			    <artifactId>reflections</artifactId>
 			    <version>${version.reflections}</version>
 			</dependency>
-			
+
 			<!-- quartz -->
-			
+
 			<dependency>
 			    <groupId>org.quartz-scheduler</groupId>
 			    <artifactId>quartz</artifactId>
@@ -335,45 +339,45 @@
 			    <artifactId>quartz-jobs</artifactId>
 			    <version>${version.quartz}</version>
 			</dependency>
-			
+
 			<!-- jetty -->
-			
+
 			<dependency>
 				<groupId>org.eclipse.jetty</groupId>
 				<artifactId>jetty-server</artifactId>
 				<version>${version.jetty}</version>
-			</dependency>			
-            
+			</dependency>
+
             <dependency>
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-servlets</artifactId>
                 <version>${version.jetty}</version>
-            </dependency>           
+            </dependency>
 
             <dependency>
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-servlet</artifactId>
                 <version>${version.jetty}</version>
-            </dependency>           
+            </dependency>
 
             <dependency>
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-webapp</artifactId>
                 <version>${version.jetty}</version>
-            </dependency>           
+            </dependency>
 
 			<dependency>
 				<groupId>org.glassfish.jersey.core</groupId>
 				<artifactId>jersey-server</artifactId>
 				<version>${version.jersey}</version>
 			</dependency>
-			
+
 			<dependency>
 				<groupId>org.glassfish.jersey.containers</groupId>
 				<artifactId>jersey-container-servlet-core</artifactId>
 				<version>${version.jersey}</version>
 			</dependency>
-			
+
 			<dependency>
 				<groupId>org.glassfish.jersey.containers</groupId>
 				<artifactId>jersey-container-jetty-http</artifactId>
@@ -387,7 +391,7 @@
 	            <artifactId>genson</artifactId>
 	            <version>${version.genson}</version>
 	        </dependency>
- 
+
              <!-- javasysmon -->
 
 	        <dependency>
@@ -395,14 +399,14 @@
 	            <artifactId>javasysmon_2.10</artifactId>
 	            <version>${version.javasysmon}</version>
 	        </dependency>
-	        
+
 	        <!-- activemq -->
-	        
+
             <dependency>
 	            <groupId>org.apache.activemq</groupId>
 	            <artifactId>activemq-broker</artifactId>
 	            <version>${version.amq}</version>
-	            
+
 	            <exclusions>
 	                <exclusion>
 	                    <groupId>org.apache.activemq</groupId>
@@ -410,25 +414,25 @@
 	                </exclusion>
 	            </exclusions>
 	        </dependency>
-	
+
 	        <dependency>
 	            <groupId>org.apache.activemq</groupId>
 	            <artifactId>activemq-amqp</artifactId>
 	            <version>${version.amq}</version>
 	        </dependency>
-	
+
 	        <dependency>
 	            <groupId>org.apache.activemq</groupId>
 	            <artifactId>activemq-leveldb-store</artifactId>
 	            <version>${version.amq}</version>
 	        </dependency>
-	
+
 	        <dependency>
 	            <groupId>org.apache.activemq</groupId>
 	            <artifactId>activemq-kahadb-store</artifactId>
 	            <version>${version.amq}</version>
 	        </dependency>
-	
+
 	        <dependency>
 	            <groupId>org.apache.activemq</groupId>
 	            <artifactId>activemq-client</artifactId>
@@ -456,7 +460,7 @@
 
             <dependency>
 				<groupId>org.powermock</groupId>
-				<artifactId>powermock-api-mockito</artifactId>
+				<artifactId>powermock-api-mockito2</artifactId>
                 <version>${version.test.powermock}</version>
             </dependency>
 

@@ -66,7 +66,7 @@
       -->
     <dependencyManagement>
 	    <dependencies>
-	    
+
 			<dependency>
 			    <groupId>${project.groupId}</groupId>
 			    <artifactId>bom-nature-java</artifactId>
@@ -83,30 +83,30 @@
     <dependencies>
 
         <!-- dependencies : runtime -->
-        
+
         <!-- DO NOT START THE HELL OF 2^n COMBINATIONS OF DEPENDENCIES HERE.
              Add runtime dependencies where they are used.
              BUT define it's version HERE before ... inside <dependencyManagement> section .-)
           -->
-        
+
         <!-- dependencies : logging -->
-        
+
         <!-- logging is a feature ALL derived projects need.
              So this is a section we have to add here and not in derived projects .-)
           -->
-        
+
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
             <scope>compile</scope>
         </dependency>
-        
+
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-ext</artifactId>
             <scope>compile</scope>
         </dependency>
-        
+
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>jcl-over-slf4j</artifactId>
@@ -147,10 +147,10 @@
 
         <dependency>
             <groupId>org.powermock</groupId>
-            <artifactId>powermock-api-mockito</artifactId>
+            <artifactId>powermock-api-mockito2</artifactId>
             <scope>test</scope>
         </dependency>
-        
+
         <dependency>
             <groupId>org.powermock</groupId>
             <artifactId>powermock-module-junit4</artifactId>
@@ -164,20 +164,20 @@
         </dependency>
 
     </dependencies>
-    
+
     <!-- ===========================================================
       -->
     <build>
-    
+
         <!-- override default naming of the JAR artifact ...
              by adding groupId to those name which is not part of it by default.
-             
+
              Thats to prevent name clashes if those libraries are mixed within
              the same directory at installation time .-)
           -->
-    
+
         <finalName>${project.groupId}-${project.artifactId}-${project.version}</finalName>
-    
+
         <pluginManagement>
             <plugins>
                 <plugin>
@@ -231,23 +231,23 @@
 				</plugin>
             </plugins>
         </pluginManagement>
-        
+
 	    <plugins>
 	        <plugin>
 	            <artifactId>maven-dependency-plugin</artifactId>
 	        </plugin>
-	        
+
             <plugin>
                 <artifactId>maven-resources-plugin</artifactId>
                 <configuration>
                     <encoding>${generic.encoding}</encoding>
                 </configuration>
             </plugin>
-            
+
 	        <plugin>
 	            <artifactId>maven-clean-plugin</artifactId>
 	        </plugin>
-	        
+
 	        <plugin>
 	            <artifactId>maven-compiler-plugin</artifactId>
 	            <configuration>
@@ -257,7 +257,7 @@
                       -->
 
                     <executable>${JAVA_HOME}/bin/javac</executable>
-               
+
 	                <fork>true</fork>
                     <compilerVersion>${version.java}</compilerVersion>
 	                <source>${version.java}</source>
@@ -269,7 +269,7 @@
                     <showWarnings>true</showWarnings>
 	            </configuration>
 	        </plugin>
-	        
+
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>aspectj-maven-plugin</artifactId>
@@ -288,14 +288,14 @@
 			     </executions>
 -->
             </plugin>
-            
+
 			<plugin>
 			    <artifactId>maven-eclipse-plugin</artifactId>
 			    <configuration>
 			       <ajdtVersion>${version.java}</ajdtVersion>
 			    </configuration>
 			</plugin>
-			
+
 	        <plugin>
 	            <artifactId>maven-surefire-plugin</artifactId>
 					<executions>
@@ -323,24 +323,26 @@
 
 					<forkCount>${surefire.fork-count}</forkCount>
 					<reuseForks>false</reuseForks>
-					
+
 					<!-- Hard Tobacco .-)
 
 					     a) -javaagent:...
 					        JUnit 4 PowerMockRules require to define its agent explicit
 
-					     b) -XX:-UseSplitVerifier
+					     b1) -XX:-UseSplitVerifier
 					        ByteCode verification was changed slightly between JDK6 and JDK7.
 					        http://stackoverflow.com/questions/15122890/java-lang-verifyerror-expecting-a-stackmap-frame-at-branch-target-jdk-1-7
+
+                         b2) as -XX:-UseSplitVerifier is deprecated for JDK8 we use -noverify instead ;-)
 					  -->
-					
-                    <argLine>-Xms${generic.mem.min} -Xmx${generic.mem.max} -XX:MaxPermSize=256m -XX:-UseSplitVerifier -javaagent:${settings.localRepository}/org/powermock/powermock-module-javaagent/${version.test.powermock}/powermock-module-javaagent-${version.test.powermock}.jar</argLine>
+
+                    <argLine>-Xms${generic.mem.min} -Xmx${generic.mem.max} -XX:MaxPermSize=256m -noverify -XX:-UseSplitVerifier -javaagent:${settings.localRepository}/org/powermock/powermock-module-javaagent/${version.test.powermock}/powermock-module-javaagent-${version.test.powermock}.jar</argLine>
                     <useUnlimitedThreads>false</useUnlimitedThreads>
                     <threadCount>${surefire.thread-count}</threadCount>
 	                <parallel>methods</parallel>
 	            </configuration>
 	        </plugin>
-	        
+
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>cobertura-maven-plugin</artifactId>
@@ -356,19 +358,19 @@
                 <executions>
                     <execution>
                         <goals>
-                        
+
                             <!-- force creating additional special JARs containing the test-code.
                                  Thats useful to export test helper classes and reuse them on other projects.
                                  Use: <type>test-jar</type> if your define a dependency then .-)
-                                 
+
                                  @see http://maven.apache.org/plugins/maven-jar-plugin/test-jar-mojo.html
                               -->
                             <goal>test-jar</goal>
-                        
+
                         </goals>
                     </execution>
                 </executions>
-            </plugin> 
+            </plugin>
 
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -386,7 +388,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
-<!-- 
+<!--
                 <configuration>
                     <additionalparam>-Xdoclint:none</additionalparam>
                 </configuration>
@@ -407,7 +409,7 @@
 
    	    </plugins>
     </build>
-    
+
     <profiles>
         <profile>
             <id>profile-shade-jar</id>
@@ -416,10 +418,10 @@
                     <exists>profile-shade-jar.trigger</exists>
                 </file>
             </activation>
-            
+
             <build>
                 <plugins>
-            
+
                     <!-- build the shade JAR -->
 
                     <plugin>
@@ -445,9 +447,9 @@
                             </execution>
                         </executions>
                     </plugin>
-                    
+
                     <!-- attach the shade JAR so Maven will deliver it automatically -->
-                  
+
                     <plugin>
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>build-helper-maven-plugin</artifactId>
@@ -470,11 +472,11 @@
                             </execution>
                         </executions>
                     </plugin>
-                    
+
                 </plugins>
             </build>
         </profile>
-        
+
     </profiles>
 
 	<reporting>
@@ -489,13 +491,13 @@
                     </formats>
                 </configuration>
 			</plugin>
-			
+
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>findbugs-maven-plugin</artifactId>
 				<configuration>
     				<onlyAnalyze>net.as_development.*</onlyAnalyze>
-				</configuration>				
+				</configuration>
 			</plugin>
 		</plugins>
 	</reporting>
