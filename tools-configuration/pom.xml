@@ -37,7 +37,7 @@
     <parent>
 		<groupId>net.as-development.asdk</groupId>
 		<artifactId>pom-parent-nature-java</artifactId>
-		<version>3.0.0</version>
+		<version>4.x-SNAPSHOT</version>
 		<relativePath>../pom-parent-nature-java</relativePath>
 	</parent>
 

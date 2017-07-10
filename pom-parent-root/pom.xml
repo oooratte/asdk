@@ -23,7 +23,7 @@
 
 	<groupId>net.as-development.asdk</groupId>
 	<artifactId>pom-parent-root</artifactId>
-	<version>3.0.0</version>
+	<version>4.x-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <!-- ===========================================================

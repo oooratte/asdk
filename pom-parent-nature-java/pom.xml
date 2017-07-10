@@ -43,7 +43,7 @@
 	<parent>
 	    <groupId>net.as-development.asdk</groupId>
 	    <artifactId>pom-parent-nature-all</artifactId>
-	    <version>3.0.0</version>
+	    <version>4.x-SNAPSHOT</version>
 	    <relativePath>../pom-parent-nature-all</relativePath>
 	</parent>
 
