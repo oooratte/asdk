@@ -24,62 +24,37 @@
  *
  * For more information, please refer to <http://unlicense.org/>
  */
-package net.as_development.tools.configuration.impl;
-
-import org.apache.commons.configuration.Configuration;
-
-import net.as_development.tools.configuration.ISimpleConfiguration;
+package net.as_development.tools.configuration;
 
 //=============================================================================
-public class SimpleConfiguration implements ISimpleConfiguration
+public interface IConfigurationSet
 {
 	//-------------------------------------------------------------------------
-	public SimpleConfiguration ()
-	    throws Exception
-	{}
+	/** set the new value for the given key.
+	 * 
+	 *  Setting value to null will remove the key from config.
+	 *  
+	 *  @param	sKey [IN]
+	 *  			the configuration key where we want to set the new value.
+	 *
+	 *	@param	aType [IN]
+	 *			the type of the value (needed later on get for might needed type conversion)
+	 *
+	 *  @param	aValue [IN]
+	 *  			the new value.
+	 *  
+	 *  @return	the configuration object itself to make chained set calls possible.
+	 */
+	public < T, R extends IConfigurationSet > R set (final String     sKey  ,
+													final Class< T > aType ,
+													final T          aValue)
+		throws Exception;
 
 	//-------------------------------------------------------------------------
-	public void bindStore4Reading (final Configuration aStore)
-	    throws Exception
-	{
-		m_aStore4Reading = aStore;
-	}
-	
-	//-------------------------------------------------------------------------
-	@Override
-	public < T > T get(final String     sKey ,
-					   final Class< T > aType)
-		throws Exception
-	{
-		final T aValue = (T) get (sKey, aType, (T)null);
-		return  aValue;
-	}
-
-	//-------------------------------------------------------------------------
-	@Override
-	public < T > T get(final String     sKey    ,
-			           final Class< T > aType   ,
-					   final T          aDefault)
-		throws Exception
-	{
-		Object aValue = m_aStore4Reading.getProperty(sKey);
-
-		if (aValue == null)
-			aValue = aDefault;
-		
-		final T aTypedValue = (T) impl_mapValueToType (aValue, aType);
-		return  aTypedValue;
-	}
-
-	//-------------------------------------------------------------------------
-	@SuppressWarnings("unchecked")
-	public < T > T impl_mapValueToType (final Object     aValue,
-										final Class< T > aType )
-	    throws Exception
-	{
-		return (T) aValue;
-	}
-
-	//-------------------------------------------------------------------------
-	private Configuration m_aStore4Reading = null;
+	/** does the same then {@link set(String.class, Class.class, T)}
+	 *  but retrieves value type directly from given value.
+	 */
+	public < T, R extends IConfigurationSet > R set (final String sKey  ,
+													 final T     aValue)
+	    throws Exception;
 }

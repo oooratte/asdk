@@ -29,7 +29,7 @@ package net.as_development.asdk.monitoring.app.config;
 import org.apache.commons.lang3.StringUtils;
 
 import net.as_development.tools.configuration.ConfigurationFactory;
-import net.as_development.tools.configuration.IComplexConfiguration;
+import net.as_development.tools.configuration.IReadOnlyConfiguration;
 import sun.net.www.protocol.classpath.ClasspathConnection;
 
 //=============================================================================
@@ -48,12 +48,12 @@ public class ConfigAccess
     }
     
     //-------------------------------------------------------------------------
-    public static IComplexConfiguration accessConfig (final String sConfig)
+    public static IReadOnlyConfiguration accessConfig (final String sConfig)
         throws Exception
     {
     	final ConfigAccess          aAccess     = mem_Singleton ();
     	final String                sConfigRoot = aAccess.mem_ConfigRoot ();
-    	final IComplexConfiguration iConfig     = ConfigurationFactory.getComplexConfiguration(sConfigRoot, sConfig);
+    	final IReadOnlyConfiguration iConfig     = ConfigurationFactory.getComplexConfiguration(sConfigRoot, sConfig);
     	return iConfig;
     }
 

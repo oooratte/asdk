@@ -1,0 +1,67 @@
+<!--
+
+    TODO define license
+
+-->
+<!-- ===============================================================
+     eval java nature
+  -->
+<project
+    xmlns             ="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi         ="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+                        http://maven.apache.org/maven-v4_0_0.xsd"
+>
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+        <groupId>net.as-development.asdk</groupId>
+		<artifactId>pom-parent-nature-java</artifactId>
+		<version>4.x-SNAPSHOT</version>
+		<relativePath>../pom-parent-nature-java</relativePath>
+	</parent>
+
+	<artifactId>${artifact-prefix}di-fwk</artifactId>
+
+	<dependencies>
+
+        <!-- guice -->
+
+        <dependency>
+            <groupId>com.google.inject</groupId>
+            <artifactId>guice</artifactId>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.google.inject.extensions</groupId>
+            <artifactId>guice-servlet</artifactId>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.google.inject.extensions</groupId>
+            <artifactId>guice-multibindings</artifactId>
+            <scope>compile</scope>
+        </dependency>
+
+        <!-- asdk -->
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>${artifact-prefix}tools-configuration</artifactId>
+            <version>${project.version}</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <!-- commons -->
+
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <scope>compile</scope>
+        </dependency>
+
+	</dependencies>
+
+</project>

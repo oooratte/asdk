@@ -29,22 +29,18 @@ package net.as_development.tools.configuration;
 import java.io.File;
 import java.net.URL;
 import java.util.Iterator;
-import java.util.Map;
-import java.util.UUID;
 import java.util.Map.Entry;
+import java.util.UUID;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.DefaultConfigurationBuilder;
-import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.Validate;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.commons.lang3.Validate;
 
 import net.as_development.tools.configuration.impl.ComplexConfiguration;
-import net.as_development.tools.configuration.impl.SimpleConfiguration;
+import net.as_development.tools.configuration.impl.InlineConfiguration;
 
 //=============================================================================
 public class ConfigurationFactory
@@ -59,47 +55,36 @@ public class ConfigurationFactory
 	{}
 
 	//-------------------------------------------------------------------------
+	public static synchronized IInlineConfiguration createInlineConfiguration ()
+		throws Exception
+	{
+		final IInlineConfiguration iConfig = new InlineConfiguration ();
+		return iConfig;
+	}
+
+	//-------------------------------------------------------------------------
+	public static synchronized IReadOnlyConfiguration createReadOnlyConfiguration (final URL aURL)
+		throws Exception
+	{
+		final DefaultConfigurationBuilder aLoader = new DefaultConfigurationBuilder ();
+		
+		aLoader.setListDelimiter             ((char) 0);
+		aLoader.setDelimiterParsingDisabled  ( true   );
+		aLoader.setAttributeSplittingDisabled( true   );
+		aLoader.setEncoding                  (ENCODING);
+		aLoader.setURL                       (aURL    );
+		aLoader.clearErrorListeners          (        );
+		
+		final Configuration        aConfig4Read = aLoader.getConfiguration();
+		final ComplexConfiguration aConfig      = new ComplexConfiguration ();
+
+		aConfig.bindStore4Reading(aConfig4Read);
+		
+		return aConfig;
+	}
+
+	//-------------------------------------------------------------------------
 	@Deprecated
-	public static synchronized ISimpleConfiguration getSimpleConfigurationOld (final String sConfigPath   ,
-																			   final String sConfigPackage)
-		throws Exception
-	{
-		final File aConfigFile = new File (sConfigPath, sConfigPackage+".properties");
-		Validate.isTrue(aConfigFile.isFile(), "Miss configuration file '"+aConfigFile.getAbsolutePath()+"'.");
-
-		final PropertiesConfiguration aConfig4Read = new PropertiesConfiguration();
-		aConfig4Read.setFile(aConfigFile);
-		aConfig4Read.load   ();
-		
-		final SimpleConfiguration aSimpleConfig = new SimpleConfiguration ();
-		aSimpleConfig.bindStore4Reading(aConfig4Read);
-		
-		return aSimpleConfig;
-	}
-
-	//-------------------------------------------------------------------------
-	public static synchronized ISimpleConfiguration getSimpleConfiguration (final String sConfigPath   ,
-																			final String sConfigPackage)
-		throws Exception
-	{
-		final URL                         aDescriptor = impl_getConfigDescriptor (sConfigPath, sConfigPackage);
-   		final DefaultConfigurationBuilder aLoader     = new DefaultConfigurationBuilder ();
-
-		aLoader.setListDelimiter             ((char) 0   );
-		aLoader.setDelimiterParsingDisabled  ( true      );
-		aLoader.setAttributeSplittingDisabled( true      );
-		aLoader.setEncoding                  (ENCODING   );
-		aLoader.setURL                       (aDescriptor);
-		aLoader.clearErrorListeners          (           );
-		
-		final Configuration       aConfig4Read  = aLoader.interpolatedConfiguration ();
-		final SimpleConfiguration aSimpleConfig = new SimpleConfiguration ();
-		aSimpleConfig.bindStore4Reading(aConfig4Read);
-		
-		return aSimpleConfig;
-	}
-
-	//-------------------------------------------------------------------------
 	public static synchronized IComplexConfiguration getComplexConfiguration (final String sConfigPath   ,
 																			  final String sConfigPackage)
 		throws Exception

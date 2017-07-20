@@ -26,6 +26,8 @@
  */
 package test.net.as_development.tools.configuration;
 
+import java.net.URL;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -36,7 +38,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import net.as_development.tools.configuration.ConfigurationFactory;
-import net.as_development.tools.configuration.IComplexConfiguration;
+import net.as_development.tools.configuration.IReadOnlyConfiguration;
 
 //=============================================================================
 public class ComplexConfigurationTest
@@ -49,7 +51,7 @@ public class ComplexConfigurationTest
 		final String TEST_KEY   = "key.value";
 		final String TEST_VALUE = "value";
 		
-		final IComplexConfiguration iConfig = ConfigurationFactory.getComplexConfiguration("classpath:/test/net/as_development/tools/configuration/res", "complex_test");
+		final IReadOnlyConfiguration iConfig = ConfigurationFactory.getComplexConfiguration("classpath:/test/net/as_development/tools/configuration/res", "complex_test");
 		Assert.assertEquals("testSimpleGet [01]", TEST_VALUE, iConfig.get(TEST_KEY, String.class));
 	}
 
@@ -62,7 +64,7 @@ public class ComplexConfigurationTest
 		final String TEST_KEYTYPE      = "item";
 		final int    EXPECTED_LISTSIZE = 5;
 		
-		final IComplexConfiguration iConfig = ConfigurationFactory.getComplexConfiguration("classpath:/test/net/as_development/tools/configuration/res", "complex_test");
+		final IReadOnlyConfiguration iConfig = ConfigurationFactory.getComplexConfiguration("classpath:/test/net/as_development/tools/configuration/res", "complex_test");
 		final Set< Map< String, String > > lItems  = iConfig.gets(TEST_ROOTKEY, TEST_KEYTYPE);
 		Assert.assertEquals ("testGetChildKeysOfType [01]", EXPECTED_LISTSIZE, lItems.size());
 		
@@ -78,6 +80,7 @@ public class ComplexConfigurationTest
 			Assert.assertTrue("testGetChildKeysOfType [03]", StringUtils.startsWith(sItemValue, "Value-0"));
 		}
 	}
+
 	//-------------------------------------------------------------------------
 	@Test
 	public void testVariableSubstitution ()
@@ -86,10 +89,40 @@ public class ComplexConfigurationTest
 		final String TEST_KEY_4_TEMP = "var.using.temp";
 		final String TEMP_DIR        = FileUtils.getTempDirectoryPath();
 
-		final IComplexConfiguration iConfig = ConfigurationFactory.getComplexConfiguration("classpath:/test/net/as_development/tools/configuration/res", "complex_test");
+		final IReadOnlyConfiguration iConfig = ConfigurationFactory.getComplexConfiguration("classpath:/test/net/as_development/tools/configuration/res", "complex_test");
 		final String sValue = iConfig.get(TEST_KEY_4_TEMP, String.class);
 
 		Assert.assertFalse ("testVariableSubstitution [01] found non substituted variables", StringUtils.contains  (sValue, "${"    ));
 		Assert.assertTrue  ("testVariableSubstitution [02] temp variable not substituted"  , StringUtils.startsWith(sValue, TEMP_DIR));
+	}
+
+	//-------------------------------------------------------------------------
+	@Test
+	public void testGetArray ()
+		throws Exception
+	{
+		final String TEST_KEY = "var.string.array";
+		final String TEMP_DIR = FileUtils.getTempDirectoryPath();
+
+		final IReadOnlyConfiguration iConfig = ConfigurationFactory.getComplexConfiguration("classpath:/test/net/as_development/tools/configuration/res", "complex_test");
+
+//		System.err.println(iConfig.get("var.string", String.class));
+		final String[] aStringArray = iConfig.get("var.string.array", String[].class);
+		System.err.println(Arrays.toString(aStringArray));
+		
+//		final String[] sValue = iConfig.get(TEST_KEY, String[].class);
+//		System.err.println("value = "+sValue);
+	}
+
+	//-------------------------------------------------------------------------
+	@Test
+	public void testLoadFromURL ()
+		throws Exception
+	{
+		final String TEST_KEY   = "key.value";
+		final String TEST_VALUE = "value";
+		
+		final IReadOnlyConfiguration iConfig = ConfigurationFactory.createReadOnlyConfiguration(new URL("classpath:/test/net/as_development/tools/configuration/res/complex_test/descriptor.xml"));
+		Assert.assertEquals("testLoadFromURL [01]", TEST_VALUE, iConfig.get(TEST_KEY, String.class));
 	}
 }

@@ -1,6 +1,6 @@
 <!-- ===============================================================
      aggregator pom
-     
+
      can be used to run mvn commands on the whole set of projects below.
   -->
 <project
@@ -33,6 +33,7 @@
         <module>../tools-usb-serial</module>
 
         <module>../service-env</module>
+        <module>../di-fwk</module>
         <module>../distributed-cache</module>
         <module>../monitoring</module>
         <module>../sql-server</module>
@@ -41,6 +42,7 @@
         <module>../db-service</module>
         <module>../persistence</module>
         <module>../jms-core</module>
+        <module>../camel-core</module>
         <module>../single-webapp-server</module>
 	</modules>
 

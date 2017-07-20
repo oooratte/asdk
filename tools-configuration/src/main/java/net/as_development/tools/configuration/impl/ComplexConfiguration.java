@@ -74,11 +74,7 @@ public class ComplexConfiguration implements IComplexConfiguration
 					   final T          aDefault)
 		throws Exception
 	{
-		Object aValue = null;
-		if (aType.equals(String.class))
-			aValue = m_aStore4Reading.getString(sKey); // only getString() supports variable interpolation !
-		else
-			aValue = m_aStore4Reading.getProperty(sKey);
+		Object aValue = m_aStore4Reading.getString(sKey); // only getString() supports variable interpolation !
 
 		if (aValue == null)
 			aValue = aDefault;
@@ -90,7 +86,7 @@ public class ComplexConfiguration implements IComplexConfiguration
 	//-------------------------------------------------------------------------
 	@Override
 	public Set< Map< String, String > > gets (final String sKey ,
-            							      final String sType)
+            							          final String sType)
         throws Exception
 	{
 		Validate.notEmpty(sKey , "Invalid argument 'key'." );

@@ -27,5 +27,26 @@
 package net.as_development.tools.configuration;
 
 //=============================================================================
-public interface IComplexConfiguration extends IReadOnlyConfiguration
-{}
+public interface IConfigurationGet
+{
+	//-------------------------------------------------------------------------
+	/** @return the value for the queried key if it exists - null otherwise.
+	 *  
+	 *  @param	sKey [IN]
+	 *  		the configuration key where we want to get it's value.
+	 */
+	public < T > T get (final String     sKey ,
+					    final Class< T > aType)
+		throws Exception;
+
+	//-------------------------------------------------------------------------
+	/** @return the value for the queried key if it exists - the given default otherwise.
+	 *  
+	 *  @param	sKey [IN]
+	 *  		the configuration key where we want to get it's value.
+	 */
+	public < T > T get (final String     sKey    ,
+						final Class< T > aType   ,
+						final T          aDefault)
+		throws Exception;
+}

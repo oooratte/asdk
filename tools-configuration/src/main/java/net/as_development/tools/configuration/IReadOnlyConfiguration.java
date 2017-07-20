@@ -26,6 +26,33 @@
  */
 package net.as_development.tools.configuration;
 
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 //=============================================================================
-public interface IComplexConfiguration extends IReadOnlyConfiguration
-{}
+public interface IReadOnlyConfiguration extends IConfigurationGet
+{
+	//-------------------------------------------------------------------------
+	/** @return return all key-value pairs which are child of the defined key.
+	 *
+	 * 	This is useful for lists in e.g. XML configuration files
+	 *  where numbered childs exists below a root-key element.
+	 *  
+	 *  Further you can filter those lists if you define a key-type.
+	 *  
+	 *  @param	sKey [IN]
+	 *  		the root key where we have to search for children.
+	 *  
+	 * 	@param	sType [IN]
+	 * 			the key type for all childs to be selected from a list of
+	 * 			ALL childs.
+	 */
+	public Set< Map< String, String > > gets (final String sKey ,
+							                  final String sType)
+		throws Exception;
+
+	//-------------------------------------------------------------------------
+	public List< String > getAllRecursive (final String sKeyValueSeparator)
+		throws Exception;
+}

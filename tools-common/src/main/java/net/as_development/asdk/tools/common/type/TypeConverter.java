@@ -26,7 +26,6 @@
  */
 package net.as_development.asdk.tools.common.type;
 
-import java.util.Collection;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
@@ -34,6 +33,11 @@ import org.apache.commons.lang3.StringUtils;
 //=============================================================================
 public class TypeConverter
 {
+	//-------------------------------------------------------------------------
+	public static final String ARRAY_SEPARATOR = "|";
+	public static final String ARRAY_START     = "[";
+	public static final String ARRAY_END       = "]";
+	
 	//-------------------------------------------------------------------------
 	private TypeConverter ()
 	    throws Exception
@@ -106,6 +110,22 @@ public class TypeConverter
 		
 		if (aType.isEnum())
 			return ((Enum< ? >)aValue).name();
+		
+		if (aType.isArray())
+			return array2String((Object[])aValue);
+
+		if (List.class.isAssignableFrom(aType))
+		{
+			final StringBuffer   sList = new StringBuffer (256);
+			final List< Object > aList = (List< Object >)aValue;
+			for (final Object aListValue : aList)
+			{
+				sList.append(TypeConverter.toString(aListValue));
+				sList.append(ARRAY_SEPARATOR);
+			}
+			System.err.println("list val = "+sList.toString ());
+			return sList.toString();
+		}
 
 		if (IStringConvertible.class.isAssignableFrom(aType))
 			return ((IStringConvertible)aValue).convertToString();
@@ -172,7 +192,15 @@ public class TypeConverter
 
 		if (aType.isEnum())
 			return (T) Enum.valueOf((Class< ? extends Enum >)aType, sValue);
+
+		if (aType.isArray())
+			return (T) string2Array (sValue);
 		
+		if (List.class.isAssignableFrom(aType))
+		{
+			// ???
+		}
+
 		if (IStringConvertible.class.isAssignableFrom(aType))
 		{
 			final T aInst = (T) aType.newInstance();
@@ -204,6 +232,52 @@ public class TypeConverter
 		final Object aMappedValue = TypeConverter.fromString (sTempValue, aTargetType);
 		
 		return (T) aMappedValue;
+	}
+
+	//-------------------------------------------------------------------------
+	public static < T > String array2String (final T[] aArray)
+		throws Exception
+	{
+		if (aArray == null)
+			return null;
+		
+		final StringBuffer sString       = new StringBuffer (256);
+		      boolean      bAddSeparator = false;
+
+		sString.append(ARRAY_START);
+		for (final T aItem : aArray)
+		{
+			if (bAddSeparator)
+				sString.append(ARRAY_SEPARATOR);
+			else
+				bAddSeparator = true;
+			
+			final String sItem = TypeConverter.toString(aItem);
+			sString.append(sItem);
+		}
+		sString.append(ARRAY_END);
+
+		System.err.println("impl_array2String : " + sString.toString ());
+		return sString.toString ();
+	}
+
+	//-------------------------------------------------------------------------
+	@SuppressWarnings("unchecked")
+	public static < T > T[] string2Array (final String sValue)
+		throws Exception
+	{
+		if (sValue == null)
+			return null;
+
+		if (StringUtils.equals(sValue, ARRAY_START+ARRAY_END))
+			return (T[])(new Object[0]);
+
+		String sArray = sValue;
+		       sArray = StringUtils.removeStart(sArray, ARRAY_START);
+		       sArray = StringUtils.removeEnd  (sArray, ARRAY_END  );
+
+		final String[] aArray = StringUtils.splitByWholeSeparatorPreserveAllTokens(sArray, ARRAY_SEPARATOR);
+		return (T[]) aArray;
 	}
 
 	//-------------------------------------------------------------------------

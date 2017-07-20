@@ -27,7 +27,7 @@
 package net.as_development.asdk.monitoring.app.config;
 
 import java.util.Map;
-import net.as_development.tools.configuration.IComplexConfiguration;
+import net.as_development.tools.configuration.IReadOnlyConfiguration;
 
 //=============================================================================
 public class GlobalConfig
@@ -57,7 +57,7 @@ public class GlobalConfig
     public String getServerHost ()
         throws Exception
     {
-        final IComplexConfiguration iCfg   = mem_Config ();
+        final IReadOnlyConfiguration iCfg   = mem_Config ();
         final String                sValue = iCfg.get("monitor.server.host", String.class, DEFAULT_SERVER_HOST);
         return sValue;
     }
@@ -66,7 +66,7 @@ public class GlobalConfig
     public Integer getServerPort ()
     	throws Exception
     {
-    	final IComplexConfiguration iCfg   = mem_Config ();
+    	final IReadOnlyConfiguration iCfg   = mem_Config ();
     	final Integer               nValue = ConfigUtils.readInt (iCfg.get("monitor.server.port", String.class), DEFAULT_SERVER_PORT);
     	return nValue;
     }
@@ -75,7 +75,7 @@ public class GlobalConfig
     public String getDataPath ()
         throws Exception
     {
-        final IComplexConfiguration iCfg   = mem_Config ();
+        final IReadOnlyConfiguration iCfg   = mem_Config ();
         final String                sValue = iCfg.get("monitor.data.path", String.class);
         return sValue;
     }
@@ -86,13 +86,13 @@ public class GlobalConfig
     							 final T          aDefault)
     	throws Exception
     {
-    	final IComplexConfiguration iCfg   = mem_Config ();
+    	final IReadOnlyConfiguration iCfg   = mem_Config ();
     	final T                     aValue = (T) iCfg.get(sKey, aType, aDefault);
     	return aValue;
     }
 
     //-------------------------------------------------------------------------
-    private final IComplexConfiguration mem_Config ()
+    private final IReadOnlyConfiguration mem_Config ()
         throws Exception
     {
     	if (m_iConfig == null)
@@ -104,5 +104,5 @@ public class GlobalConfig
     private static GlobalConfig m_gSingleton = null;
     
     //-------------------------------------------------------------------------
-    private IComplexConfiguration m_iConfig = null;
+    private IReadOnlyConfiguration m_iConfig = null;
 }
