@@ -31,9 +31,9 @@ public class CamelCoreContext
     public /* no synchronized */ CamelCoreContext create (final String sId)
         throws Exception
     {
-    		final CamelCoreContext aContext = new CamelCoreContext ();
-    		aContext.setId (sId);
-    		return aContext;
+		final CamelCoreContext aContext = new CamelCoreContext ();
+		aContext.setId (sId);
+		return aContext;
     }
     
     //-------------------------------------------------------------------------
